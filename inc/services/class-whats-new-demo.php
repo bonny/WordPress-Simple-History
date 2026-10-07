@@ -5,26 +5,27 @@ namespace Simple_History\Services;
 use Simple_History\Helpers;
 
 /**
- * Demo mode for the what's new surfaces.
+ * Demo mode for the "What's new" surfaces.
  *
- * Only active when the SIMPLE_HISTORY_DEV constant is true. Lets a developer
- * preview every card/strip state with mock data for the current request only,
- * via a query arg on the event log page:
+ * Only with the SIMPLE_HISTORY_DEV constant on. Add a query arg to the event
+ * log page to preview a state with made-up data, for that request only:
  *
- * - ?sh-whats-new-demo=expired-90    Lapsed less than 90 days ago.
- * - ?sh-whats-new-demo=expired-365   Lapsed 90-365 days ago.
- * - ?sh-whats-new-demo=expired-old   Lapsed more than a year ago.
- * - ?sh-whats-new-demo=small         Small variant (full card already dismissed).
- * - ?sh-whats-new-demo=active-update Active premium with pending update strip.
+ * - ?sh-whats-new-demo=whats-new       "What's new" box for core and Premium.
+ * - ?sh-whats-new-demo=payment-failed  Billing message: payment didn't go through.
+ * - ?sh-whats-new-demo=ends            Billing message: subscription ends.
+ * - ?sh-whats-new-demo=expired-recent  Lapsed card, expired under 90 days ago.
+ * - ?sh-whats-new-demo=expired-year    Lapsed card, expired 90–365 days ago.
+ * - ?sh-whats-new-demo=expired-old     Lapsed card, expired over a year ago.
  *
- * Nothing is written to the database; all state is injected through filters.
+ * Writes nothing; dismissing in demo mode is stored as usual, so reload
+ * without the dismissal by clearing the user meta if needed.
  */
 class Whats_New_Demo {
 	/** @var string Current demo scenario. */
 	private $scenario = '';
 
 	/**
-	 * Hook up the demo filters when dev mode is on and a scenario is requested.
+	 * Hook up the demo filters when a scenario is requested.
 	 */
 	public function init() {
 		if ( ! Helpers::dev_mode_is_enabled() ) {
@@ -35,121 +36,128 @@ class Whats_New_Demo {
 		// phpcs:ignore WordPress.Security.NonceVerification.Recommended
 		$scenario = isset( $_GET['sh-whats-new-demo'] ) ? sanitize_key( wp_unslash( $_GET['sh-whats-new-demo'] ) ) : '';
 
-		$valid_scenarios = [ 'expired-90', 'expired-365', 'expired-old', 'small', 'active-update' ];
+		$scenarios = [ 'whats-new', 'payment-failed', 'ends', 'expired-recent', 'expired-year', 'expired-old' ];
 
-		if ( ! in_array( $scenario, $valid_scenarios, true ) ) {
+		if ( ! in_array( $scenario, $scenarios, true ) ) {
 			return;
 		}
 
 		$this->scenario = $scenario;
 
-		add_filter( 'simple_history/whats_new/highlights', [ $this, 'filter_highlights' ] );
-		add_filter( 'simple_history/whats_new/license_state', [ $this, 'filter_license_state' ] );
-		add_filter( 'simple_history/whats_new/premium_update', [ $this, 'filter_premium_update' ] );
-		add_filter( 'simple_history/whats_new/dismissal_state', [ $this, 'filter_dismissal_state' ] );
+		add_filter( 'simple_history/whats_new/billing_state', [ $this, 'filter_billing_state' ] );
+		add_filter( 'simple_history/whats_new/lapse', [ $this, 'filter_lapse' ] );
+		add_filter( 'get_user_metadata', [ $this, 'filter_user_meta' ], 10, 3 );
+		add_filter( 'simple_history/whats_new/plugins', [ $this, 'filter_plugins' ] );
 	}
 
 	/**
-	 * Inject mock feed highlights.
+	 * Billing state for the billing scenarios, none otherwise.
 	 *
-	 * @return array<int,array<string,mixed>> Mock highlights.
+	 * @return array{type:string,key:string,ends_timestamp:?int}|null
 	 */
-	public function filter_highlights() {
-		$titles = [
-			'Slack alerts',
-			'Scheduled email reports',
-			'Log retention up to forever',
-			'Export to JSON and CSV',
-			'Failed login limiting',
-			'Custom log channels',
-			'Syslog forwarding',
-			'Granular log access control',
-			'WooCommerce activity logging',
-			'IP address location lookup',
-			'Saved log searches',
-			'Stealth mode',
-			'Anomaly detection alerts',
-			'REST API event feeds',
-		];
-
-		$highlights = [];
-
-		foreach ( $titles as $index => $title ) {
-			$highlights[] = [
-				'version'             => '5.' . ( 24 - $index ) . '.0',
-				'plugin'              => 'premium',
-				'title'               => $title,
-				'summary'             => 'Demo summary for ' . $title . '.',
-				'url'                 => 'https://simple-history.com/add-ons/premium/',
-				'min_version_to_show' => '',
-				'audience'            => [ 'all' ],
+	public function filter_billing_state() {
+		if ( $this->scenario === 'payment-failed' ) {
+			return [
+				'type'           => 'payment_failed',
+				'key'            => 'demo-payment-failed',
+				'ends_timestamp' => null,
 			];
 		}
 
-		return $highlights;
+		if ( $this->scenario === 'ends' ) {
+			return [
+				'type'           => 'ends',
+				'key'            => 'demo-ends',
+				'ends_timestamp' => time() + 27 * DAY_IN_SECONDS,
+			];
+		}
+
+		return null;
 	}
 
 	/**
-	 * Inject a simulated license state for the scenario.
+	 * Lapse data for the expired scenarios, none otherwise.
 	 *
-	 * @return array{state:string,expires_at:?string} License state.
+	 * @return array{expires_timestamp:int,features:array<int,array<string,mixed>>}|null
 	 */
-	public function filter_license_state() {
-		switch ( $this->scenario ) {
-			case 'expired-90':
-				$days_ago = 45;
-				break;
+	public function filter_lapse() {
+		$days = [
+			'expired-recent' => 45,
+			'expired-year'   => 200,
+			'expired-old'    => 500,
+		];
 
-			case 'expired-365':
-				$days_ago = 200;
-				break;
+		if ( ! isset( $days[ $this->scenario ] ) ) {
+			return null;
+		}
 
-			case 'expired-old':
-				$days_ago = 500;
-				break;
+		$names = [ 'Table view', 'Splunk forwarding', 'Notes on events', 'Datadog forwarding', 'Saved views', 'Post activity panel', 'Syslog forwarding', 'Manual backfill' ];
 
-			case 'small':
-				$days_ago = 200;
-				break;
+		$features = [];
 
-			default:
-				// Active premium: license expires well into the future.
-				return [
-					'state'      => 'active',
-					'expires_at' => gmdate( 'Y-m-d', time() + 200 * DAY_IN_SECONDS ),
-				];
+		foreach ( $names as $index => $name ) {
+			$features[] = [
+				'version' => '1.' . ( 16 - $index ) . '.0',
+				'name'    => $name,
+				'date'    => gmdate( 'Y-m-d', time() - ( 30 + $index * 40 ) * DAY_IN_SECONDS ),
+			];
 		}
 
 		return [
-			'state'      => 'expired',
-			'expires_at' => gmdate( 'Y-m-d', time() - $days_ago * DAY_IN_SECONDS ),
+			'expires_timestamp' => time() - $days[ $this->scenario ] * DAY_IN_SECONDS,
+			'features'          => $features,
 		];
 	}
 
 	/**
-	 * Simulate a pending premium update for the active-update scenario.
+	 * Pretend the user last saw older versions, and has dismissed nothing.
 	 *
-	 * @param array{new_version:string}|null $update Detected update.
-	 * @return array{new_version:string}|null Update info.
+	 * @param mixed  $value Meta value, null to read from the database.
+	 * @param int    $object_id User ID.
+	 * @param string $meta_key Meta key.
+	 * @return mixed
 	 */
-	public function filter_premium_update( $update ) {
-		if ( $this->scenario === 'active-update' ) {
-			return [ 'new_version' => '5.24' ];
+	public function filter_user_meta( $value, $object_id, $meta_key ) {
+		if ( $meta_key === Whats_New_Service::META_SEEN && $this->scenario === 'whats-new' ) {
+			return [
+				[
+					'simple-history'         => [
+						'version' => '5.33.0',
+						'views'   => 0,
+					],
+					'simple-history-premium' => [
+						'version' => '1.13.0',
+						'views'   => 0,
+					],
+				],
+			];
 		}
 
-		return $update;
+		if ( in_array( $meta_key, [ Whats_New_Service::META_BILLING_DISMISSED, Whats_New_Service::META_LAPSED_DISMISSED ], true ) ) {
+			return [ '' ];
+		}
+
+		return $value;
 	}
 
 	/**
-	 * Reset dismissal state so the scenario always renders.
+	 * Show a Premium line even where Premium isn't installed.
 	 *
-	 * @return array{full_dismissed_at:int,small_dismissed_at:int,small_dismiss_count:int}
+	 * @param array<string,array<string,string>> $plugins Plugins keyed by slug.
+	 * @return array<string,array<string,string>>
 	 */
-	public function filter_dismissal_state() {
-		return [
-			'full_dismissed_at'   => $this->scenario === 'small' ? time() : 0,
-			'small_dismissed_at'  => 0,
-			'small_dismiss_count' => 0,
+	public function filter_plugins( $plugins ) {
+		if ( $this->scenario !== 'whats-new' || isset( $plugins['simple-history-premium'] ) ) {
+			return $plugins;
+		}
+
+		$plugins['simple-history-premium'] = [
+			'slug'    => 'simple-history-premium',
+			'name'    => 'Premium',
+			'version' => '1.15.0',
+			'readme'  => WP_PLUGIN_DIR . '/simple-history-premium/readme.txt',
 		];
+
+		return $plugins;
 	}
 }

@@ -269,6 +269,17 @@ For more information, see our support page [GDPR and Privacy: How Your Data is S
 
 > Experimental entries are gated behind the "Experimental features" checkbox under Simple History → Settings. Tick it to try them, then share feedback so we know what to ship for everyone.
 
+### Unreleased
+
+**Added**
+
+-   Experimental — A "What's new in Simple History" box at the top of the log after an update, with the main changes in each new version of Simple History and Premium.
+-   Experimental — Premium customers see a message on the log page when a subscription payment didn't go through or the subscription is about to end, and sites with an expired Premium license see what's new in Premium since their version.
+
+**Changed**
+
+-   Experimental — Update checks for Premium and other add-ons run only when WordPress checks for updates, so admin pages no longer wait for simple-history.com.
+
 ### 5.35.0 (October 2026)
 
 This release is about logins and privacy. Logins with two-factor authentication are logged when the code is accepted, IP addresses in the log are only shown to administrators, and there is suggested text about the log for your privacy policy. The weekly email settings got simpler too.

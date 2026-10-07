@@ -189,9 +189,129 @@ class AddOn_Plugin {
 		$message['license_activation_usage'] = isset( $license['activation_usage'] ) && is_int( $license['activation_usage'] ) ? $license['activation_usage'] : null;
 		$message['license_checked_at']       = $this->cap_string_length( $license['checked_at'] );
 
+		// The server only sends `subscription` near the key's expiry. A
+		// well-formed license object without it means there is nothing to
+		// report any more (renewed, lifetime, out of the window), so a stored
+		// one must go: otherwise a fixed payment keeps showing as failed.
+		$message['license_subscription'] = $this->sanitize_subscription( $license['subscription'] ?? null );
+
 		$this->set_licence_message( $message );
 
 		return true;
+	}
+
+	/**
+	 * Store the add-on's newer features sent with an update check.
+	 *
+	 * simple-history.com sends `whats_new` only for expired keys: the features
+	 * released after the installed version, which the site no longer gets. A
+	 * response without it clears the stored list. Kept in its own option with
+	 * autoload off, since it's only read on the Simple History page.
+	 *
+	 * @param mixed $whats_new Decoded `whats_new` value from the update response.
+	 * @return void
+	 */
+	public function update_new_features_from_response( $whats_new ) {
+		$option_name = $this->get_new_features_option_name();
+
+		if ( ! is_array( $whats_new ) ) {
+			delete_option( $option_name );
+
+			return;
+		}
+
+		$features = [];
+
+		foreach ( array_slice( $whats_new, 0, 100 ) as $feature ) {
+			if ( is_object( $feature ) ) {
+				$feature = (array) $feature;
+			}
+
+			if ( ! is_array( $feature ) || ! isset( $feature['version'], $feature['name'] ) || ! is_string( $feature['version'] ) || ! is_string( $feature['name'] ) ) {
+				continue;
+			}
+
+			$name = trim( wp_check_invalid_utf8( $feature['name'] ) );
+
+			if ( ! preg_match( '/^\d+\.\d+(\.\d+)?$/', $feature['version'] ) || $name === '' ) {
+				continue;
+			}
+
+			$date = isset( $feature['date'] ) && is_string( $feature['date'] ) && preg_match( '/^\d{4}-\d{2}-\d{2}$/', $feature['date'] ) ? $feature['date'] : null;
+
+			$features[] = [
+				'version' => $feature['version'],
+				'name'    => wp_html_excerpt( $name, 60 ),
+				'date'    => $date,
+			];
+		}
+
+		update_option( $option_name, $features, false );
+	}
+
+	/**
+	 * Get the add-on's features released after a version, as sent by the update server.
+	 *
+	 * @param string $after_version Only features from versions newer than this.
+	 * @return array<int,array{version:string,name:string,date:?string}> Newest first.
+	 */
+	public function get_new_features( $after_version ) {
+		$features = get_option( $this->get_new_features_option_name(), [] );
+
+		if ( ! is_array( $features ) ) {
+			return [];
+		}
+
+		$features = array_values(
+			array_filter(
+				$features,
+				static fn( $feature ) => is_array( $feature ) && isset( $feature['version'] ) && version_compare( $feature['version'], $after_version, '>' )
+			)
+		);
+
+		usort( $features, static fn( $a, $b ) => version_compare( $b['version'], $a['version'] ) );
+
+		return $features;
+	}
+
+	/**
+	 * Get the option name for the add-on's newer features.
+	 *
+	 * @return string Option name.
+	 */
+	private function get_new_features_option_name() {
+		return self::OPTION_PREFIX . 'new_features_' . $this->slug;
+	}
+
+	/**
+	 * Validate the optional `subscription` object from an update response.
+	 *
+	 * @param mixed $subscription Decoded `subscription` value.
+	 * @return array{status:string,cancelled:bool,renews_at:?string,ends_at:?string}|null Null when missing or malformed.
+	 */
+	private function sanitize_subscription( $subscription ) {
+		if ( is_object( $subscription ) ) {
+			$subscription = (array) $subscription;
+		}
+
+		if ( ! is_array( $subscription ) || ! isset( $subscription['status'] ) || ! is_string( $subscription['status'] ) || $subscription['status'] === '' ) {
+			return null;
+		}
+
+		$dates = [];
+
+		foreach ( [ 'renews_at', 'ends_at' ] as $field ) {
+			$value = $subscription[ $field ] ?? null;
+
+			$dates[ $field ] = is_string( $value ) && $value !== '' && strtotime( $value ) !== false ? $this->cap_string_length( $value ) : null;
+		}
+
+		return [
+			'status'    => $this->cap_string_length( $subscription['status'] ),
+			'cancelled' => ! empty( $subscription['cancelled'] ),
+			'renews_at' => $dates['renews_at'],
+			'ends_at'   => $dates['ends_at'],
+		];
 	}
 
 	/**
@@ -247,8 +367,10 @@ class AddOn_Plugin {
 	 *   checked_at: ?string,
 	 *   error: string,
 	 *   activation_limit: ?int,
-	 *   activation_usage: ?int
+	 *   activation_usage: ?int,
+	 *   subscription: ?array{status:string,cancelled:bool,renews_at:?string,ends_at:?string}
 	 * } state is one of none, active, inactive, expired, disabled, invalid. source is one of none, activation, update_check.
+	 *   subscription is the Lemon Squeezy subscription behind the key, known only near its expiry.
 	 */
 	public function get_license_state() {
 		$message = $this->get_license_message();
@@ -263,6 +385,7 @@ class AddOn_Plugin {
 			'error'             => '',
 			'activation_limit'  => null,
 			'activation_usage'  => null,
+			'subscription'      => null,
 		];
 
 		if ( empty( $message['key'] ) || empty( $message['key_activated'] ) ) {
@@ -282,6 +405,7 @@ class AddOn_Plugin {
 		$state['error']             = isset( $message['license_error'] ) && is_string( $message['license_error'] ) ? $message['license_error'] : '';
 		$state['activation_limit']  = isset( $message['license_activation_limit'] ) && is_int( $message['license_activation_limit'] ) ? $message['license_activation_limit'] : null;
 		$state['activation_usage']  = isset( $message['license_activation_usage'] ) && is_int( $message['license_activation_usage'] ) ? $message['license_activation_usage'] : null;
+		$state['subscription']      = $this->sanitize_subscription( $message['license_subscription'] ?? null );
 
 		$checked_at = isset( $message['license_checked_at'] ) && is_string( $message['license_checked_at'] ) ? $message['license_checked_at'] : null;
 
@@ -411,6 +535,7 @@ class AddOn_Plugin {
 	 */
 	private function purge_updater_cache() {
 		delete_transient( Plugin_Updater::get_cache_key_for_slug( $this->slug ) );
+		delete_option( Plugin_Updater::get_answer_option_for_slug( $this->slug ) );
 	}
 
 	/**

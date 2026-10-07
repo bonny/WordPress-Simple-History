@@ -2,834 +2,762 @@
 
 namespace Simple_History\Services;
 
+use Simple_History\AddOn_Plugin;
+use Simple_History\Changelog_Parser;
 use Simple_History\Helpers;
 
 /**
- * "What's new" re-engagement surfaces for lapsed and active premium users.
+ * "What's new" box, billing messages and the lapsed-license card.
  *
- * Shows a sidebar card to users whose premium license has expired,
- * and a one-line strip to active premium users with a pending update.
- * Free users get nothing — not even markup.
+ * Experimental. Everything shows on the Simple History log page only:
  *
- * Feed data comes from a static JSON file on simple-history.com,
- * fetched daily via wp-cron and cached in a site transient.
- * The render path never performs HTTP requests and soft-fails
- * silently at every layer.
+ * - The top slot, between the page title and the filters, shows one message
+ *   at a time: a billing message for Premium (payment failed, subscription
+ *   ending) or else the "What's new in Simple History" box after an update.
+ * - The sidebar shows a card to sites whose Premium license has expired,
+ *   listing the Premium features released since their version.
+ *
+ * Nothing here makes a remote request or runs on a schedule. Counts come from
+ * the plugins' own readme.txt, highlights from the update-details methods,
+ * and license and subscription data from the existing update check.
  */
 class Whats_New_Service extends Service {
-	/** Cron hook name for the daily feed fetch. */
-	const CRON_HOOK = 'sh_whats_new_fetch';
+	/** Slug of the Premium add-on. */
+	const PREMIUM_SLUG = 'simple-history-premium';
 
-	/** Site transient holding the decoded, validated highlights array. */
-	const FEED_TRANSIENT = 'sh_whats_new_feed';
+	/** User meta: per plugin, the version the user has seen and how many times it was shown. */
+	const META_SEEN = 'simple_history_whats_new_seen';
 
-	/** Short-lived transient acting as a lock around the HTTP call. */
-	const LOCK_TRANSIENT = 'sh_whats_new_fetching';
+	/** User meta: key of the billing message the user dismissed. */
+	const META_BILLING_DISMISSED = 'simple_history_billing_message_dismissed';
 
-	/** Option holding ETag/Last-Modified validators for conditional GET. */
-	const HTTP_META_OPTION = 'sh_whats_new_http_meta';
+	/** User meta: lapse stages whose card the user dismissed. */
+	const META_LAPSED_DISMISSED = 'simple_history_lapsed_card_dismissed';
 
-	/** Option holding the last successfully fetched highlights (72h fallback). */
-	const LAST_KNOWN_GOOD_OPTION = 'sh_whats_new_last_known_good';
+	/** Option: parsed changelogs, per plugin and version. Not autoloaded. */
+	const CHANGELOG_CACHE_OPTION = 'simple_history_whats_new_changelogs';
 
-	/** User meta: timestamp when the full card was dismissed. */
-	const META_DISMISSED_FULL = 'sh_whats_new_dismissed_full';
+	/** AJAX action for dismissals. */
+	const AJAX_ACTION = 'simple_history_whats_new';
 
-	/** User meta: timestamp when the small variant was dismissed. */
-	const META_DISMISSED_SMALL = 'sh_whats_new_dismissed_small';
+	/** Nonce action for dismissals. */
+	const NONCE_ACTION = 'simple_history_whats_new';
 
-	/** User meta: number of times the small variant has been dismissed. */
-	const META_SMALL_DISMISS_COUNT = 'sh_whats_new_small_dismiss_count';
+	/** How many times the "What's new" box shows before it counts as seen. */
+	const MAX_VIEWS = 3;
 
-	/** AJAX action name for dismissals. */
-	const DISMISS_ACTION = 'simple_history_whats_new_dismiss';
+	/** Lemon Squeezy's customer billing portal. */
+	const BILLING_PORTAL_URL = 'https://simple-history.lemonsqueezy.com/billing';
 
-	/** Nonce name for dismissals. */
-	const DISMISS_NONCE = 'simple_history_whats_new_dismiss_nonce';
-
-	/** Default feed URL. Filterable via simple_history/whats_new/feed_url. */
-	const FEED_URL = 'https://simple-history.com/whats-new.json';
-
-	/** Plugin basename of the premium add-on. */
-	const PREMIUM_PLUGIN_FILE = 'simple-history-premium/simple-history-premium.php';
-
-	/** Option where the premium license activation response is stored. */
-	const PREMIUM_LICENSE_MESSAGE_OPTION = 'simple_history_plusplugin_message_simple-history-premium';
+	/** Minimum number of new Premium features for the lapsed card to show. */
+	const MIN_LAPSED_FEATURES = 3;
 
 	/** @inheritdoc */
 	public function loaded() {
-		add_action( self::CRON_HOOK, [ $this, 'fetch_feed' ] );
-		add_action( 'after_setup_theme', [ $this, 'setup_cron' ] );
-		add_action( 'simple_history/dropin/sidebar/sidebar_html', [ $this, 'output_expired_card' ], 5 );
-		add_action( 'simple_history/history_page/before_gui', [ $this, 'output_active_update_strip' ] );
-		add_action( 'wp_ajax_' . self::DISMISS_ACTION, [ $this, 'handle_ajax_dismiss' ] );
+		if ( ! Helpers::experimental_features_is_enabled() ) {
+			return;
+		}
+
+		add_action( 'simple_history/history_page/before_gui', [ $this, 'output_top_slot' ] );
+		add_action( 'simple_history/dropin/sidebar/sidebar_html', [ $this, 'output_lapsed_card' ], 5 );
+		add_action( 'wp_ajax_' . self::AJAX_ACTION, [ $this, 'handle_ajax' ] );
 		add_action( 'admin_enqueue_scripts', [ $this, 'enqueue_scripts' ] );
+		add_action( 'upgrader_process_complete', [ $this, 'forget_parsed_changelogs' ] );
 
-		if ( Helpers::dev_mode_is_enabled() ) {
-			( new Whats_New_Demo() )->init();
-		}
-	}
-
-	/**
-	 * Schedule the daily feed fetch, but only when the feed can be useful:
-	 * premium installed (update strip) or a lapsed license (sidebar card).
-	 * Unschedule when neither applies, so free installs never poll the feed.
-	 */
-	public function setup_cron() {
-		$needs_feed = Helpers::is_premium_add_on_active() || $this->get_license_state()['state'] === 'expired';
-
-		if ( $needs_feed ) {
-			if ( ! wp_next_scheduled( self::CRON_HOOK ) ) {
-				wp_schedule_event( time(), 'daily', self::CRON_HOOK );
-			}
-
+		if ( ! Helpers::dev_mode_is_enabled() ) {
 			return;
 		}
 
-		$next_scheduled = wp_next_scheduled( self::CRON_HOOK );
-
-		if ( $next_scheduled !== false ) {
-			wp_unschedule_event( $next_scheduled, self::CRON_HOOK );
-		}
+		( new Whats_New_Demo() )->init();
 	}
 
 	/**
-	 * Fetch the feed JSON. Runs from wp-cron only, never in the render path.
+	 * Output the top slot: a billing message, or else the "What's new" box.
 	 *
-	 * Soft-fails silently: HTTP errors are retried on the next cron run,
-	 * malformed payloads are logged and cached as empty for one hour so a
-	 * broken feed cannot cause request storms.
+	 * A render error must never break the log page.
 	 */
-	public function fetch_feed() {
-		// Bail if another process is already fetching.
-		if ( get_transient( self::LOCK_TRANSIENT ) ) {
-			return;
-		}
-
-		set_transient( self::LOCK_TRANSIENT, 1, MINUTE_IN_SECONDS );
-
-		/**
-		 * Filter the URL of the what's new JSON feed.
-		 *
-		 * @param string $feed_url Feed URL.
-		 */
-		$feed_url = apply_filters( 'simple_history/whats_new/feed_url', self::FEED_URL );
-
-		$headers   = [];
-		$http_meta = get_option( self::HTTP_META_OPTION );
-
-		if ( is_array( $http_meta ) ) {
-			if ( ! empty( $http_meta['etag'] ) && is_string( $http_meta['etag'] ) ) {
-				$headers['If-None-Match'] = $http_meta['etag'];
-			}
-
-			if ( ! empty( $http_meta['last_modified'] ) && is_string( $http_meta['last_modified'] ) ) {
-				$headers['If-Modified-Since'] = $http_meta['last_modified'];
-			}
-		}
-
-		// phpcs:ignore WordPressVIPMinimum.Functions.RestrictedFunctions.wp_remote_get_wp_remote_get
-		$response = wp_remote_get(
-			$feed_url,
-			[
-				'timeout' => 10,
-				'headers' => $headers,
-			]
-		);
-
-		delete_transient( self::LOCK_TRANSIENT );
-
-		// Network error: keep whatever we have and retry on the next cron run.
-		if ( is_wp_error( $response ) ) {
-			return;
-		}
-
-		$response_code = wp_remote_retrieve_response_code( $response );
-
-		// Not modified: re-extend the cached copy from the last known good data.
-		if ( $response_code === 304 ) {
-			$last_known_good = $this->get_last_known_good_highlights( true );
-
-			if ( $last_known_good !== null ) {
-				set_site_transient( self::FEED_TRANSIENT, $last_known_good, $this->get_feed_ttl() );
-			}
-
-			return;
-		}
-
-		// Any non-200 (404, 500, ...): no card, retry next cron run.
-		if ( $response_code !== 200 ) {
-			return;
-		}
-
-		$decoded = json_decode( wp_remote_retrieve_body( $response ), true );
-
-		if ( json_last_error() !== JSON_ERROR_NONE ) {
-			// phpcs:ignore WordPress.PHP.DevelopmentFunctions.error_log_error_log
-			error_log( 'Simple History: whats-new feed contained malformed JSON, caching empty for one hour.' );
-			set_site_transient( self::FEED_TRANSIENT, [], HOUR_IN_SECONDS );
-
-			return;
-		}
-
-		// Wrong top-level shape is treated the same as malformed JSON.
-		if ( ! is_array( $decoded ) || ! isset( $decoded['highlights'] ) || ! is_array( $decoded['highlights'] ) ) {
-			// phpcs:ignore WordPress.PHP.DevelopmentFunctions.error_log_error_log
-			error_log( 'Simple History: whats-new feed had unexpected top-level shape, caching empty for one hour.' );
-			set_site_transient( self::FEED_TRANSIENT, [], HOUR_IN_SECONDS );
-
-			return;
-		}
-
-		$valid_entries = [];
-
-		foreach ( $decoded['highlights'] as $entry ) {
-			// Skip entries that do not match the schema, keep the valid ones.
-			if ( ! $this->is_valid_entry( $entry ) ) {
-				continue;
-			}
-
-			$valid_entries[] = $this->normalize_entry( $entry );
-		}
-
-		set_site_transient( self::FEED_TRANSIENT, $valid_entries, $this->get_feed_ttl() );
-
-		// One option write per successful fetch: the 72h last-known-good fallback.
-		update_option(
-			self::LAST_KNOWN_GOOD_OPTION,
-			[
-				'highlights' => $valid_entries,
-				'fetched_at' => time(),
-			],
-			false
-		);
-
-		update_option(
-			self::HTTP_META_OPTION,
-			[
-				'etag'          => wp_remote_retrieve_header( $response, 'etag' ),
-				'last_modified' => wp_remote_retrieve_header( $response, 'last-modified' ),
-			],
-			false
-		);
-	}
-
-	/**
-	 * Jittered cache lifetime so sites do not stampede the feed at the same time.
-	 *
-	 * @return int TTL in seconds, between 12 and 24 hours.
-	 */
-	private function get_feed_ttl() {
-		return wp_rand( 12, 24 ) * HOUR_IN_SECONDS;
-	}
-
-	/**
-	 * Get cached highlights. Never performs HTTP.
-	 *
-	 * Falls back to the last successful fetch if the primary transient is
-	 * empty and the fallback is at most 72 hours old.
-	 *
-	 * @return array<int,array<string,mixed>> Highlights, possibly empty.
-	 */
-	public function get_highlights() {
-		$highlights = get_site_transient( self::FEED_TRANSIENT );
-
-		if ( ! is_array( $highlights ) ) {
-			$highlights = $this->get_last_known_good_highlights();
-		}
-
-		if ( ! is_array( $highlights ) ) {
-			$highlights = [];
-		}
-
-		/**
-		 * Filter the cached what's new highlights.
-		 *
-		 * @param array<int,array<string,mixed>> $highlights Highlights from the feed cache.
-		 */
-		$highlights = apply_filters( 'simple_history/whats_new/highlights', $highlights );
-
-		return is_array( $highlights ) ? $highlights : [];
-	}
-
-	/**
-	 * Read the last-known-good highlights stored at the latest successful fetch.
-	 *
-	 * @param bool $ignore_age True to skip the 72 hour freshness check.
-	 * @return array<int,array<string,mixed>>|null Highlights or null if missing/stale.
-	 */
-	private function get_last_known_good_highlights( $ignore_age = false ) {
-		$stored = get_option( self::LAST_KNOWN_GOOD_OPTION );
-
-		if ( ! is_array( $stored ) || ! isset( $stored['highlights'] ) || ! is_array( $stored['highlights'] ) ) {
-			return null;
-		}
-
-		$fetched_at = isset( $stored['fetched_at'] ) ? (int) $stored['fetched_at'] : 0;
-
-		if ( ! $ignore_age && time() - $fetched_at > 72 * HOUR_IN_SECONDS ) {
-			return null;
-		}
-
-		return $stored['highlights'];
-	}
-
-	/**
-	 * Validate a single feed entry against the expected schema.
-	 *
-	 * @param mixed $entry Decoded entry.
-	 * @return bool True when the entry is usable.
-	 */
-	private function is_valid_entry( $entry ) {
-		if ( ! is_array( $entry ) ) {
-			return false;
-		}
-
-		foreach ( [ 'version', 'title', 'summary', 'url' ] as $required_string_field ) {
-			if ( ! isset( $entry[ $required_string_field ] ) || ! is_string( $entry[ $required_string_field ] ) || $entry[ $required_string_field ] === '' ) {
-				return false;
-			}
-		}
-
-		if ( ! isset( $entry['plugin'] ) || ! in_array( $entry['plugin'], [ 'core', 'premium', 'woocommerce' ], true ) ) {
-			return false;
-		}
-
-		if ( ! isset( $entry['audience'] ) || ! is_array( $entry['audience'] ) || $entry['audience'] === [] ) {
-			return false;
-		}
-
-		foreach ( $entry['audience'] as $audience ) {
-			if ( ! is_string( $audience ) || ! in_array( $audience, [ 'all', 'premium-active', 'premium-expired' ], true ) ) {
-				return false;
-			}
-		}
-
-		if ( isset( $entry['min_version_to_show'] ) && ! is_string( $entry['min_version_to_show'] ) ) {
-			return false;
-		}
-
-		return true;
-	}
-
-	/**
-	 * Reduce an already validated entry to the known schema fields.
-	 *
-	 * @param array<string,mixed> $entry Validated entry.
-	 * @return array<string,mixed> Normalized entry.
-	 */
-	private function normalize_entry( $entry ) {
-		return [
-			'version'             => $entry['version'],
-			'plugin'              => $entry['plugin'],
-			'title'               => $entry['title'],
-			'summary'             => $entry['summary'],
-			'url'                 => $entry['url'],
-			'min_version_to_show' => isset( $entry['min_version_to_show'] ) ? $entry['min_version_to_show'] : '',
-			'audience'            => array_values( $entry['audience'] ),
-		];
-	}
-
-	/**
-	 * Get highlights matching an audience, respecting min_version_to_show.
-	 *
-	 * @param string $audience One of 'premium-active' or 'premium-expired'.
-	 * @return array<int,array<string,mixed>> Matching highlights.
-	 */
-	public function get_highlights_for_audience( $audience ) {
-		$current_version = defined( 'SIMPLE_HISTORY_VERSION' ) ? SIMPLE_HISTORY_VERSION : '0';
-		$matched         = [];
-
-		foreach ( $this->get_highlights() as $entry ) {
-			// Defensive: filters may inject malformed entries.
-			if ( ! is_array( $entry ) ) {
-				continue;
-			}
-
-			$entry_audience = isset( $entry['audience'] ) ? $entry['audience'] : null;
-
-			if ( ! is_array( $entry_audience ) ) {
-				continue;
-			}
-
-			if ( ! in_array( 'all', $entry_audience, true ) && ! in_array( $audience, $entry_audience, true ) ) {
-				continue;
-			}
-
-			$min_version = isset( $entry['min_version_to_show'] ) && is_string( $entry['min_version_to_show'] )
-				? $entry['min_version_to_show']
-				: '';
-
-			// Entries can require a minimum plugin version before they are shown,
-			// so future schema or UX changes can be gated server-side.
-			if ( $min_version !== '' && version_compare( $current_version, $min_version, '<' ) ) {
-				continue;
-			}
-
-			$matched[] = $entry;
-		}
-
-		return $matched;
-	}
-
-	/**
-	 * Determine the premium license state for the current site.
-	 *
-	 * There is no clean "had premium, now lapsed" signal in core: the license
-	 * activation response (including key_expires_at) is stored once at
-	 * activation time and never refreshed. This helper reads that stored
-	 * value as a best-effort signal and lets premium supply the authoritative
-	 * state via the simple_history/whats_new/license_state filter.
-	 *
-	 * @return array{state:string,expires_at:?string} State is 'none', 'active' or 'expired'.
-	 */
-	public function get_license_state() {
-		$license_state = [
-			'state'      => 'none',
-			'expires_at' => null,
-		];
-
-		$message = get_option( self::PREMIUM_LICENSE_MESSAGE_OPTION );
-
-		if ( is_array( $message ) && ! empty( $message['key_activated'] ) ) {
-			$expires_at        = isset( $message['key_expires_at'] ) && is_string( $message['key_expires_at'] ) ? $message['key_expires_at'] : null;
-			$expires_timestamp = $expires_at !== null ? strtotime( $expires_at ) : false;
-
-			if ( $expires_timestamp !== false && $expires_timestamp < time() ) {
-				$license_state = [
-					'state'      => 'expired',
-					'expires_at' => $expires_at,
-				];
-			} else {
-				// No expiry date (lifetime) or a future expiry both count as active.
-				$license_state = [
-					'state'      => 'active',
-					'expires_at' => $expires_at,
-				];
-			}
-		}
-
-		/**
-		 * Filter the premium license state used by the what's new surfaces.
-		 *
-		 * The premium add-on can hook this to supply the real, up-to-date
-		 * license state instead of the stored activation-time snapshot.
-		 *
-		 * @param array{state:string,expires_at:?string} $license_state License state.
-		 */
-		$license_state = apply_filters( 'simple_history/whats_new/license_state', $license_state );
-
-		if ( ! is_array( $license_state ) || ! isset( $license_state['state'] ) ) {
-			$license_state = [
-				'state'      => 'none',
-				'expires_at' => null,
-			];
-		}
-
-		return $license_state;
-	}
-
-	/**
-	 * Detect a pending premium plugin update.
-	 *
-	 * Reuses the update_plugins site transient, never the feed.
-	 *
-	 * @return array{new_version:string}|null Update info or null.
-	 */
-	public function get_premium_update() {
-		$update = null;
-
-		if ( Helpers::is_premium_add_on_active() ) {
-			$update_plugins = get_site_transient( 'update_plugins' );
-
-			$plugin_updates = is_object( $update_plugins ) && isset( $update_plugins->response ) && is_array( $update_plugins->response )
-				? $update_plugins->response
-				: [];
-
-			$premium_update = isset( $plugin_updates[ self::PREMIUM_PLUGIN_FILE ] ) ? $plugin_updates[ self::PREMIUM_PLUGIN_FILE ] : null;
-
-			$new_version = null;
-
-			if ( is_object( $premium_update ) && isset( $premium_update->new_version ) && is_scalar( $premium_update->new_version ) ) {
-				$new_version = (string) $premium_update->new_version;
-			} elseif ( is_array( $premium_update ) && isset( $premium_update['new_version'] ) && is_scalar( $premium_update['new_version'] ) ) {
-				$new_version = (string) $premium_update['new_version'];
-			}
-
-			if ( $new_version !== null && $new_version !== '' ) {
-				$update = [ 'new_version' => $new_version ];
-			}
-		}
-
-		/**
-		 * Filter the detected premium update info.
-		 *
-		 * @param array{new_version:string}|null $update Update info or null when no update.
-		 */
-		$update = apply_filters( 'simple_history/whats_new/premium_update', $update );
-
-		if ( ! is_array( $update ) || empty( $update['new_version'] ) || ! is_string( $update['new_version'] ) ) {
-			$update = null;
-		}
-
-		return $update;
-	}
-
-	/**
-	 * Get the current user's dismissal state for the expired card.
-	 *
-	 * @return array{full_dismissed_at:int,small_dismissed_at:int,small_dismiss_count:int}
-	 */
-	private function get_dismissal_state() {
-		$user_id = get_current_user_id();
-
-		$dismissal_state = [
-			'full_dismissed_at'   => (int) get_user_meta( $user_id, self::META_DISMISSED_FULL, true ),
-			'small_dismissed_at'  => (int) get_user_meta( $user_id, self::META_DISMISSED_SMALL, true ),
-			'small_dismiss_count' => (int) get_user_meta( $user_id, self::META_SMALL_DISMISS_COUNT, true ),
-		];
-
-		/**
-		 * Filter the dismissal state. Used by demo mode to preview states.
-		 *
-		 * @param array{full_dismissed_at:int,small_dismissed_at:int,small_dismiss_count:int} $dismissal_state Dismissal state.
-		 */
-		$dismissal_state = apply_filters( 'simple_history/whats_new/dismissal_state', $dismissal_state );
-
-		return $dismissal_state;
-	}
-
-	/**
-	 * Output the expired-license sidebar card.
-	 *
-	 * Wrapped in try/catch so a render error can never break the log page.
-	 */
-	public function output_expired_card() {
+	public function output_top_slot() {
 		try {
-			$this->render_expired_card();
+			$billing_message = $this->get_billing_message();
+
+			if ( $billing_message !== null ) {
+				$this->render_billing_message( $billing_message );
+
+				return;
+			}
+
+			$updates = $this->get_pending_updates( get_current_user_id() );
+
+			if ( $updates !== [] ) {
+				$this->render_whats_new_box( $updates );
+				$this->record_view( get_current_user_id(), $updates );
+			}
 		} catch ( \Throwable $error ) {
 			// phpcs:ignore WordPress.PHP.DevelopmentFunctions.error_log_error_log
-			error_log( 'Simple History: whats-new card render failed: ' . $error->getMessage() );
+			error_log( 'Simple History: what\'s new render failed: ' . $error->getMessage() );
 		}
 	}
 
 	/**
-	 * Render the expired-license sidebar card, if all conditions are met.
+	 * Output the sidebar card for an expired Premium license.
 	 */
-	private function render_expired_card() {
+	public function output_lapsed_card() {
+		try {
+			$card = $this->get_lapsed_card();
+
+			if ( $card !== null ) {
+				$this->render_lapsed_card( $card );
+			}
+		} catch ( \Throwable $error ) {
+			// phpcs:ignore WordPress.PHP.DevelopmentFunctions.error_log_error_log
+			error_log( 'Simple History: lapsed card render failed: ' . $error->getMessage() );
+		}
+	}
+
+	/**
+	 * The plugins the box reports on: core, and Premium when it's installed.
+	 *
+	 * @return array<string,array{slug:string,name:string,version:string,readme:string}> Keyed by slug.
+	 */
+	public function get_plugins() {
+		$plugins = [
+			'simple-history' => [
+				'slug'    => 'simple-history',
+				'name'    => 'Simple History',
+				'version' => SIMPLE_HISTORY_VERSION,
+				'readme'  => SIMPLE_HISTORY_PATH . 'readme.txt',
+			],
+		];
+
+		$premium = $this->get_premium_add_on();
+
+		if ( $premium !== null ) {
+			$plugins[ self::PREMIUM_SLUG ] = [
+				'slug'    => self::PREMIUM_SLUG,
+				'name'    => 'Premium',
+				'version' => $premium->version,
+				'readme'  => WP_PLUGIN_DIR . '/' . self::PREMIUM_SLUG . '/readme.txt',
+			];
+		}
+
+		/**
+		 * Filter the plugins the "What's new" box reports on.
+		 *
+		 * @param array<string,array{slug:string,name:string,version:string,readme:string}> $plugins Plugins keyed by slug.
+		 */
+		return apply_filters( 'simple_history/whats_new/plugins', $plugins );
+	}
+
+	/**
+	 * Updates the user hasn't seen yet, one entry per plugin.
+	 *
+	 * The first time a plugin is seen for a user (new user, first release
+	 * with this feature, Premium installed later), its installed version is
+	 * stored as seen and nothing shows: the box starts at the next update. A
+	 * downgrade shows nothing either.
+	 *
+	 * @param int $user_id User ID.
+	 * @return array<string,array<string,mixed>> Keyed by slug.
+	 */
+	public function get_pending_updates( $user_id ) {
+		$seen    = $this->get_seen( $user_id );
+		$updates = [];
+		$changed = false;
+
+		foreach ( $this->get_plugins() as $slug => $plugin ) {
+			if ( ! isset( $seen[ $slug ]['version'] ) ) {
+				$seen[ $slug ] = [
+					'version' => $plugin['version'],
+					'views'   => 0,
+				];
+				$changed       = true;
+
+				continue;
+			}
+
+			if ( version_compare( $plugin['version'], $seen[ $slug ]['version'], '<=' ) ) {
+				continue;
+			}
+
+			$summary = Changelog_Parser::summarize( $this->get_changelog( $plugin ), $seen[ $slug ]['version'], $plugin['version'] );
+
+			if ( $summary['versions'] === [] ) {
+				continue;
+			}
+
+			$updates[ $slug ] = [
+				'slug'       => $slug,
+				'name'       => $plugin['name'],
+				'version'    => $plugin['version'],
+				'summary'    => $summary,
+				'highlights' => $this->get_highlights( $slug, $summary['versions'] ),
+			];
+		}
+
+		if ( $changed ) {
+			update_user_meta( $user_id, self::META_SEEN, $seen );
+		}
+
+		return $updates;
+	}
+
+	/**
+	 * Count one showing of the box. After MAX_VIEWS showings it counts as seen.
+	 *
+	 * @param int                               $user_id User ID.
+	 * @param array<string,array<string,mixed>> $updates Updates that were shown.
+	 */
+	private function record_view( $user_id, $updates ) {
+		$seen = $this->get_seen( $user_id );
+
+		foreach ( $updates as $slug => $update ) {
+			$views = (int) ( $seen[ $slug ]['views'] ?? 0 ) + 1;
+
+			$seen[ $slug ] = $views >= self::MAX_VIEWS
+				? [
+					'version' => $update['version'],
+					'views'   => 0,
+				]
+				: [
+					'version' => $seen[ $slug ]['version'],
+					'views'   => $views,
+				];
+		}
+
+		update_user_meta( $user_id, self::META_SEEN, $seen );
+	}
+
+	/**
+	 * Mark every plugin's installed version as seen.
+	 *
+	 * @param int $user_id User ID.
+	 */
+	public function mark_all_seen( $user_id ) {
+		$seen = $this->get_seen( $user_id );
+
+		foreach ( $this->get_plugins() as $slug => $plugin ) {
+			$seen[ $slug ] = [
+				'version' => $plugin['version'],
+				'views'   => 0,
+			];
+		}
+
+		update_user_meta( $user_id, self::META_SEEN, $seen );
+	}
+
+	/**
+	 * Get the stored seen state of a user.
+	 *
+	 * @param int $user_id User ID.
+	 * @return array<string,array{version:string,views:int}>
+	 */
+	private function get_seen( $user_id ) {
+		$seen = get_user_meta( $user_id, self::META_SEEN, true );
+
+		return is_array( $seen ) ? $seen : [];
+	}
+
+	/**
+	 * Parsed changelog of a plugin, parsed once per installed version.
+	 *
+	 * @param array{slug:string,version:string,readme:string} $plugin Plugin.
+	 * @return array<string,array<string,mixed>> Parsed versions.
+	 */
+	private function get_changelog( $plugin ) {
+		$cache = get_option( self::CHANGELOG_CACHE_OPTION, [] );
+		$cache = is_array( $cache ) ? $cache : [];
+
+		$cached = $cache[ $plugin['slug'] ] ?? null;
+
+		if ( is_array( $cached ) && ( $cached['version'] ?? '' ) === $plugin['version'] && is_array( $cached['versions'] ?? null ) ) {
+			return $cached['versions'];
+		}
+
+		$text = is_readable( $plugin['readme'] ) ? file_get_contents( $plugin['readme'] ) : '';
+
+		// Keep only the versions the box can ever need, newest first.
+		$versions = array_slice( Changelog_Parser::parse( $text ), 0, 20, true );
+
+		$cache[ $plugin['slug'] ] = [
+			'version'  => $plugin['version'],
+			'versions' => $versions,
+		];
+
+		update_option( self::CHANGELOG_CACHE_OPTION, $cache, false );
+
+		return $versions;
+	}
+
+	/**
+	 * Forget the parsed changelogs after an update, so the next log page view
+	 * parses the new readme.txt once.
+	 */
+	public function forget_parsed_changelogs() {
+		delete_option( self::CHANGELOG_CACHE_OPTION );
+	}
+
+	/**
+	 * Highlights of the given versions, newest first, from the plugins'
+	 * update-details methods. Only X.Y.0 releases usually have them.
+	 *
+	 * @param string             $slug Plugin slug.
+	 * @param array<int, string> $versions Versions, newest first.
+	 * @return array<int,array{version:string,features:array<int,string>,release_link:string}>
+	 */
+	private function get_highlights( $slug, $versions ) {
+		$highlights = [];
+
+		foreach ( $versions as $version ) {
+			/**
+			 * Filter a plugin version's highlights, shown in the "What's new" box.
+			 *
+			 * @param array{features:array<int,string>,release_link:string}|null $version_highlights Highlights, or null for none.
+			 * @param string $slug Plugin slug.
+			 * @param string $version Plugin version.
+			 */
+			$version_highlights = apply_filters( 'simple_history/update_highlights', null, $slug, $version );
+
+			if ( ! is_array( $version_highlights ) || empty( $version_highlights['features'] ) || ! is_array( $version_highlights['features'] ) ) {
+				continue;
+			}
+
+			$highlights[] = [
+				'version'      => $version,
+				'features'     => array_values( array_filter( $version_highlights['features'], 'is_string' ) ),
+				'release_link' => isset( $version_highlights['release_link'] ) && is_string( $version_highlights['release_link'] ) ? $version_highlights['release_link'] : '',
+			];
+		}
+
+		return $highlights;
+	}
+
+	/**
+	 * The one-line summary of a plugin's update, like
+	 * "Simple History 5.35.0: 4 new features and 9 fixes.".
+	 *
+	 * @param array<string,mixed> $update Update from get_pending_updates().
+	 * @return string
+	 */
+	public function get_update_line( $update ) {
+		$label    = $update['name'] . ' ' . $update['version'];
+		$features = (int) $update['summary']['features'];
+		$fixes    = (int) $update['summary']['fixes'];
+		$other    = (int) $update['summary']['other'];
+
+		/* translators: %d: number of new features. */
+		$features_text = sprintf( _n( '%d new feature', '%d new features', $features, 'simple-history' ), $features );
+
+		/* translators: %d: number of fixes. */
+		$fixes_text = sprintf( _n( '%d fix', '%d fixes', $fixes, 'simple-history' ), $fixes );
+
+		if ( $features > 0 && $fixes > 0 ) {
+			/* translators: 1: plugin name and version, e.g. "Simple History 5.35.0", 2: e.g. "4 new features", 3: e.g. "9 fixes". */
+			return sprintf( __( '%1$s: %2$s and %3$s.', 'simple-history' ), $label, $features_text, $fixes_text );
+		}
+
+		if ( $features > 0 ) {
+			/* translators: 1: plugin name and version, e.g. "Simple History 5.35.0", 2: e.g. "4 new features". */
+			return sprintf( __( '%1$s: %2$s.', 'simple-history' ), $label, $features_text );
+		}
+
+		if ( $fixes > 2 ) {
+			/* translators: 1: plugin name and version, e.g. "Simple History 5.35.1", 2: e.g. "5 fixes". */
+			return sprintf( __( '%1$s: %2$s.', 'simple-history' ), $label, $fixes_text );
+		}
+
+		if ( $fixes > 0 ) {
+			/* translators: %s: plugin name and version, e.g. "Simple History 5.35.1". */
+			return sprintf( __( '%s: fixes and small improvements.', 'simple-history' ), $label );
+		}
+
+		/* translators: 1: plugin name and version, e.g. "Simple History 5.35.1", 2: number of improvements. */
+		return sprintf( _n( '%1$s: %2$d improvement.', '%1$s: %2$d improvements.', $other, 'simple-history' ), $label, $other );
+	}
+
+	/**
+	 * The billing message to show, if any.
+	 *
+	 * Only for users who can manage options, never on multisite in this
+	 * version, and only while the user hasn't dismissed this exact state.
+	 *
+	 * @return array{type:string,key:string,ends_timestamp:?int}|null
+	 */
+	public function get_billing_message() {
+		if ( ! current_user_can( 'manage_options' ) ) {
+			return null;
+		}
+
+		$message = $this->get_billing_state();
+
+		if ( $message === null ) {
+			return null;
+		}
+
+		if ( get_user_meta( get_current_user_id(), self::META_BILLING_DISMISSED, true ) === $message['key'] ) {
+			return null;
+		}
+
+		return $message;
+	}
+
+	/**
+	 * The billing state behind the messages, ignoring who looks and what they dismissed.
+	 *
+	 * @return array{type:string,key:string,ends_timestamp:?int}|null
+	 */
+	private function get_billing_state() {
+		$state = null;
+
+		if ( ! is_multisite() ) {
+			$premium      = $this->get_premium_add_on();
+			$subscription = $premium !== null ? $premium->get_license_state()['subscription'] : null;
+
+			if ( is_array( $subscription ) ) {
+				$ends_timestamp = $subscription['ends_at'] !== null ? strtotime( $subscription['ends_at'] ) : false;
+
+				if ( in_array( $subscription['status'], [ 'past_due', 'unpaid' ], true ) ) {
+					$state = [
+						'type'           => 'payment_failed',
+						'key'            => 'payment_failed:' . $subscription['status'],
+						'ends_timestamp' => null,
+					];
+				} elseif ( $subscription['cancelled'] && $ends_timestamp !== false && $ends_timestamp > time() ) {
+					$state = [
+						'type'           => 'ends',
+						'key'            => 'ends:' . $subscription['ends_at'],
+						'ends_timestamp' => $ends_timestamp,
+					];
+				}
+			}
+		}
+
+		/**
+		 * Filter the billing state that decides the billing message.
+		 *
+		 * @param array{type:string,key:string,ends_timestamp:?int}|null $state Billing state, or null for none.
+		 */
+		return apply_filters( 'simple_history/whats_new/billing_state', $state );
+	}
+
+	/**
+	 * The lapsed-license card to show, if any.
+	 *
+	 * @return array{stage:string,features:array<int,array<string,mixed>>,expires_timestamp:int}|null
+	 */
+	public function get_lapsed_card() {
 		// phpcs:ignore WordPress.WP.Capabilities.Undetermined -- Dynamic capability from Helpers::get_view_settings_capability(), filterable.
 		if ( ! current_user_can( Helpers::get_view_settings_capability() ) ) {
-			return;
+			return null;
 		}
 
-		$license_state = $this->get_license_state();
-
-		if ( $license_state['state'] !== 'expired' ) {
-			return;
+		// A billing problem has its own message; don't also suggest buying.
+		if ( $this->get_billing_state() !== null ) {
+			return null;
 		}
 
-		$dismissal = $this->get_dismissal_state();
+		$lapse = $this->get_lapse();
 
-		// Permanent suppression after the second small dismissal.
-		if ( $dismissal['small_dismiss_count'] >= 2 ) {
-			return;
+		if ( $lapse === null || count( $lapse['features'] ) < self::MIN_LAPSED_FEATURES ) {
+			return null;
 		}
 
-		// Silent period of 60 days after the first small dismissal.
-		if ( $dismissal['small_dismissed_at'] > 0 && time() - $dismissal['small_dismissed_at'] < 60 * DAY_IN_SECONDS ) {
-			return;
-		}
+		$days  = (int) floor( ( time() - $lapse['expires_timestamp'] ) / DAY_IN_SECONDS );
+		$stage = $days < 90 ? 'recent' : ( $days <= 365 ? 'year' : 'old' );
 
-		$highlights = $this->get_highlights_for_audience( 'premium-expired' );
+		$dismissed = get_user_meta( get_current_user_id(), self::META_LAPSED_DISMISSED, true );
 
-		// A card with too little content looks broken — suppress entirely.
-		if ( count( $highlights ) < 3 ) {
-			return;
-		}
-
-		$expires_at        = isset( $license_state['expires_at'] ) && is_string( $license_state['expires_at'] ) ? $license_state['expires_at'] : null;
-		$expires_timestamp = $expires_at !== null ? strtotime( $expires_at ) : false;
-
-		// Default to the middle bucket if the expiry date is unusable.
-		$days_lapsed = $expires_timestamp !== false ? (int) floor( ( time() - $expires_timestamp ) / DAY_IN_SECONDS ) : 120;
-
-		$copy = $this->get_expired_card_copy( $days_lapsed, count( $highlights ), $expires_timestamp );
-
-		$cta_url     = Helpers::get_tracking_url( 'https://simple-history.com/add-ons/premium/', 'premium_whats_new' );
-		$details_url = Helpers::get_tracking_url( 'https://simple-history.com/add-ons/premium/', 'premium_whats_new', 'wpadmin', 'plugin', 'small' );
-
-		$show_full = $dismissal['full_dismissed_at'] === 0;
-
-		if ( $show_full ) {
-			$this->render_full_card( $copy, $highlights, $cta_url );
-		}
-
-		$this->render_small_variant( count( $highlights ), $details_url, $show_full );
-	}
-
-	/**
-	 * Get title, subhead, CTA label and "+N more" visibility for a lapse bucket.
-	 *
-	 * @param int       $days_lapsed Days since the license expired.
-	 * @param int       $total_highlights Number of matching highlights.
-	 * @param int|false $expires_timestamp Expiry timestamp, or false if unknown.
-	 * @return array{title:string,subhead:string,cta:string,show_more_line:bool,more_since:string}
-	 */
-	private function get_expired_card_copy( $days_lapsed, $total_highlights, $expires_timestamp ) {
-		/**
-		 * Filter the price text used in the card CTA buttons.
-		 *
-		 * @param string $price_text Price text, e.g. "$79".
-		 */
-		$price_text = apply_filters( 'simple_history/whats_new/price_text', '$79' );
-
-		$more_since = $expires_timestamp !== false ? date_i18n( 'F Y', $expires_timestamp ) : '';
-
-		/* translators: %s: price, e.g. "$79". */
-		$price_caption = sprintf( __( 'from %s/yr', 'simple-history' ), $price_text );
-
-		// Every bucket leads with what shipped, never with license status —
-		// the momentum framing is the whole mechanic.
-		if ( $days_lapsed < 90 ) {
-			return [
-				'title'          => sprintf(
-					/* translators: %d: number of premium features shipped. */
-					_n( '%d premium feature shipped since you left', '%d premium features shipped since you left', $total_highlights, 'simple-history' ),
-					$total_highlights
-				),
-				'subhead'        => __( 'Your license lapsed recently. Quick to catch up.', 'simple-history' ),
-				'cta'            => __( 'See what you missed', 'simple-history' ),
-				'price'          => $price_caption,
-				'show_more_line' => true,
-				'more_since'     => $more_since,
-			];
-		}
-
-		if ( $days_lapsed <= 365 ) {
-			return [
-				'title'          => sprintf(
-					/* translators: %d: number of premium features shipped. */
-					_n( '%d premium feature shipped', '%d premium features shipped', $total_highlights, 'simple-history' ),
-					$total_highlights
-				),
-				'subhead'        => __( 'While your license was inactive.', 'simple-history' ),
-				'cta'            => __( 'See what you missed', 'simple-history' ),
-				'price'          => $price_caption,
-				'show_more_line' => true,
-				'more_since'     => $more_since,
-			];
+		if ( is_array( $dismissed ) && ! empty( $dismissed[ $stage ] ) ) {
+			return null;
 		}
 
 		return [
-			'title'          => __( 'Simple History Premium now does this', 'simple-history' ),
-			'subhead'        => __( 'A quick look at recent additions.', 'simple-history' ),
-			'cta'            => __( 'Explore Premium', 'simple-history' ),
-			'price'          => $price_caption,
-			'show_more_line' => false,
-			'more_since'     => '',
+			'stage'             => $stage,
+			'features'          => $lapse['features'],
+			'expires_timestamp' => $lapse['expires_timestamp'],
 		];
 	}
 
 	/**
-	 * Output the full card markup.
+	 * When the Premium license expired, and the features released since the installed version.
 	 *
-	 * @param array<string,mixed>             $copy Bucket copy from get_expired_card_copy().
-	 * @param array<int,array<string,mixed>>  $highlights Matching highlights.
-	 * @param string                          $cta_url Renewal URL.
+	 * @return array{expires_timestamp:int,features:array<int,array<string,mixed>>}|null
 	 */
-	private function render_full_card( $copy, $highlights, $cta_url ) {
-		$bullets    = array_slice( $highlights, 0, 2 );
-		$more_count = count( $highlights ) - count( $bullets );
+	private function get_lapse() {
+		$lapse   = null;
+		$premium = is_multisite() ? null : $this->get_premium_add_on();
+
+		if ( $premium !== null ) {
+			$state = $premium->get_license_state();
+
+			// Only a real update check counts; an activation-time date is stale.
+			if ( $state['state'] === 'expired' && $state['source'] === 'update_check' && $state['expires_timestamp'] !== null ) {
+				$lapse = [
+					'expires_timestamp' => $state['expires_timestamp'],
+					'features'          => $premium->get_new_features( $premium->version ),
+				];
+			}
+		}
+
+		/**
+		 * Filter the lapsed-license data behind the sidebar card.
+		 *
+		 * @param array{expires_timestamp:int,features:array<int,array<string,mixed>>}|null $lapse Lapse data, or null for none.
+		 */
+		return apply_filters( 'simple_history/whats_new/lapse', $lapse );
+	}
+
+	/**
+	 * Get the registered Premium add-on.
+	 *
+	 * @return AddOn_Plugin|null
+	 */
+	protected function get_premium_add_on() {
+		$licences = $this->simple_history->get_service( AddOns_Licences::class );
+
+		if ( ! $licences instanceof AddOns_Licences ) {
+			return null;
+		}
+
+		$premium = $licences->get_plugin( self::PREMIUM_SLUG );
+
+		return $premium instanceof AddOn_Plugin ? $premium : null;
+	}
+
+	/**
+	 * Output the "What's new in Simple History" box.
+	 *
+	 * @param array<string,array<string,mixed>> $updates Updates from get_pending_updates().
+	 */
+	private function render_whats_new_box( $updates ) {
 		?>
-		<div class="postbox sh-WhatsNewCard" role="region" aria-label="<?php esc_attr_e( 'What\'s new in Premium', 'simple-history' ); ?>">
-			<h3 class="sh-WhatsNewCard-title"><?php echo esc_html( $copy['title'] ); ?></h3>
-			<p class="sh-WhatsNewCard-subhead"><?php echo esc_html( $copy['subhead'] ); ?></p>
-			<ul class="sh-WhatsNewCard-list">
-				<?php foreach ( $bullets as $bullet ) { ?>
-					<li><?php echo esc_html( isset( $bullet['title'] ) && is_string( $bullet['title'] ) ? $bullet['title'] : '' ); ?></li>
+		<section class="sh-WhatsNew" data-sh-whats-new-kind="whats_new" aria-labelledby="sh-WhatsNew-title">
+			<h2 class="sh-WhatsNew-title" id="sh-WhatsNew-title"><?php esc_html_e( 'What\'s new in Simple History', 'simple-history' ); ?></h2>
+
+			<?php
+			foreach ( $updates as $update ) {
+				$this->render_update_line( $update );
+			}
+
+			$this->render_dismiss_button( __( 'Dismiss what\'s new', 'simple-history' ) );
+			?>
+		</section>
+		<?php
+	}
+
+	/**
+	 * Output one plugin's line in the box, expandable when there's more to show.
+	 *
+	 * @param array<string,mixed> $update Update from get_pending_updates().
+	 */
+	private function render_update_line( $update ) {
+		$line         = $this->get_update_line( $update );
+		$release_link = $update['summary']['release_url'];
+
+		// Prefer the highlights' own link: it's there even when the readme has none.
+		if ( isset( $update['highlights'][0]['release_link'] ) && $update['highlights'][0]['release_link'] !== '' ) {
+			$release_link = $update['highlights'][0]['release_link'];
+		}
+
+		if ( $update['highlights'] === [] && $release_link === '' ) {
+			?>
+			<p class="sh-WhatsNew-line"><?php echo esc_html( $line ); ?></p>
+			<?php
+
+			return;
+		}
+
+		$release_link = Helpers::get_tracking_url( $release_link, 'whats_new_box', 'wpadmin', 'plugin', $update['slug'] );
+		?>
+		<details class="sh-WhatsNew-details">
+			<summary class="sh-WhatsNew-line">
+				<?php echo esc_html( $line ); ?>
+				<span class="sh-WhatsNew-toggle"><?php esc_html_e( 'Show', 'simple-history' ); ?></span>
+			</summary>
+
+			<div class="sh-WhatsNew-content">
+				<?php foreach ( $update['highlights'] as $version_highlights ) { ?>
+					<ul class="sh-WhatsNew-features">
+						<?php foreach ( $version_highlights['features'] as $feature ) { ?>
+							<li><?php echo esc_html( $feature ); ?></li>
+						<?php } ?>
+					</ul>
 				<?php } ?>
-				<?php if ( $copy['show_more_line'] && $more_count > 0 ) { ?>
-					<li class="sh-WhatsNewCard-more">
+
+				<?php if ( $release_link !== '' ) { ?>
+					<p class="sh-WhatsNew-link">
+						<a href="<?php echo esc_url( $release_link ); ?>" target="_blank" rel="noopener"><?php esc_html_e( 'Read the release post →', 'simple-history' ); ?></a>
+					</p>
+				<?php } ?>
+			</div>
+		</details>
+		<?php
+	}
+
+	/**
+	 * Output a billing message.
+	 *
+	 * Written for someone who may not be the one who pays (an agency's
+	 * client, one of several admins): no amounts, no card details, no alarm.
+	 *
+	 * @param array{type:string,key:string,ends_timestamp:?int} $message Billing message.
+	 */
+	private function render_billing_message( $message ) {
+		$billing_url = self::BILLING_PORTAL_URL;
+		?>
+		<section class="sh-WhatsNew sh-WhatsNew--billing" data-sh-whats-new-kind="billing" data-sh-whats-new-value="<?php echo esc_attr( $message['key'] ); ?>" aria-label="<?php esc_attr_e( 'Simple History Premium subscription', 'simple-history' ); ?>">
+			<span class="sh-WhatsNew-icon dashicons dashicons-info-outline" aria-hidden="true"></span>
+
+			<div class="sh-WhatsNew-body">
+				<?php if ( $message['type'] === 'payment_failed' ) { ?>
+					<p><?php esc_html_e( 'The latest payment for Simple History Premium didn\'t go through. If the card has changed, you can update it in the billing portal. If someone else handles billing for this site, you may want to let them know.', 'simple-history' ); ?></p>
+					<p class="sh-WhatsNew-links">
+						<a href="<?php echo esc_url( $billing_url ); ?>" target="_blank" rel="noopener"><?php esc_html_e( 'Update payment details →', 'simple-history' ); ?></a>
+					</p>
+				<?php } else { ?>
+					<p>
 						<?php
 						echo esc_html(
 							sprintf(
-								/* translators: 1: number of additional highlights, 2: month and year, e.g. "March 2026". */
-								__( '+%1$d more since %2$s', 'simple-history' ),
-								$more_count,
-								$copy['more_since']
+								/* translators: %s: date the subscription ends, e.g. "3 November 2026". */
+								__( 'Your Simple History Premium subscription ends on %s. Premium keeps working after that, but it won\'t get new features or fixes.', 'simple-history' ),
+								wp_date( get_option( 'date_format' ), (int) $message['ends_timestamp'] )
+							)
+						);
+						?>
+					</p>
+					<p class="sh-WhatsNew-links">
+						<a href="<?php echo esc_url( $billing_url ); ?>" target="_blank" rel="noopener"><?php esc_html_e( 'Keep my subscription →', 'simple-history' ); ?></a>
+						<a href="<?php echo esc_url( Helpers::get_tracking_url( 'https://simple-history.com/add-ons/premium/', 'premium_whats_new_ends' ) ); ?>" target="_blank" rel="noopener"><?php esc_html_e( 'See what Premium added this year →', 'simple-history' ); ?></a>
+					</p>
+				<?php } ?>
+			</div>
+
+			<?php $this->render_dismiss_button( __( 'Dismiss subscription message', 'simple-history' ) ); ?>
+		</section>
+		<?php
+	}
+
+	/**
+	 * Output the sidebar card for an expired Premium license.
+	 *
+	 * @param array{stage:string,features:array<int,array<string,mixed>>,expires_timestamp:int} $card Card from get_lapsed_card().
+	 */
+	private function render_lapsed_card( $card ) {
+		$count    = count( $card['features'] );
+		$bullets  = array_slice( $card['features'], 0, 2 );
+		$more     = $count - count( $bullets );
+		$cta_text = __( 'See what\'s new in Premium →', 'simple-history' );
+
+		if ( $card['stage'] === 'old' ) {
+			$title    = __( 'Premium has grown since your version', 'simple-history' );
+			$subhead  = '';
+			$cta_text = __( 'See what Premium does now →', 'simple-history' );
+		} else {
+			$title = sprintf(
+				/* translators: %d: number of Premium features released after the installed version. */
+				_n( '%d new Premium feature you don\'t have yet', '%d new Premium features you don\'t have yet', $count, 'simple-history' ),
+				$count
+			);
+
+			$subhead = $card['stage'] === 'recent'
+				? __( 'Your license expired, so Premium stopped getting updates. It still works as before.', 'simple-history' )
+				: sprintf(
+					/* translators: %s: month and year the license expired, e.g. "March 2026". */
+					__( 'Updates stopped when your license expired in %s.', 'simple-history' ),
+					wp_date( 'F Y', $card['expires_timestamp'] )
+				);
+		}
+
+		$cta_url = Helpers::get_tracking_url( 'https://simple-history.com/add-ons/premium/', 'premium_whats_new_lapsed', 'wpadmin', 'plugin', $card['stage'] );
+		?>
+		<section class="postbox sh-LapsedCard" data-sh-whats-new-kind="lapsed" data-sh-whats-new-value="<?php echo esc_attr( $card['stage'] ); ?>" aria-labelledby="sh-LapsedCard-title">
+			<h3 class="sh-LapsedCard-title" id="sh-LapsedCard-title"><?php echo esc_html( $title ); ?></h3>
+
+			<?php if ( $subhead !== '' ) { ?>
+				<p class="sh-LapsedCard-subhead"><?php echo esc_html( $subhead ); ?></p>
+			<?php } ?>
+
+			<ul class="sh-LapsedCard-features">
+				<?php foreach ( $bullets as $feature ) { ?>
+					<li><?php echo esc_html( $feature['name'] ); ?></li>
+				<?php } ?>
+
+				<?php if ( $card['stage'] !== 'old' && $more > 0 ) { ?>
+					<li class="sh-LapsedCard-more">
+						<?php
+						echo esc_html(
+							sprintf(
+								/* translators: %d: number of further Premium features. */
+								_n( '+%d more', '+%d more', $more, 'simple-history' ),
+								$more
 							)
 						);
 						?>
 					</li>
 				<?php } ?>
 			</ul>
-			<a href="<?php echo esc_url( $cta_url ); ?>" target="_blank" rel="noopener noreferrer" class="button button-secondary sh-WhatsNewCard-cta">
-				<?php echo esc_html( $copy['cta'] ); ?>
-			</a>
-			<?php if ( isset( $copy['price'] ) && is_string( $copy['price'] ) && $copy['price'] !== '' ) { ?>
-				<p class="sh-WhatsNewCard-price"><?php echo esc_html( $copy['price'] ); ?></p>
-			<?php } ?>
-			<button type="button" class="sh-WhatsNewCard-dismiss js-sh-whats-new-dismiss-full" aria-label="<?php esc_attr_e( 'Dismiss what\'s new', 'simple-history' ); ?>">&times;</button>
-		</div>
+
+			<p class="sh-LapsedCard-cta">
+				<a href="<?php echo esc_url( $cta_url ); ?>" target="_blank" rel="noopener"><?php echo esc_html( $cta_text ); ?></a>
+			</p>
+
+			<?php $this->render_dismiss_button( __( 'Dismiss Premium card', 'simple-history' ) ); ?>
+		</section>
 		<?php
 	}
 
 	/**
-	 * Output the small single-line variant.
+	 * Output a dismiss button. Last in source order, so it's reached after the content.
 	 *
-	 * Rendered hidden alongside the full card so the dismiss animation can
-	 * reveal it without a page reload.
-	 *
-	 * @param int    $total_highlights Number of matching highlights.
-	 * @param string $details_url Details URL.
-	 * @param bool   $hidden True to render with the hidden attribute.
+	 * @param string $label Accessible label.
 	 */
-	private function render_small_variant( $total_highlights, $details_url, $hidden ) {
+	private function render_dismiss_button( $label ) {
 		?>
-		<div class="sh-WhatsNewSmall" <?php echo $hidden ? 'hidden' : ''; ?>>
-			<span class="sh-WhatsNewSmall-text">
-				<?php
-				echo esc_html(
-					sprintf(
-						/* translators: %d: number of premium updates. */
-						__( 'Simple History Premium — %d updates available.', 'simple-history' ),
-						$total_highlights
-					)
-				);
-				?>
-			</span>
-			<a href="<?php echo esc_url( $details_url ); ?>" target="_blank" rel="noopener noreferrer" class="sh-WhatsNewSmall-link">
-				<?php esc_html_e( 'Details', 'simple-history' ); ?>
-			</a>
-			<button type="button" class="sh-WhatsNewSmall-dismiss js-sh-whats-new-dismiss-small" aria-label="<?php esc_attr_e( 'Dismiss what\'s new', 'simple-history' ); ?>">&times;</button>
-		</div>
+		<button type="button" class="sh-WhatsNew-dismiss js-sh-whats-new-dismiss" aria-label="<?php echo esc_attr( $label ); ?>">
+			<span class="dashicons dashicons-no-alt" aria-hidden="true"></span>
+		</button>
 		<?php
 	}
 
 	/**
-	 * Output the one-line update strip for active premium users.
-	 *
-	 * Wrapped in try/catch so a render error can never break the log page.
+	 * Record a dismissal, or the "What's new" box being opened.
 	 */
-	public function output_active_update_strip() {
-		try {
-			$this->render_active_update_strip();
-		} catch ( \Throwable $error ) {
-			// phpcs:ignore WordPress.PHP.DevelopmentFunctions.error_log_error_log
-			error_log( 'Simple History: whats-new strip render failed: ' . $error->getMessage() );
-		}
-	}
+	public function handle_ajax() {
+		check_ajax_referer( self::NONCE_ACTION, 'nonce' );
 
-	/**
-	 * Render the update strip if premium is active and an update is pending.
-	 */
-	private function render_active_update_strip() {
-		if ( ! current_user_can( 'update_plugins' ) ) {
-			return;
-		}
-
-		$update = $this->get_premium_update();
-
-		if ( $update === null ) {
-			return;
-		}
-
-		$license_state = $this->get_license_state();
-
-		// The strip targets active premium users; lapsed users get the card.
-		if ( $license_state['state'] === 'expired' ) {
-			return;
-		}
-
-		$highlights = $this->get_highlights_for_audience( 'premium-active' );
-
-		$first_title = '';
-
-		if ( isset( $highlights[0]['title'] ) && is_string( $highlights[0]['title'] ) ) {
-			$first_title = $highlights[0]['title'];
-		}
-
-		$more_count = max( 0, count( $highlights ) - 1 );
-
-		if ( $first_title !== '' && $more_count > 0 ) {
-			$text = sprintf(
-				/* translators: 1: version number, 2: feature title, 3: number of additional features. */
-				__( 'v%1$s — %2$s + %3$d more this year.', 'simple-history' ),
-				$update['new_version'],
-				$first_title,
-				$more_count
-			);
-		} elseif ( $first_title !== '' ) {
-			$text = sprintf(
-				/* translators: 1: version number, 2: feature title. */
-				__( 'v%1$s — %2$s.', 'simple-history' ),
-				$update['new_version'],
-				$first_title
-			);
-		} else {
-			$text = sprintf(
-				/* translators: %s: version number. */
-				__( 'Simple History Premium v%s is available.', 'simple-history' ),
-				$update['new_version']
-			);
-		}
-		?>
-		<div class="sh-WhatsNewStrip">
-			<span class="sh-WhatsNewStrip-text"><?php echo esc_html( $text ); ?></span>
-			<a href="<?php echo esc_url( self_admin_url( 'update-core.php' ) ); ?>" class="sh-WhatsNewStrip-link">
-				<?php esc_html_e( 'Update now', 'simple-history' ); ?>
-			</a>
-		</div>
-		<?php
-	}
-
-	/**
-	 * Handle the AJAX request that records a dismissal.
-	 */
-	public function handle_ajax_dismiss() {
-		if ( ! isset( $_POST['nonce'] ) || ! wp_verify_nonce( sanitize_key( $_POST['nonce'] ), self::DISMISS_NONCE ) ) {
-			wp_send_json_error( 'Invalid nonce' );
-		}
-
-		// phpcs:ignore WordPress.WP.Capabilities.Undetermined -- Dynamic capability from Helpers::get_view_settings_capability(), filterable.
-		if ( ! current_user_can( Helpers::get_view_settings_capability() ) ) {
-			wp_send_json_error( 'Permission denied' );
-		}
-
-		$level   = isset( $_POST['level'] ) ? sanitize_key( wp_unslash( $_POST['level'] ) ) : '';
+		$kind    = isset( $_POST['kind'] ) ? sanitize_key( wp_unslash( $_POST['kind'] ) ) : '';
+		$value   = isset( $_POST['value'] ) ? sanitize_text_field( wp_unslash( $_POST['value'] ) ) : '';
 		$user_id = get_current_user_id();
 
-		if ( $level === 'full' ) {
-			update_user_meta( $user_id, self::META_DISMISSED_FULL, time() );
-		} elseif ( $level === 'small' ) {
-			update_user_meta( $user_id, self::META_DISMISSED_SMALL, time() );
-
-			$small_dismiss_count = (int) get_user_meta( $user_id, self::META_SMALL_DISMISS_COUNT, true );
-			update_user_meta( $user_id, self::META_SMALL_DISMISS_COUNT, $small_dismiss_count + 1 );
-		} else {
-			wp_send_json_error( 'Invalid level' );
+		// phpcs:ignore WordPress.WP.Capabilities.Undetermined -- Dynamic capability from Helpers::get_view_history_capability(), filterable.
+		if ( $kind === 'whats_new' && current_user_can( Helpers::get_view_history_capability() ) ) {
+			$this->mark_all_seen( $user_id );
+			wp_send_json_success();
 		}
 
-		wp_send_json_success();
-	}
-
-	/**
-	 * Enqueue the dismissal script on Simple History pages, but only when
-	 * the card can actually appear (lapsed license, or dev mode for demos).
-	 *
-	 * @param string $hook Current admin page hook.
-	 */
-	public function enqueue_scripts( $hook ) {
-		if ( ! Helpers::is_on_our_own_pages() ) {
-			return;
+		if ( $kind === 'billing' && current_user_can( 'manage_options' ) && $value !== '' ) {
+			update_user_meta( $user_id, self::META_BILLING_DISMISSED, $value );
+			wp_send_json_success();
 		}
 
 		// phpcs:ignore WordPress.WP.Capabilities.Undetermined -- Dynamic capability from Helpers::get_view_settings_capability(), filterable.
-		if ( ! current_user_can( Helpers::get_view_settings_capability() ) ) {
-			return;
+		if ( $kind === 'lapsed' && in_array( $value, [ 'recent', 'year', 'old' ], true ) && current_user_can( Helpers::get_view_settings_capability() ) ) {
+			$dismissed           = get_user_meta( $user_id, self::META_LAPSED_DISMISSED, true );
+			$dismissed           = is_array( $dismissed ) ? $dismissed : [];
+			$dismissed[ $value ] = true;
+
+			update_user_meta( $user_id, self::META_LAPSED_DISMISSED, $dismissed );
+			wp_send_json_success();
 		}
 
-		if ( $this->get_license_state()['state'] !== 'expired' && ! Helpers::dev_mode_is_enabled() ) {
+		wp_send_json_error( null, 400 );
+	}
+
+	/**
+	 * Load the small dismissal script and the styles on Simple History pages.
+	 */
+	public function enqueue_scripts() {
+		if ( ! Helpers::is_on_our_own_pages() ) {
 			return;
 		}
 
@@ -846,8 +774,8 @@ class Whats_New_Service extends Service {
 			'simpleHistoryWhatsNew',
 			[
 				'ajaxurl' => admin_url( 'admin-ajax.php' ),
-				'action'  => self::DISMISS_ACTION,
-				'nonce'   => wp_create_nonce( self::DISMISS_NONCE ),
+				'action'  => self::AJAX_ACTION,
+				'nonce'   => wp_create_nonce( self::NONCE_ACTION ),
 			]
 		);
 	}
