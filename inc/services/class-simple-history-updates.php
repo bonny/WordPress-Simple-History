@@ -7,11 +7,27 @@ namespace Simple_History\Services;
  * Provides version-specific information about new features when Simple History is updated.
  */
 class Simple_History_Updates extends Service {
+	/**
+	 * True while get_highlights_for_version() runs a version's method, so
+	 * format_new_features_list() hands back the data instead of HTML.
+	 *
+	 * @var bool
+	 */
+	private $capturing_highlights = false;
+
+	/**
+	 * Highlights handed back while capturing.
+	 *
+	 * @var array{features:array<int,string>,release_link:string}|null
+	 */
+	private $captured_highlights = null;
 
 	/**
 	 * Called when service is loaded.
 	 */
 	public function loaded() {
+		add_filter( 'simple_history/update_highlights', [ $this, 'filter_update_highlights' ], 10, 3 );
+
 		// Hook into the plugin update details filter for Simple History.
 		add_filter( 'simple_history/pluginlogger/plugin_updated_details/simple-history/5.14.0', [ $this, 'on_plugin_updated_details_5_14_0' ] );
 		add_filter( 'simple_history/pluginlogger/plugin_updated_details/simple-history/5.15.0', [ $this, 'on_plugin_updated_details_5_15_0' ] );
@@ -39,6 +55,65 @@ class Simple_History_Updates extends Service {
 	}
 
 	/**
+	 * Provide a version's highlights as data, for the "What's new" box.
+	 *
+	 * @param array<string,mixed>|null $highlights Highlights from earlier callbacks.
+	 * @param string                   $slug Plugin slug.
+	 * @param string                   $version Plugin version, eg "5.35.0".
+	 * @return array<string,mixed>|null Array with features and release_link, or null when the version has none.
+	 */
+	public function filter_update_highlights( $highlights, $slug, $version ) {
+		if ( $slug !== 'simple-history' || ! is_string( $version ) ) {
+			return $highlights;
+		}
+
+		return $this->get_highlights_for_version( $version ) ?? $highlights;
+	}
+
+	/**
+	 * Get the highlights of one version as data.
+	 *
+	 * Runs the version's on_plugin_updated_details_X_Y_Z() method with HTML
+	 * output switched off, so each version's highlights are written once and
+	 * serve both the plugin-updated event and the "What's new" box.
+	 *
+	 * @param string $version Version, eg "5.35.0".
+	 * @return array{features:array<int,string>,release_link:string}|null Null when the version has no highlights.
+	 */
+	public function get_highlights_for_version( $version ) {
+		$method = 'on_plugin_updated_details_' . str_replace( '.', '_', $version );
+
+		if ( ! preg_match( '/^\d+\.\d+\.\d+$/', $version ) || ! method_exists( $this, $method ) ) {
+			return null;
+		}
+
+		$this->capturing_highlights = true;
+		$this->captured_highlights  = null;
+		$this->$method( [] );
+		$this->capturing_highlights = false;
+
+		$highlights = $this->take_captured_highlights();
+
+		if ( $highlights === null || $highlights['features'] === [] ) {
+			return null;
+		}
+
+		return $highlights;
+	}
+
+	/**
+	 * Return and forget the highlights captured by format_new_features_list().
+	 *
+	 * @return array{features:array<int,string>,release_link:string}|null
+	 */
+	private function take_captured_highlights() {
+		$highlights                = $this->captured_highlights;
+		$this->captured_highlights = null;
+
+		return $highlights;
+	}
+
+	/**
 	 * Format new features as an HTML list.
 	 *
 	 * @param string|bool $custom_title Optional custom title for the section.
@@ -47,6 +122,15 @@ class Simple_History_Updates extends Service {
 	 * @return string Formatted HTML list.
 	 */
 	private function format_new_features_list( $custom_title = '', $features = [], $release_link = '' ) {
+		if ( $this->capturing_highlights ) {
+			$this->captured_highlights = [
+				'features'     => array_values( array_filter( (array) $features, 'is_string' ) ),
+				'release_link' => is_string( $release_link ) ? $release_link : '',
+			];
+
+			return '';
+		}
+
 		// Bail if no features.
 		if ( empty( $features ) ) {
 			return '';

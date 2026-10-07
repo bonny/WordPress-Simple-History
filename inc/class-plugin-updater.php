@@ -48,6 +48,18 @@ class Plugin_Updater {
 	public $cache_allowed = true;
 
 	/**
+	 * Ask the update server only during WordPress's own plugin update check,
+	 * never while something merely reads the update data.
+	 *
+	 * Reading the update data happens on almost every admin page (the menu
+	 * badge, the admin bar), and a remote call there makes the page wait for
+	 * simple-history.com. Experimental for now; on by default once proven.
+	 *
+	 * @var bool
+	 */
+	public $check_only_with_wordpress = false;
+
+	/**
 	 * @param string $plugin_id   The ID of the plugin.
 	 * @param string $plugin_slug The slug of the plugin.
 	 * @param string $version     The current version of the plugin.
@@ -65,6 +77,27 @@ class Plugin_Updater {
 		add_filter( 'plugins_api', array( $this, 'on_plugins_api_handle_plugin_info' ), 20, 3 );
 		add_filter( 'site_transient_update_plugins', array( $this, 'site_transient_update_plugins_update' ) );
 		add_action( 'upgrader_process_complete', array( $this, 'purge' ), 10, 2 );
+
+		$this->check_only_with_wordpress = Helpers::experimental_features_is_enabled();
+
+		if ( ! $this->check_only_with_wordpress ) {
+			return;
+		}
+
+		add_filter( 'pre_set_site_transient_update_plugins', array( $this, 'on_pre_set_update_plugins' ) );
+	}
+
+	/**
+	 * Name of the option holding an add-on's last update-check answer.
+	 *
+	 * Unlike the cache transient it never expires, so the update data can
+	 * always be read without asking the server again.
+	 *
+	 * @param string $slug Plugin slug.
+	 * @return string
+	 */
+	public static function get_answer_option_for_slug( $slug ) {
+		return 'simple_history_updater_answer_' . str_replace( '-', '_', $slug );
 	}
 
 	/**
@@ -131,6 +164,7 @@ class Plugin_Updater {
 			[
 				'license_key' => $lsq_license_key,
 				'plugin_slug' => $this->plugin_slug,
+				'version'     => $this->version,
 			],
 			$this->api_url . '/update',
 		);
@@ -166,6 +200,11 @@ class Plugin_Updater {
 		}
 
 		$this->store_license_from_payload( $decoded );
+		$this->get_addon_plugin()->update_new_features_from_response( $decoded->whats_new ?? null );
+
+		// Kept without expiry and not autoloaded: read back by
+		// get_stored_answer() when only WordPress's own check may ask the server.
+		update_option( self::get_answer_option_for_slug( $this->plugin_slug ), $payload, false );
 
 		// Cache a 200 answer for an hour. Cache a 401 refusal for only 10
 		// minutes, the same window used for the network/decode errors above,
@@ -293,7 +332,7 @@ class Plugin_Updater {
 			'compatibility' => new \stdClass(),
 		);
 
-		$remote = $this->request();
+		$remote = $this->check_only_with_wordpress ? $this->get_stored_answer() : $this->request();
 
 		if (
 			$remote && ! empty( $remote->success ) && ! empty( $remote->update )
@@ -312,6 +351,43 @@ class Plugin_Updater {
 		}
 
 		return $transient;
+	}
+
+	/**
+	 * Ask the update server while WordPress saves its own update check.
+	 *
+	 * WordPress saves the update data twice per check (first to stamp
+	 * last_checked, then with the result), and also after installs and
+	 * deletes. The 1-hour cache in request() keeps that to one remote call.
+	 *
+	 * @param mixed $value Update data being saved.
+	 * @return mixed
+	 */
+	public function on_pre_set_update_plugins( $value ) {
+		if ( ! is_object( $value ) || empty( $value->checked ) ) {
+			return $value;
+		}
+
+		$this->request();
+
+		return $this->site_transient_update_plugins_update( $value );
+	}
+
+	/**
+	 * The last answer from the update server, without asking it again.
+	 *
+	 * @return object|false Decoded answer, or false when there is none.
+	 */
+	public function get_stored_answer() {
+		$payload = get_option( self::get_answer_option_for_slug( $this->plugin_slug ) );
+
+		if ( ! is_string( $payload ) || $payload === '' ) {
+			return false;
+		}
+
+		$decoded = json_decode( $payload );
+
+		return is_object( $decoded ) ? $decoded : false;
 	}
 
 	/**

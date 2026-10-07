@@ -1,0 +1,147 @@
+<?php
+
+use Simple_History\AddOn_Plugin;
+use Simple_History\Plugin_Updater;
+
+/**
+ * With experimental features on, the updater asks the server only while
+ * WordPress saves its own update check, never while update data is read on
+ * an ordinary admin page.
+ */
+class PluginUpdaterBackgroundCheckTest extends \Codeception\TestCase\WPTestCase {
+	private const SLUG    = 'sh-test-addon';
+	private const ID      = 'sh-test-addon/index.php';
+	private const OPTION  = 'simple_history_plusplugin_message_' . self::SLUG;
+	private const API_URL = 'https://example.test/wp-json/lsq/v1';
+
+	/** @var array<int,string> URLs of the requests seen. */
+	private $requests = [];
+
+	/** @var string Body of the next fake reply. */
+	private $reply_body = '{"success":true,"update":{"version":"2.0.0","download_link":"https://example.test/addon.zip"}}';
+
+	/** @var int Status code of the next fake reply. */
+	private $reply_code = 200;
+
+	/** @var Plugin_Updater|null */
+	private $updater = null;
+
+	public function setUp(): void {
+		parent::setUp();
+
+		add_filter( 'simple_history/experimental_features_enabled', '__return_true' );
+		add_filter( 'pre_http_request', [ $this, 'fake_http' ], 10, 3 );
+
+		update_option(
+			self::OPTION,
+			[
+				'key'           => 'abc-123',
+				'key_activated' => true,
+			]
+		);
+
+		delete_transient( Plugin_Updater::get_cache_key_for_slug( self::SLUG ) );
+		delete_option( Plugin_Updater::get_answer_option_for_slug( self::SLUG ) );
+
+		$this->updater = new Plugin_Updater( self::ID, self::SLUG, '1.0.0', self::API_URL );
+	}
+
+	public function tearDown(): void {
+		remove_filter( 'site_transient_update_plugins', [ $this->updater, 'site_transient_update_plugins_update' ] );
+		remove_filter( 'pre_set_site_transient_update_plugins', [ $this->updater, 'on_pre_set_update_plugins' ] );
+		remove_filter( 'plugins_api', [ $this->updater, 'on_plugins_api_handle_plugin_info' ], 20 );
+		remove_filter( 'pre_http_request', [ $this, 'fake_http' ] );
+		remove_filter( 'simple_history/experimental_features_enabled', '__return_true' );
+
+		delete_option( self::OPTION );
+		delete_option( 'simple_history_plusplugin_new_features_' . self::SLUG );
+		delete_transient( Plugin_Updater::get_cache_key_for_slug( self::SLUG ) );
+		delete_option( Plugin_Updater::get_answer_option_for_slug( self::SLUG ) );
+
+		parent::tearDown();
+	}
+
+	public function fake_http( $preempt, $args, $url ) {
+		if ( strpos( $url, self::API_URL ) === false ) {
+			return $preempt;
+		}
+
+		$this->requests[] = $url;
+
+		return [
+			'headers'  => [],
+			'body'     => $this->reply_body,
+			'response' => [
+				'code'    => $this->reply_code,
+				'message' => '',
+			],
+			'cookies'  => [],
+			'filename' => null,
+		];
+	}
+
+	private function update_data(): object {
+		return (object) [
+			'checked'   => [ self::ID => '1.0.0' ],
+			'response'  => [],
+			'no_update' => [],
+		];
+	}
+
+	public function test_reading_update_data_makes_no_request() {
+		$this->assertTrue( $this->updater->check_only_with_wordpress );
+
+		$data = $this->updater->site_transient_update_plugins_update( $this->update_data() );
+
+		$this->assertSame( [], $this->requests );
+		$this->assertArrayNotHasKey( self::ID, $data->response );
+	}
+
+	public function test_saving_update_data_asks_once_and_the_answer_is_kept() {
+		// WordPress saves the update data twice per check.
+		$this->updater->on_pre_set_update_plugins( $this->update_data() );
+		$data = $this->updater->on_pre_set_update_plugins( $this->update_data() );
+
+		$this->assertCount( 1, $this->requests );
+		$this->assertSame( '2.0.0', $data->response[ self::ID ]->new_version );
+
+		// Hours later the cache is gone, but reading still offers the update without a request.
+		delete_transient( Plugin_Updater::get_cache_key_for_slug( self::SLUG ) );
+		$read = $this->updater->site_transient_update_plugins_update( $this->update_data() );
+
+		$this->assertCount( 1, $this->requests );
+		$this->assertSame( '2.0.0', $read->response[ self::ID ]->new_version );
+	}
+
+	public function test_saving_without_checked_plugins_makes_no_request() {
+		$data          = $this->update_data();
+		$data->checked = [];
+
+		$this->updater->on_pre_set_update_plugins( $data );
+
+		$this->assertSame( [], $this->requests );
+	}
+
+	public function test_request_sends_the_installed_version() {
+		$this->updater->request();
+
+		$this->assertStringContainsString( 'version=1.0.0', $this->requests[0] );
+	}
+
+	public function test_new_features_are_stored_from_the_answer_and_cleared_when_missing() {
+		$addon = new AddOn_Plugin( self::ID, self::SLUG, '1.0.0', 'Test add-on', 1 );
+
+		$this->reply_code = 401;
+		$this->reply_body = '{"success":false,"error_code":"invalid_license_key","whats_new":[{"version":"1.2.0","name":"Table view","date":"2026-09-30"},{"version":"bad","name":"Skipped"}]}';
+		$this->updater->request();
+
+		$this->assertSame( [ 'Table view' ], array_column( $addon->get_new_features( '1.0.0' ), 'name' ) );
+
+		delete_transient( Plugin_Updater::get_cache_key_for_slug( self::SLUG ) );
+		$this->reply_code = 200;
+		$this->reply_body = '{"success":true,"update":{"version":"1.2.0","download_link":"https://example.test/addon.zip"}}';
+		$this->updater->request();
+
+		$this->assertSame( [], $addon->get_new_features( '1.0.0' ) );
+	}
+}

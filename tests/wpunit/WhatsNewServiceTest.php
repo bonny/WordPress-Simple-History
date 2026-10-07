@@ -1,259 +1,297 @@
 <?php
 
+use Simple_History\AddOn_Plugin;
 use Simple_History\Simple_History;
 use Simple_History\Services\Whats_New_Service;
 
 /**
- * Tests for the Whats_New_Service feed fetch/cache robustness rules.
- *
- * The render path must soft-fail silently for every feed failure mode:
- * no card, no PHP errors, no uncached HTTP requests.
+ * Service with a Premium add-on the test controls, instead of the one
+ * registered (or not) on the test site.
+ */
+class Whats_New_Service_With_Test_Premium extends Whats_New_Service {
+	/** @var AddOn_Plugin|null */
+	public $test_premium = null;
+
+	protected function get_premium_add_on() {
+		return $this->test_premium;
+	}
+}
+
+/**
+ * The "What's new" box, billing messages and lapsed card: who sees what, when.
  */
 class WhatsNewServiceTest extends \Codeception\TestCase\WPTestCase {
-	/** @var array<string,mixed>|null Request args captured by the HTTP mock. */
-	private $captured_request_args = null;
+	private const PREMIUM_OPTION = 'simple_history_plusplugin_message_simple-history-premium';
+
+	/** @var int */
+	private $admin_id;
 
 	public function setUp(): void {
 		parent::setUp();
 
-		$this->captured_request_args = null;
+		$this->admin_id = self::factory()->user->create( [ 'role' => 'administrator' ] );
+		wp_set_current_user( $this->admin_id );
 
-		delete_site_transient( Whats_New_Service::FEED_TRANSIENT );
-		delete_transient( Whats_New_Service::LOCK_TRANSIENT );
-		delete_option( Whats_New_Service::LAST_KNOWN_GOOD_OPTION );
-		delete_option( Whats_New_Service::HTTP_META_OPTION );
+		delete_option( self::PREMIUM_OPTION );
+		delete_option( 'simple_history_plusplugin_new_features_simple-history-premium' );
+		delete_option( Whats_New_Service::CHANGELOG_CACHE_OPTION );
 	}
 
 	public function tearDown(): void {
-		remove_all_filters( 'pre_http_request' );
-		remove_all_filters( 'simple_history/whats_new/license_state' );
+		delete_option( self::PREMIUM_OPTION );
+		delete_option( 'simple_history_plusplugin_new_features_simple-history-premium' );
 
 		parent::tearDown();
 	}
 
-	private function service(): Whats_New_Service {
-		return new Whats_New_Service( Simple_History::get_instance() );
+	private function service( ?AddOn_Plugin $premium = null ): Whats_New_Service_With_Test_Premium {
+		$service               = new Whats_New_Service_With_Test_Premium( Simple_History::get_instance() );
+		$service->test_premium = $premium;
+
+		return $service;
+	}
+
+	private function premium( string $version = '1.10.0' ): AddOn_Plugin {
+		return new AddOn_Plugin( 'simple-history-premium/simple-history-premium.php', 'simple-history-premium', $version, 'Premium', 1 );
 	}
 
 	/**
-	 * Short-circuit all HTTP requests with a canned response.
+	 * Store a checked Premium license, optionally with a subscription.
 	 *
-	 * @param int    $code HTTP status code.
-	 * @param string $body Response body.
+	 * @param string     $status License status.
+	 * @param string     $expires_at Expiry.
+	 * @param array|null $subscription Subscription, or null for none.
 	 */
-	private function mock_http_response( int $code, string $body ): void {
-		add_filter(
-			'pre_http_request',
-			function ( $pre, $args ) use ( $code, $body ) {
-				$this->captured_request_args = $args;
-
-				return [
-					'headers'  => [],
-					'body'     => $body,
-					'response' => [
-						'code'    => $code,
-						'message' => '',
-					],
-					'cookies'  => [],
-					'filename' => null,
-				];
-			},
-			10,
-			2
+	private function seed_premium_license( string $status, string $expires_at, ?array $subscription = null ): void {
+		update_option(
+			self::PREMIUM_OPTION,
+			[
+				'key'           => 'abc-123',
+				'key_activated' => true,
+			]
 		);
-	}
 
-	/**
-	 * A feed entry that passes schema validation.
-	 *
-	 * @return array<string,mixed>
-	 */
-	private function valid_entry( string $title = 'Slack alerts' ): array {
-		return [
-			'version'             => '5.24.0',
-			'plugin'              => 'premium',
-			'title'               => $title,
-			'summary'             => 'Get alerts in Slack when things happen.',
-			'url'                 => 'https://simple-history.com/add-ons/premium/',
-			'min_version_to_show' => '',
-			'audience'            => [ 'all' ],
+		$license = [
+			'valid'      => $status === 'active',
+			'status'     => $status,
+			'expires_at' => $expires_at,
+			'checked_at' => '2026-10-07T12:00:00Z',
 		];
+
+		if ( $subscription !== null ) {
+			$license['subscription'] = $subscription;
+		}
+
+		$this->premium()->update_license_status_from_response( $license );
 	}
 
-	public function test_404_results_in_no_highlights_and_no_error() {
-		$this->mock_http_response( 404, 'Not found' );
+	private function newest_core_version(): string {
+		$versions = \Simple_History\Changelog_Parser::parse( file_get_contents( SIMPLE_HISTORY_PATH . 'readme.txt' ) );
+
+		return (string) array_key_first( $versions );
+	}
+
+	// "What's new" box.
+
+	public function test_first_view_stores_the_installed_version_and_shows_nothing() {
+		$service = $this->service();
+
+		$this->assertSame( [], $service->get_pending_updates( $this->admin_id ) );
+
+		$seen = get_user_meta( $this->admin_id, Whats_New_Service::META_SEEN, true );
+		$this->assertSame( SIMPLE_HISTORY_VERSION, $seen['simple-history']['version'] );
+	}
+
+	public function test_update_since_last_seen_version_is_pending_with_counts() {
+		$newest = $this->newest_core_version();
+		add_filter( 'simple_history/whats_new/plugins', fn( $plugins ) => $this->with_core_version( $plugins, $newest ) );
+
+		update_user_meta( $this->admin_id, Whats_New_Service::META_SEEN, [ 'simple-history' => [ 'version' => '5.0.0', 'views' => 0 ] ] );
+
+		$updates = $this->service()->get_pending_updates( $this->admin_id );
+
+		$this->assertArrayHasKey( 'simple-history', $updates );
+		$this->assertSame( $newest, $updates['simple-history']['summary']['versions'][0] );
+		$this->assertStringStartsWith( 'https://simple-history.com/', $updates['simple-history']['summary']['release_url'] );
+	}
+
+	public function test_box_counts_as_seen_after_three_views() {
+		$newest = $this->newest_core_version();
+		add_filter( 'simple_history/whats_new/plugins', fn( $plugins ) => $this->with_core_version( $plugins, $newest ) );
+		update_user_meta( $this->admin_id, Whats_New_Service::META_SEEN, [ 'simple-history' => [ 'version' => '5.0.0', 'views' => 0 ] ] );
 
 		$service = $this->service();
-		$service->fetch_feed();
 
-		$this->assertSame( [], $service->get_highlights() );
-		$this->assertFalse( get_site_transient( Whats_New_Service::FEED_TRANSIENT ) );
-		$this->assertFalse( get_option( Whats_New_Service::LAST_KNOWN_GOOD_OPTION ) );
+		for ( $i = 0; $i < 3; $i++ ) {
+			ob_start();
+			$service->output_top_slot();
+			$output = ob_get_clean();
+
+			$this->assertStringContainsString( 'sh-WhatsNew', $output, "Shown on view {$i}" );
+		}
+
+		ob_start();
+		$service->output_top_slot();
+		$this->assertSame( '', trim( ob_get_clean() ) );
 	}
 
-	public function test_malformed_json_caches_empty_and_logs() {
-		$this->mock_http_response( 200, '{this is not json' );
+	public function test_dismissing_marks_every_plugin_seen() {
+		update_user_meta( $this->admin_id, Whats_New_Service::META_SEEN, [ 'simple-history' => [ 'version' => '5.0.0', 'views' => 0 ] ] );
 
 		$service = $this->service();
-		$service->fetch_feed();
+		$service->mark_all_seen( $this->admin_id );
 
-		$this->assertSame( [], $service->get_highlights() );
-
-		// Empty array cached (not false), so no refetch storm before next cron.
-		$this->assertSame( [], get_site_transient( Whats_New_Service::FEED_TRANSIENT ) );
-
-		// Malformed payload must never become last-known-good.
-		$this->assertFalse( get_option( Whats_New_Service::LAST_KNOWN_GOOD_OPTION ) );
+		$this->assertSame( [], $service->get_pending_updates( $this->admin_id ) );
 	}
 
-	public function test_wrong_top_level_shape_treated_as_malformed() {
-		$this->mock_http_response( 200, wp_json_encode( [ 'items' => [ $this->valid_entry() ] ] ) );
+	public function test_downgrade_shows_nothing() {
+		update_user_meta( $this->admin_id, Whats_New_Service::META_SEEN, [ 'simple-history' => [ 'version' => '99.0.0', 'views' => 0 ] ] );
 
+		$this->assertSame( [], $this->service()->get_pending_updates( $this->admin_id ) );
+	}
+
+	public function test_update_line_wording_per_combination() {
 		$service = $this->service();
-		$service->fetch_feed();
-
-		$this->assertSame( [], $service->get_highlights() );
-		$this->assertSame( [], get_site_transient( Whats_New_Service::FEED_TRANSIENT ) );
-	}
-
-	public function test_invalid_entries_are_skipped_but_valid_ones_kept() {
-		$entry_missing_title = $this->valid_entry();
-		unset( $entry_missing_title['title'] );
-
-		$entry_bad_plugin           = $this->valid_entry( 'Bad plugin entry' );
-		$entry_bad_plugin['plugin'] = 'not-a-real-plugin';
-
-		$body = wp_json_encode(
+		$line    = fn( $features, $fixes, $other ) => $service->get_update_line(
 			[
-				'highlights' => [
-					$entry_missing_title,
-					$this->valid_entry( 'Kept entry' ),
-					$entry_bad_plugin,
-					'not even an array',
+				'name'    => 'Simple History',
+				'version' => '5.35.0',
+				'summary' => [
+					'features' => $features,
+					'fixes'    => $fixes,
+					'other'    => $other,
 				],
 			]
 		);
 
-		$this->mock_http_response( 200, $body );
-
-		$service = $this->service();
-		$service->fetch_feed();
-
-		$highlights = $service->get_highlights();
-
-		$this->assertCount( 1, $highlights );
-		$this->assertSame( 'Kept entry', $highlights[0]['title'] );
+		$this->assertSame( 'Simple History 5.35.0: 4 new features and 9 fixes.', $line( 4, 9, 2 ) );
+		$this->assertSame( 'Simple History 5.35.0: 1 new feature.', $line( 1, 0, 0 ) );
+		$this->assertSame( 'Simple History 5.35.0: 5 fixes.', $line( 0, 5, 0 ) );
+		$this->assertSame( 'Simple History 5.35.0: fixes and small improvements.', $line( 0, 2, 1 ) );
+		$this->assertSame( 'Simple History 5.35.0: 3 improvements.', $line( 0, 0, 3 ) );
 	}
 
-	public function test_empty_highlights_renders_no_card() {
-		$this->mock_http_response( 200, wp_json_encode( [ 'highlights' => [] ] ) );
+	public function test_core_highlights_are_available_as_data() {
+		$highlights = apply_filters( 'simple_history/update_highlights', null, 'simple-history', '5.35.0' );
 
-		$admin_id = self::factory()->user->create( [ 'role' => 'administrator' ] );
-		wp_set_current_user( $admin_id );
+		$this->assertIsArray( $highlights );
+		$this->assertNotEmpty( $highlights['features'] );
+		$this->assertStringStartsWith( 'https://simple-history.com/', $highlights['release_link'] );
+		$this->assertNull( apply_filters( 'simple_history/update_highlights', null, 'simple-history', '5.34.1' ) );
+	}
 
-		// Simulate a lapsed license so only the empty feed suppresses the card.
-		add_filter(
-			'simple_history/whats_new/license_state',
-			function () {
-				return [
-					'state'      => 'expired',
-					'expires_at' => gmdate( 'Y-m-d', time() - 100 * DAY_IN_SECONDS ),
-				];
-			}
-		);
+	// Billing messages.
 
-		$service = $this->service();
-		$service->fetch_feed();
+	public function test_failed_payment_shows_billing_message_to_admins_only() {
+		$this->seed_premium_license( 'active', '2026-10-20T00:00:00Z', [ 'status' => 'past_due', 'cancelled' => false, 'renews_at' => '2026-10-20T00:00:00Z', 'ends_at' => null ] );
+		$service = $this->service( $this->premium() );
+
+		$this->assertSame( 'payment_failed', $service->get_billing_message()['type'] );
+
+		wp_set_current_user( self::factory()->user->create( [ 'role' => 'editor' ] ) );
+		$this->assertNull( $service->get_billing_message() );
+	}
+
+	public function test_cancelled_subscription_shows_end_date_until_dismissed() {
+		$ends_at = gmdate( 'Y-m-d\TH:i:s\Z', time() + 20 * DAY_IN_SECONDS );
+		$this->seed_premium_license( 'active', $ends_at, [ 'status' => 'cancelled', 'cancelled' => true, 'renews_at' => $ends_at, 'ends_at' => $ends_at ] );
+		$service = $this->service( $this->premium() );
+
+		$message = $service->get_billing_message();
+		$this->assertSame( 'ends', $message['type'] );
 
 		ob_start();
-		$service->output_expired_card();
+		$service->output_top_slot();
 		$output = ob_get_clean();
+		$this->assertStringContainsString( 'Premium keeps working after that', $output );
 
-		$this->assertSame( '', $output );
+		update_user_meta( $this->admin_id, Whats_New_Service::META_BILLING_DISMISSED, $message['key'] );
+		$this->assertNull( $service->get_billing_message() );
 	}
 
-	public function test_fetch_passes_timeout_argument() {
-		$this->mock_http_response( 200, wp_json_encode( [ 'highlights' => [] ] ) );
+	public function test_license_answer_without_subscription_clears_the_stored_one() {
+		$this->seed_premium_license( 'active', '2026-10-20T00:00:00Z', [ 'status' => 'past_due', 'cancelled' => false ] );
+		$this->assertNotNull( $this->premium()->get_license_state()['subscription'] );
 
-		$this->service()->fetch_feed();
+		// Renewed: the key is a year from expiry, so the server sends no subscription.
+		$this->seed_premium_license( 'active', '2027-10-20T00:00:00Z' );
 
-		$this->assertIsArray( $this->captured_request_args );
-		$this->assertArrayHasKey( 'timeout', $this->captured_request_args );
-		$this->assertSame( 10, $this->captured_request_args['timeout'] );
+		$this->assertNull( $this->premium()->get_license_state()['subscription'] );
+		$this->assertNull( $this->service( $this->premium() )->get_billing_message() );
 	}
 
-	public function test_card_renders_for_expired_license_with_enough_highlights() {
-		$body = wp_json_encode(
-			[
-				'highlights' => [
-					$this->valid_entry( 'Slack alerts' ),
-					$this->valid_entry( 'Scheduled email reports' ),
-					$this->valid_entry( 'Custom log channels' ),
-				],
-			]
-		);
+	// Lapsed card.
 
-		$this->mock_http_response( 200, $body );
+	private function seed_new_features( int $count ): void {
+		$features = [];
 
-		$admin_id = self::factory()->user->create( [ 'role' => 'administrator' ] );
-		wp_set_current_user( $admin_id );
+		for ( $i = 0; $i < $count; $i++ ) {
+			$features[] = [
+				'version' => '1.' . ( 20 + $i ) . '.0',
+				'name'    => 'Feature ' . $i,
+				'date'    => '2026-0' . ( 1 + $i ) . '-01',
+			];
+		}
 
-		add_filter(
-			'simple_history/whats_new/license_state',
-			function () {
-				return [
-					'state'      => 'expired',
-					'expires_at' => gmdate( 'Y-m-d', time() - 45 * DAY_IN_SECONDS ),
-				];
-			}
-		);
-
-		$service = $this->service();
-		$service->fetch_feed();
-
-		ob_start();
-		$service->output_expired_card();
-		$output = ob_get_clean();
-
-		$this->assertStringContainsString( 'sh-WhatsNewCard', $output );
-		$this->assertStringContainsString( 'premium features shipped since you left', $output );
-		$this->assertStringContainsString( 'Slack alerts', $output );
-		$this->assertStringContainsString( 'utm_campaign=premium_whats_new', $output );
-		$this->assertStringContainsString( 'Dismiss what&#039;s new', $output );
+		$this->premium()->update_new_features_from_response( json_decode( wp_json_encode( $features ) ) );
 	}
 
-	public function test_fewer_than_three_highlights_suppresses_card() {
-		$body = wp_json_encode(
-			[
-				'highlights' => [
-					$this->valid_entry( 'Slack alerts' ),
-					$this->valid_entry( 'Scheduled email reports' ),
-				],
-			]
-		);
+	public function test_lapsed_card_stage_follows_days_since_expiry() {
+		$this->seed_premium_license( 'expired', gmdate( 'Y-m-d\TH:i:s\Z', time() - 45 * DAY_IN_SECONDS ) );
+		$this->seed_new_features( 4 );
 
-		$this->mock_http_response( 200, $body );
+		$card = $this->service( $this->premium() )->get_lapsed_card();
 
-		$admin_id = self::factory()->user->create( [ 'role' => 'administrator' ] );
-		wp_set_current_user( $admin_id );
+		$this->assertSame( 'recent', $card['stage'] );
+		$this->assertCount( 4, $card['features'] );
 
-		add_filter(
-			'simple_history/whats_new/license_state',
-			function () {
-				return [
-					'state'      => 'expired',
-					'expires_at' => gmdate( 'Y-m-d', time() - 45 * DAY_IN_SECONDS ),
-				];
-			}
-		);
+		$this->seed_premium_license( 'expired', gmdate( 'Y-m-d\TH:i:s\Z', time() - 400 * DAY_IN_SECONDS ) );
+		$this->assertSame( 'old', $this->service( $this->premium() )->get_lapsed_card()['stage'] );
+	}
 
-		$service = $this->service();
-		$service->fetch_feed();
+	public function test_lapsed_card_needs_three_new_features() {
+		$this->seed_premium_license( 'expired', gmdate( 'Y-m-d\TH:i:s\Z', time() - 45 * DAY_IN_SECONDS ) );
+		$this->seed_new_features( 2 );
 
-		ob_start();
-		$service->output_expired_card();
-		$output = ob_get_clean();
+		$this->assertNull( $this->service( $this->premium() )->get_lapsed_card() );
+	}
 
-		$this->assertSame( '', $output );
+	public function test_lapsed_card_hidden_while_a_billing_message_applies() {
+		$this->seed_premium_license( 'expired', gmdate( 'Y-m-d\TH:i:s\Z', time() - 5 * DAY_IN_SECONDS ), [ 'status' => 'past_due', 'cancelled' => false ] );
+		$this->seed_new_features( 4 );
+
+		$this->assertNull( $this->service( $this->premium() )->get_lapsed_card() );
+	}
+
+	public function test_lapsed_card_dismissal_lasts_one_stage() {
+		$this->seed_premium_license( 'expired', gmdate( 'Y-m-d\TH:i:s\Z', time() - 45 * DAY_IN_SECONDS ) );
+		$this->seed_new_features( 4 );
+		update_user_meta( $this->admin_id, Whats_New_Service::META_LAPSED_DISMISSED, [ 'recent' => true ] );
+
+		$this->assertNull( $this->service( $this->premium() )->get_lapsed_card() );
+
+		$this->seed_premium_license( 'expired', gmdate( 'Y-m-d\TH:i:s\Z', time() - 120 * DAY_IN_SECONDS ) );
+		$this->assertSame( 'year', $this->service( $this->premium() )->get_lapsed_card()['stage'] );
+	}
+
+	public function test_new_features_only_count_versions_after_the_installed_one() {
+		$this->seed_new_features( 4 );
+
+		$features = $this->premium( '1.21.0' )->get_new_features( '1.21.0' );
+
+		$this->assertSame( [ '1.23.0', '1.22.0' ], array_column( $features, 'version' ) );
+	}
+
+	/**
+	 * Set the core plugin's version in the plugin list.
+	 *
+	 * @param array  $plugins Plugins.
+	 * @param string $version Version.
+	 * @return array
+	 */
+	private function with_core_version( array $plugins, string $version ): array {
+		$plugins['simple-history']['version'] = $version;
+
+		return $plugins;
 	}
 }

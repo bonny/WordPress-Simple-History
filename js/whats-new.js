@@ -1,15 +1,14 @@
 /**
- * Dismissal handling for the Simple History "What's new" surfaces.
+ * Dismissals for the "What's new" box, billing messages and the lapsed card.
  *
- * Full card dismiss: collapse height over 150ms, then reveal the small
- * single-line variant. Small dismiss: fade out over 200ms.
+ * Opening the "What's new" box counts as having seen it, like dismissing it.
  */
 ( function () {
 	'use strict';
 
 	var settings = window.simpleHistoryWhatsNew || {};
 
-	function sendDismiss( level ) {
+	function send( kind, value ) {
 		if ( ! settings.ajaxurl || ! window.fetch ) {
 			return;
 		}
@@ -17,7 +16,8 @@
 		var data = new window.FormData();
 		data.append( 'action', settings.action );
 		data.append( 'nonce', settings.nonce );
-		data.append( 'level', level );
+		data.append( 'kind', kind );
+		data.append( 'value', value || '' );
 
 		window.fetch( settings.ajaxurl, {
 			method: 'POST',
@@ -26,63 +26,50 @@
 		} );
 	}
 
-	function collapseFullCard( card ) {
-		var small = document.querySelector( '.sh-WhatsNewSmall' );
-
-		card.style.height = card.offsetHeight + 'px';
-		card.setAttribute( 'aria-hidden', 'true' );
-
-		// Force a reflow so the height transition runs from the pixel value.
-		void card.offsetHeight;
-
-		card.classList.add( 'is-dismissed' );
-		card.style.height = '0px';
-
-		window.setTimeout( function () {
-			card.remove();
-
-			if ( small ) {
-				small.hidden = false;
-			}
-		}, 180 );
-	}
-
-	function fadeOutSmall( small ) {
-		small.setAttribute( 'aria-hidden', 'true' );
-		small.classList.add( 'is-dismissed' );
-
-		window.setTimeout( function () {
-			small.remove();
-		}, 220 );
+	function getContainer( element ) {
+		return element.closest
+			? element.closest( '[data-sh-whats-new-kind]' )
+			: null;
 	}
 
 	document.addEventListener( 'click', function ( event ) {
-		if ( ! event.target.closest ) {
+		var button = event.target.closest
+			? event.target.closest( '.js-sh-whats-new-dismiss' )
+			: null;
+		var container = button ? getContainer( button ) : null;
+
+		if ( ! container ) {
 			return;
 		}
 
-		var fullButton = event.target.closest( '.js-sh-whats-new-dismiss-full' );
-
-		if ( fullButton ) {
-			var card = fullButton.closest( '.sh-WhatsNewCard' );
-
-			if ( card ) {
-				collapseFullCard( card );
-				sendDismiss( 'full' );
-			}
-
-			return;
-		}
-
-		var smallButton = event.target.closest( '.js-sh-whats-new-dismiss-small' );
-
-		if ( smallButton ) {
-			var small = smallButton.closest( '.sh-WhatsNewSmall' );
-
-			if ( small ) {
-				fadeOutSmall( small );
-				sendDismiss( 'small' );
-			}
-		}
+		send(
+			container.dataset.shWhatsNewKind,
+			container.dataset.shWhatsNewValue
+		);
+		container.remove();
 	} );
+
+	// The toggle event doesn't bubble, so listen in the capture phase.
+	document.addEventListener(
+		'toggle',
+		function ( event ) {
+			var details = event.target;
+
+			if (
+				! details.open ||
+				! details.classList ||
+				! details.classList.contains( 'sh-WhatsNew-details' )
+			) {
+				return;
+			}
+
+			var container = getContainer( details );
+
+			if ( container && ! container.dataset.shWhatsNewOpened ) {
+				container.dataset.shWhatsNewOpened = '1';
+				send( 'whats_new', '' );
+			}
+		},
+		true
+	);
 } )();
