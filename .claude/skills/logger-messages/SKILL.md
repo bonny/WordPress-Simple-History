@@ -1,6 +1,6 @@
 ---
 name: logger-messages
-description: Enforces active voice for logger messages and the Event Details API. Use when writing a new logger class or modifying message arrays in getInfo().
+description: Enforces active voice for logger messages and the Event Details API. Use when writing a new logger class or modifying message arrays in get_info().
 allowed-tools: Read, Grep, Glob
 user-invocable: false
 ---
@@ -25,7 +25,7 @@ Published post                Post has been published
 ## In Logger Classes
 
 ```php
-public function getInfo() {
+public function get_info() {
     return [
         'messages' => [
             'plugin_activated' => __( 'Activated plugin', 'simple-history' ),
@@ -186,4 +186,3 @@ Many older loggers build HTML manually with `SimpleHistoryLogitem__keyValueTable
 ## Detailed Resources
 
 -   [examples.md](examples.md) - Extensive examples across all WordPress contexts
--   [integration.md](integration.md) - Complete logger class implementation
