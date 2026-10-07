@@ -18,8 +18,8 @@ This skill captures **(a)** the event mix that does that and **(b)** the reprodu
 | Banner large      | `.wordpress-org/banner-1544x500.png`  | 1544×500                                          |
 | Banner small      | `.wordpress-org/banner-772x250.png`   | 772×250                                           |
 | Main screenshot   | `.wordpress-org/screenshot-1.png`     | 3200×2260 (retina, 1600×1130 @ 2×)                |
-| Dashboard widget  | `.wordpress-org/screenshot-10.png`    | 2880×1800 (retina, 1440×900 @ 2×) — classic 16:10 |
-| Other screenshots | `.wordpress-org/screenshot-{2-9}.png` | varies                                            |
+| Dashboard widget  | `.wordpress-org/screenshot-9.png`     | 2880×1800 (retina, 1440×900 @ 2×) — classic 16:10 |
+| Other screenshots | `.wordpress-org/screenshot-{2-8,10,11}.png` | varies                                            |
 
 All sync to wordpress.org via `.github/workflows/deploy.yml` (10up/action-wordpress-plugin-deploy) on next tag push, or right away with the manual `readme-assets.yml` workflow (see the `release` skill).
 
@@ -95,26 +95,29 @@ Most installers fall into one of three buckets. A good mockup hits all three.
 npm run screenshot
 ```
 
-That boots a fresh WordPress Playground, populates the curated events + historical noise, captures **both** `.wordpress-org/screenshot-1.png` (main log view) **and** `.wordpress-org/screenshot-dashboard-widget.png` (dashboard widget) via Playwright, and tears the playground down. **About 90 seconds end-to-end.**
+That boots a fresh WordPress Playground, populates the curated events + historical noise, runs every `tests/playwright/screenshot-*.spec.js` (one image each: `screenshot-1.png` … `screenshot-11.png` plus the banner pair), downscales the banner to 772×250, runs pngquant, and tears the playground down. Pass spec names to capture a subset: `npm run screenshot -- banner playground` (full list in the header of `tests/screenshot/run.sh`). **About 90 seconds end-to-end.**
 
 ### Files in the pipeline
 
 ```
 tests/screenshot/
 ├── blueprint.json              ← Playground blueprint (steps: login, mkdir, cp, activatePlugin, setSiteOptions, runPHP)
-├── events.php                  ← Creates users, fires the 5 curated events, generates ~50 historical events
+├── events.php                  ← Creates users, fires the curated events, generates ~50 historical events
 ├── silence-mu-plugin.php       ← Filters out noise + remaps avatars
 ├── run.sh                      ← Boots playground, calls Playwright, tears down
 ├── team-photo.jpg              ← Upload fixture (Unsplash / Pexels — see "Image fixtures" below)
 ├── avatar-sally.webp           ← Avatar for sally@example.com
 ├── avatar-alex.webp            ← Avatar for alex@example.com
-└── avatar-robin.png            ← Avatar for robin@example.com
+├── avatar-robin.png            ← Avatar for robin@example.com
+├── banner-mockup.html          ← Banner source: headline copy + stylized UI panel
+├── banner-team-photo.jpg       ← Photo used in the banner
+└── fonts/                      ← Fonts for the banner mockup
 
 tests/playwright/
-├── screenshot-playground.spec.js          ← Main log view (1600×1130 @ 2×)
-└── screenshot-dashboard-widget.spec.js    ← Dashboard widget at /wp-admin/index.php (clipped to widget element @ 2×)
+├── screenshot-*.spec.js                   ← One spec per image (see the header of run.sh), e.g. screenshot-playground.spec.js = main log view (1600×1130 @ 2×)
+└── screenshot-helpers.js                  ← Shared helpers for the screenshot specs
 
-playwright.config.js               ← Defines the `screenshot` project (separate from the chromium/auth pipeline)
+playwright.config.js               ← Defines the `screenshot` project (separate from the `tests`/`setup` projects)
 ```
 
 ### Viewport dimensions
@@ -256,21 +259,7 @@ Save as `tests/screenshot/team-photo.jpg`. Re-running `npm run screenshot` picks
 
 ## Part 4: Banner production (separate from main screenshot)
 
-The banner is a designed asset — the UI panel on the right is a stylized mockup, not a literal admin screenshot. Two paths:
-
-### Option A — Standalone HTML mockup
-
-Build the UI panel as a standalone HTML file matching Simple History's event row styling, populate the 6 events above as static HTML, screenshot via Playwright at 2× scale, then composite into the banner in Figma / design tool.
-
-Advantages:
-
--   No "today's actual logger output" leaking in
--   Pixel control over layout, spacing, badges
--   Easy to iterate (edit HTML, re-screenshot)
-
-### Option B — Design tool (Figma, Sketch)
-
-If a banner source file exists in the project archive, edit there. Recreating from scratch loses headline typography and layout decisions.
+The banner is a designed asset — the UI panel on the right is a stylized mockup, not a literal admin screenshot. It is rendered from `tests/screenshot/banner-mockup.html` by `screenshot-banner.spec.js` (`npm run screenshot -- banner`, no Playground needed), and `run.sh` downscales it to `banner-772x250.png`. Edit the HTML to change layout, events or copy: no "today's actual logger output" leaks in, and you get pixel control over layout, spacing and badges.
 
 ### Headline copy (banner only)
 
@@ -293,7 +282,7 @@ These are the things that cost an hour to figure out the first time.
 5. **Fire-order = visual-order reversed** — first event fired → oldest timestamp → bottom of log.
 6. **Mouse hover leaves a grey row background** — the cursor often ends up over an event row after the navigation animation finishes. Park it in the bottom-left AND dispatch synthetic mouseleave events on the rows to be safe.
 7. **Auto-backfill fires on first admin_init** — kill `simple_history_auto_backfill_pending` in events.php or you'll get a "Welcome to Simple History" event at the top.
-8. **The auth.setup spec creates a "Logged in" event** — separate the `screenshot` Playwright project from the `chromium` one (with no setup dependency) so the screenshot spec logs in on its own clean session.
+8. **The auth.setup spec creates a "Logged in" event** — separate the `screenshot` Playwright project from the `tests` project (which depends on `setup`) so the screenshot spec logs in on its own clean session.
 9. **Most Active Users widget showed "(1)" for users with no display_name** — fixed in core: `inc/class-events-stats.php` `get_top_users()` now selects `user_login` and falls back in PHP when display_name is empty.
 10. **WordPress version compatibility** — pipeline targets WP latest. If you need to test against a specific version, set `"preferredVersions": { "wp": "6.9" }` in `blueprint.json`.
 11. **Per-event-type filters can't be conditional** — `add_filter('simple_history/log/do_log/SimpleUserLogger/user_created', '__return_false')` blocks the message globally. To allow some `user_created` events through (e.g. the WP-CLI one) but block bootstrap noise, use the general `simple_history/log/do_log` filter and discriminate on `$context['_initiator']` instead.

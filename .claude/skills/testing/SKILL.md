@@ -180,7 +180,7 @@ test( 'test', async ( { page } ) => {
 Apply these conventions to match the rest of the suite:
 
 -   Use `require()` (CommonJS), not `import` — matches `log-page.spec.js`, `post-logging.spec.js`.
--   Drop `test.use({ storageState })` — the chromium project in `playwright.config.js` already sets it.
+-   Drop `test.use({ storageState })` — the `tests` project in `playwright.config.js` already sets it.
 -   Use relative URLs (`/wp-admin/...`) — `baseURL` is configured.
 -   Give the test a descriptive name — it shows up in reports.
 -   Group related tests with `test.describe()` and share setup in `beforeEach()`.
