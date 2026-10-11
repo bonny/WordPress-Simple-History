@@ -874,4 +874,286 @@ class DestinationSendersTest extends PremiumTestCase {
 		$this->assertStringNotContainsString( '<https://evil.example|', $payload['text'] );
 		$this->assertStringContainsString( '&lt;!channel&gt;', $payload['text'] );
 	}
+
+	// =========================================================================
+	// Event details in alerts (issue 365)
+	// =========================================================================
+
+	public function test_limit_details_keeps_three_lines(): void {
+		$method = new \ReflectionMethod( Email_Destination_Sender::class, 'limit_details' );
+		$method->setAccessible( true );
+
+		$output = $method->invoke( new Email_Destination_Sender(), "One: 1\nTwo: 2\n\nThree: 3\nFour: 4\nFive: 5" );
+
+		$this->assertSame( "One: 1\nTwo: 2\nThree: 3\n…", $output );
+		$this->assertSame( '', $method->invoke( new Email_Destination_Sender(), '' ) );
+	}
+
+	public function test_limit_details_truncates_long_lines(): void {
+		$method = new \ReflectionMethod( Email_Destination_Sender::class, 'limit_details' );
+		$method->setAccessible( true );
+
+		$output = $method->invoke( new Email_Destination_Sender(), 'Title: ' . str_repeat( 'å', 500 ) );
+
+		$this->assertSame( 201, preg_match_all( '/./us', $output ), '200 characters plus the ellipsis.' );
+		$this->assertStringEndsWith( '…', $output );
+	}
+
+	/**
+	 * The original report: an alert for a profile edit must say which roles changed.
+	 */
+	public function test_email_alert_includes_event_details(): void {
+		add_filter( 'simple_history/is_rest_request', '__return_true' );
+		wp_set_current_user( $this->factory->user->create( [ 'role' => 'administrator' ] ) );
+
+		$inserted = null;
+		add_action(
+			'simple_history/log/inserted',
+			function ( $context, $data ) use ( &$inserted ) {
+				if ( ( $context['_message_key'] ?? '' ) === 'user_updated_profile' ) {
+					$inserted = [ $context, $data ];
+				}
+			},
+			10,
+			2
+		);
+
+		$user_id = $this->factory->user->create( [ 'role' => 'editor' ] );
+		wp_update_user(
+			[
+				'ID'   => $user_id,
+				'role' => 'author',
+			]
+		);
+
+		remove_all_filters( 'simple_history/is_rest_request' );
+		$this->assertNotNull( $inserted, 'The profile edit should be logged.' );
+
+		$body = null;
+		add_filter(
+			'wp_mail',
+			function ( $args ) use ( &$body ) {
+				$body = $args['message'];
+				return $args;
+			}
+		);
+
+		( new Email_Destination_Sender() )->send( [ 'config' => [ 'recipients' => 'test@example.com' ] ], $inserted[1], $inserted[0] );
+
+		$this->assertStringContainsString( 'Role added: author', $body );
+		$this->assertStringContainsString( 'Role removed: editor', $body );
+	}
+
+	/**
+	 * Details are user-controlled. No run of backticks may survive inside the
+	 * code block, or it closes early and the rest renders as markup.
+	 *
+	 * @return array<string, array{0: string}>
+	 */
+	public function fence_breakers(): array {
+		return [
+			'three'        => [ 'x```*URGENT* _reset now_```' ],
+			'five'         => [ '`````[Reset password](https://evil.example)' ],
+			'two and four' => [ "a``b\n````c" ],
+			'at the edges' => [ '`edge`' ],
+		];
+	}
+
+	public function test_slack_details_code_block_cannot_be_closed(): void {
+		$method = new \ReflectionMethod( Slack_Destination_Sender::class, 'build_payload' );
+		$method->setAccessible( true );
+		$sender = new Slack_Destination_Sender();
+
+		foreach ( $this->fence_breakers() as $label => [ $details ] ) {
+			$payload = $method->invoke( $sender, $this->get_normalized_for_payload(), $details, 'https://example.com/event' );
+			$block   = $this->find_code_block( $payload['blocks'] );
+
+			$this->assertNotNull( $block, "$label: details block is missing." );
+
+			$inner = substr( $block, 3, -3 );
+			$this->assertStringNotContainsString( '``', $inner, "$label: two backticks in a row survived." );
+			$this->assertStringStartsNotWith( '`', $inner, "$label: a backtick touches the opening fence." );
+			$this->assertStringEndsNotWith( '`', $inner, "$label: a backtick touches the closing fence." );
+			$this->assertSame( $details, str_replace( "\u{200B}", '', $inner ), "$label: only zero-width spaces may be added." );
+		}
+	}
+
+	public function test_discord_details_code_block_cannot_be_closed(): void {
+		$method = new \ReflectionMethod( Discord_Destination_Sender::class, 'escape_discord_code_block' );
+		$method->setAccessible( true );
+		$sender = new Discord_Destination_Sender();
+
+		foreach ( $this->fence_breakers() as $label => [ $details ] ) {
+			$escaped = $method->invoke( $sender, $details );
+
+			$this->assertStringNotContainsString( '``', $escaped, "$label: two backticks in a row survived." );
+			$this->assertSame( $details, str_replace( "\u{200B}", '', $escaped ), "$label: only zero-width spaces may be added." );
+		}
+	}
+
+	/**
+	 * Normalized event data as build_payload() expects it.
+	 *
+	 * @return array
+	 */
+	private function get_normalized_for_payload(): array {
+		$sender = new Slack_Destination_Sender();
+		$test   = $sender->get_test_event_data();
+		$method = new \ReflectionMethod( Slack_Destination_Sender::class, 'get_normalized_event_data' );
+		$method->setAccessible( true );
+
+		return $method->invoke( $sender, $test['event_data'], $test['context'] );
+	}
+
+	/**
+	 * Find the text of the code block section in Slack blocks.
+	 *
+	 * @param array $blocks Slack blocks.
+	 * @return string|null
+	 */
+	private function find_code_block( array $blocks ): ?string {
+		foreach ( $blocks as $block ) {
+			$text = $block['text']['text'] ?? '';
+
+			if ( strpos( $text, '```' ) === 0 ) {
+				return $text;
+			}
+		}
+
+		return null;
+	}
+
+	/**
+	 * Structured details, as core's Channel_Event_Details builds them.
+	 *
+	 * @return array<int, array<string, string|bool>>
+	 */
+	private function get_details_list(): array {
+		return [
+			[
+				'label' => 'Role added',
+				'key'   => 'user_added_roles',
+				'new'   => 'administrator',
+			],
+			[
+				'label' => 'Display name',
+				'prev'  => 'John',
+				'new'   => 'x```*URGENT* <https://evil.example|Click> <b>bold</b>',
+			],
+			[
+				'label'   => 'Content',
+				'changed' => true,
+			],
+		];
+	}
+
+	public function test_slack_details_list_is_a_rich_text_bullet_list(): void {
+		$method = new \ReflectionMethod( Slack_Destination_Sender::class, 'build_payload' );
+		$method->setAccessible( true );
+
+		$payload = $method->invoke( new Slack_Destination_Sender(), $this->get_normalized_for_payload(), "text\nfallback", 'https://example.com/event', $this->get_details_list(), true );
+
+		$rich = null;
+		foreach ( $payload['blocks'] as $block ) {
+			if ( $block['type'] === 'rich_text' ) {
+				$rich = $block;
+			}
+		}
+
+		$this->assertNotNull( $rich, 'A rich_text block is used instead of the code block.' );
+		$this->assertNull( $this->find_code_block( $payload['blocks'] ), 'No code block when there is a list.' );
+
+		$list = $rich['elements'][0];
+		$this->assertSame( 'rich_text_list', $list['type'] );
+		$this->assertSame( 'bullet', $list['style'] );
+		$this->assertCount( 3, $list['elements'], 'Three items, the "…" is not a bullet.' );
+
+		$first = $list['elements'][0]['elements'];
+		$this->assertSame( 'Role added: ', $first[0]['text'] );
+		$this->assertTrue( $first[0]['style']['bold'] );
+		$this->assertSame( 'administrator', $first[1]['text'] );
+
+		// Rich text is shown as is: the hostile value is passed through unescaped and unparsed.
+		$this->assertSame( 'John → x```*URGENT* <https://evil.example|Click> <b>bold</b>', $list['elements'][1]['elements'][1]['text'] );
+		$this->assertSame( 'changed', $list['elements'][2]['elements'][1]['text'] );
+		$this->assertSame( 'rich_text_section', $rich['elements'][1]['type'], '"…" is plain text below the list.' );
+		$this->assertSame( '…', $rich['elements'][1]['elements'][0]['text'] );
+	}
+
+	public function test_slack_falls_back_to_code_block_without_list(): void {
+		$method = new \ReflectionMethod( Slack_Destination_Sender::class, 'build_payload' );
+		$method->setAccessible( true );
+
+		$payload = $method->invoke( new Slack_Destination_Sender(), $this->get_normalized_for_payload(), 'Legacy: text', 'https://example.com/event' );
+
+		$this->assertSame( '```Legacy: text```', $this->find_code_block( $payload['blocks'] ) );
+	}
+
+	public function test_telegram_details_list_is_bullets_with_escaped_values(): void {
+		$method = new \ReflectionMethod( Telegram_Destination_Sender::class, 'build_message' );
+		$method->setAccessible( true );
+
+		$message = $method->invoke( new Telegram_Destination_Sender(), $this->get_normalized_for_payload(), "text\nfallback", 'https://example.com/event', $this->get_details_list(), true );
+
+		$this->assertStringContainsString( '• <b>Role added:</b> administrator', $message );
+		$this->assertStringContainsString( '• <b>Display name:</b> John → x```*URGENT* &lt;https://evil.example|Click&gt; &lt;b&gt;bold&lt;/b&gt;', $message );
+		$this->assertStringContainsString( '• <b>Content:</b> changed', $message );
+		$this->assertStringContainsString( "\n…\n", $message );
+		$this->assertStringNotContainsString( '<pre>', $message );
+		$this->assertLessThan( strpos( $message, 'View Event' ), strpos( $message, 'Role added' ), 'Details come before the links.' );
+	}
+
+	/**
+	 * End to end: a real profile edit gives a bulleted list in a Slack alert.
+	 */
+	public function test_slack_alert_for_profile_edit_uses_details_list(): void {
+		add_filter( 'simple_history/is_rest_request', '__return_true' );
+		wp_set_current_user( $this->factory->user->create( [ 'role' => 'administrator' ] ) );
+
+		$inserted = null;
+		add_action(
+			'simple_history/log/inserted',
+			function ( $context, $data ) use ( &$inserted ) {
+				if ( ( $context['_message_key'] ?? '' ) === 'user_updated_profile' ) {
+					$inserted = [ $context, $data ];
+				}
+			},
+			10,
+			2
+		);
+
+		$user_id = $this->factory->user->create( [ 'role' => 'editor' ] );
+		wp_update_user(
+			[
+				'ID'   => $user_id,
+				'role' => 'author',
+			]
+		);
+		remove_all_filters( 'simple_history/is_rest_request' );
+
+		$body = null;
+		add_filter(
+			'pre_http_request',
+			function ( $pre, $args ) use ( &$body ) {
+				$body = $args['body'];
+				return [
+					'headers'  => [],
+					'body'     => 'ok',
+					'response' => [
+						'code'    => 200,
+						'message' => 'OK',
+					],
+					'cookies'  => [],
+				];
+			},
+			10,
+			2
+		);
+
+		( new Slack_Destination_Sender() )->send( [ 'config' => [ 'webhook_url' => 'https://hooks.slack.com/services/T0/B0/X' ] ], $inserted[1], $inserted[0] );
+
+		$this->assertStringContainsString( '"rich_text_list"', $body );
+		$this->assertStringContainsString( '"Role added: "', $body );
+		$this->assertStringContainsString( '"author"', $body );
+	}
 }

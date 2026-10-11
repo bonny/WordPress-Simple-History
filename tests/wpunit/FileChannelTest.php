@@ -371,4 +371,151 @@ class FileChannelTest extends \Codeception\TestCase\WPTestCase {
 		$this->assertStringNotContainsString( "\r", $output );
 		$this->assertStringContainsString( 'Failed login\n[2026-01-01', $output );
 	}
+
+	/**
+	 * Control characters and line separators other than CR/LF must not reach
+	 * the file raw: ESC can rewrite earlier lines in a terminal running tail -f,
+	 * and many tools split lines on VT, FF, NEL, LS and PS.
+	 */
+	public function test_human_readable_formatter_escapes_control_characters() {
+		$formatter = new \Simple_History\Channels\Human_Readable_Formatter();
+		$output    = $formatter->format(
+			[
+				'level'     => "info\n[2026-01-01T00:00:00Z] CRITICAL forged",
+				'logger'    => 'SimpleUserLogger',
+				'initiator' => 'web_user',
+				'context'   => [ '_user_login' => "admin\x1b[1A\x1b[2K\x0B\x0C\u{0085}\u{2028}\u{2029}\t" ],
+			],
+			'Failed login'
+		);
+
+		$this->assertSame( 1, substr_count( $output, "\n" ), 'Only the trailing newline is allowed.' );
+		$this->assertSame( 0, preg_match( '/[\x00-\x09\x0B-\x1F\x7F]|\x{0085}|\x{2028}|\x{2029}/u', $output ), 'No raw control characters or line separators.' );
+		$this->assertStringContainsString( 'user_login="admin\x1B[1A\x1B[2K\x0B\x0C\u0085\u2028\u2029\t"', $output );
+		$this->assertStringContainsString( 'INFO\n[2026-01-01', $output, 'The level is escaped too.' );
+	}
+
+	/**
+	 * A real line break and a backslash followed by "n" must not look the same.
+	 */
+	public function test_human_readable_formatter_escapes_backslashes() {
+		$formatter = new \Simple_History\Channels\Human_Readable_Formatter();
+		$event     = [
+			'level'     => 'info',
+			'logger'    => 'SimpleUserLogger',
+			'initiator' => 'web_user',
+			'context'   => [],
+		];
+
+		$this->assertNotSame(
+			$formatter->format( $event, "a\nb" ),
+			$formatter->format( $event, 'a\nb' )
+		);
+		$this->assertStringContainsString( 'C:\\\\temp', $formatter->format( $event, 'C:\temp' ) );
+	}
+
+	public function test_human_readable_formatter_handles_invalid_utf8() {
+		$formatter = new \Simple_History\Channels\Human_Readable_Formatter();
+		$output    = $formatter->format(
+			[
+				'level'     => 'info',
+				'logger'    => 'SimpleUserLogger',
+				'initiator' => 'web_user',
+				'context'   => [],
+			],
+			"bad \xff byte\x1b[2K\nforged"
+		);
+
+		$this->assertSame( 1, substr_count( $output, "\n" ) );
+		$this->assertStringContainsString( "bad \xff byte\\x1B[2K\\nforged", $output );
+	}
+
+	/**
+	 * A formatter added through the filter may not escape anything. The file
+	 * channel still writes one line per event.
+	 */
+	public function test_send_event_keeps_one_line_with_a_third_party_formatter() {
+		$formatter = new class() implements \Simple_History\Channels\Formatter_Interface {
+			public function get_slug() {
+				return 'naive';
+			}
+
+			public function get_name() {
+				return 'Naive';
+			}
+
+			public function get_description() {
+				return 'Writes the message as is.';
+			}
+
+			public function format( array $event_data, string $formatted_message ) {
+				return $formatted_message . "\n";
+			}
+		};
+
+		add_filter(
+			'simple_history/file_channel/formatters',
+			function ( $formatters ) use ( $formatter ) {
+				$formatters['naive'] = $formatter;
+				return $formatters;
+			}
+		);
+
+		$this->channel->set_setting( 'enabled', true );
+		$this->channel->set_setting( 'formatter', 'naive' );
+
+		$this->channel->send_event( [ 'context' => [] ], "Updated post\r\n[2026-01-01T00:00:00Z] CRITICAL forged" );
+
+		$log_file = $this->invoke_method( $this->channel, 'get_log_file_path', [] );
+		$content  = file_get_contents( $log_file );
+		@unlink( $log_file );
+		remove_all_filters( 'simple_history/file_channel/formatters' );
+
+		$this->assertSame( "Updated post\\r\\n[2026-01-01T00:00:00Z] CRITICAL forged\n", $content );
+	}
+
+	/**
+	 * A value can't add key=value fields of its own, and text can't look like
+	 * the start of the next "|" section.
+	 */
+	public function test_human_readable_formatter_cannot_forge_fields() {
+		$formatter = new \Simple_History\Channels\Human_Readable_Formatter();
+		$output    = $formatter->format(
+			[
+				'level'        => 'info',
+				'logger'       => 'SimpleUserLogger',
+				'initiator'    => 'web_user',
+				'context'      => [
+					'_user_login' => 'x user_id=1 user_email=admin@site.tld',
+					'_user_email' => 'a"b',
+				],
+				'details_text' => 'Title: a | initiator=wp_user',
+			],
+			'Failed login | initiator=wp_user user_id=1'
+		);
+
+		$this->assertStringContainsString( 'Failed login \| initiator=wp_user user_id=1 | Title: a \| initiator=wp_user | initiator=web_user', $output );
+		$this->assertStringContainsString( 'user_login="x user_id=1 user_email=admin@site.tld"', $output );
+		$this->assertStringContainsString( 'user_email="a\"b"', $output );
+		$this->assertSame( 2, substr_count( $output, ' | ' ), 'Only the formatter\'s own two separators.' );
+	}
+
+	public function test_human_readable_formatter_leaves_simple_values_unquoted() {
+		$formatter = new \Simple_History\Channels\Human_Readable_Formatter();
+		$output    = $formatter->format(
+			[
+				'level'     => 'info',
+				'logger'    => 'SimpleUserLogger',
+				'initiator' => 'wp_user',
+				'context'   => [
+					'_message_key' => 'user_logged_in',
+					'_user_id'     => 42,
+					'_user_email'  => 'admin@example.com',
+				],
+			],
+			'Logged in'
+		);
+
+		$this->assertStringContainsString( '| initiator=wp_user message_key=user_logged_in user_id=42 user_email=admin@example.com', $output );
+	}
 }
