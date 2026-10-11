@@ -53,7 +53,7 @@ The model is the [Claude Code changelog](https://github.com/anthropics/claude-co
 -   Lead with the user-visible change. Stop there.
 -   Drop "Previously…" contrast clauses. "Now logged" already implies it wasn't before — don't narrate the old behavior.
 -   Cut inline examples, slug lists, and scope caveats (which events it does/doesn't fire on, edge cases, redaction rules, "existing installs unchanged"). A short location hint in parentheses is fine ("Tools → Export Personal Data"); a full enumeration is not.
--   Push the detail to the release post. Anything a curious user might want but most won't read belongs behind the "[Read more…]" link, not in the bullet.
+-   Push the detail to the release post. Anything a curious user might want but most won't read belongs behind the release post link, not in the bullet.
 -   Don't duplicate commit messages — curate and translate them into user-facing language.
 -   Group related small changes into a single entry rather than listing each separately.
 -   Omit internal refactors, code cleanup, and dev tooling changes unless they affect users.
@@ -157,6 +157,44 @@ The Unreleased section starts with a one-line blockquote that explains what the 
 ❌ "History" column on post and page list tables… Requires experimental features to be enabled.   (boilerplate phrase — superseded by the prefix)
 ❌ History column…                                                          (missing Experimental label)
 ```
+
+## Short names on the main Added entries
+
+Start the one to three most important **Added** entries of a release with a short bold name for the feature, a few words at most:
+
+```
+-   **Table view** for the event log. Sort and filter your events, save views and export them.
+-   **Splunk forwarding**: send events to the Splunk HTTP Event Collector.
+```
+
+The "What's new" card shown to lapsed Premium customers (issue 15) uses these names as its bullet labels, and only entries with a bold name count as highlights. Leave small additions and `Experimental —` entries without one. The bold renders fine on wordpress.org.
+
+## Release summary paragraph
+
+Each versioned section opens with a short summary paragraph, then the release post link on its own line (see "Release post link" below). It is read on wordpress.org and in WordPress's "View version details" popup, by someone deciding whether to update.
+
+-   Open with a concrete statement of the main change: "Two-factor logins are logged when the code is accepted." Not a question ("Too many events…?") and not "This release is about…".
+-   One to three sentences. Leave out fixes ("and some minor fixes here and there") and requirements ("Requires Simple History 5.34.0"); the sections below cover them.
+-   Plain text: no emoji, no italics or bold.
+-   Premium versions get a summary too.
+
+```
+### 5.35.0 (October 2026)
+
+Two-factor logins are logged when the code is accepted, and only administrators see IP addresses. Also new: suggested privacy policy text and simpler weekly email settings.
+[Screenshots and details in the release post](https://simple-history.com/2026/simple-history-5-35-0-released/)
+```
+
+## Release post link
+
+The plugin's "What's new" box (issue 15) finds the release post by its URL, not by the link text: the first `simple-history.com` link in the version's section whose slug ends in `-released`. Slugs are fixed: `simple-history-X-Y-Z-released` for core and `premium-X-Y-Z-released` for Premium. Links to feature pages in the summary are ignored.
+
+So the link text is free. Don't fall back to "Read more" every time; pick what fits the release and vary it between versions. When drafting, suggest two or three options to Pär:
+
+-   `[Screenshots and details in the release post](…)`: the default, says why to click.
+-   `[What's new in 5.36.0](…)`: short, for a small release.
+-   `[See the table view in action](…)`: names the headline feature, for a release built around one thing.
+-   `[Release post for 5.36.0](…)`: plain, when nothing else fits.
 
 ## Unreleased Section
 
