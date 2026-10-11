@@ -874,4 +874,73 @@ class DestinationSendersTest extends PremiumTestCase {
 		$this->assertStringNotContainsString( '<https://evil.example|', $payload['text'] );
 		$this->assertStringContainsString( '&lt;!channel&gt;', $payload['text'] );
 	}
+
+	// =========================================================================
+	// Event details in alerts (issue 365)
+	// =========================================================================
+
+	public function test_limit_details_keeps_three_lines(): void {
+		$method = new \ReflectionMethod( Email_Destination_Sender::class, 'limit_details' );
+		$method->setAccessible( true );
+
+		$output = $method->invoke( new Email_Destination_Sender(), "One: 1\nTwo: 2\n\nThree: 3\nFour: 4\nFive: 5" );
+
+		$this->assertSame( "One: 1\nTwo: 2\nThree: 3\n…", $output );
+		$this->assertSame( '', $method->invoke( new Email_Destination_Sender(), '' ) );
+	}
+
+	public function test_limit_details_truncates_long_lines(): void {
+		$method = new \ReflectionMethod( Email_Destination_Sender::class, 'limit_details' );
+		$method->setAccessible( true );
+
+		$output = $method->invoke( new Email_Destination_Sender(), 'Title: ' . str_repeat( 'å', 500 ) );
+
+		$this->assertSame( 201, preg_match_all( '/./us', $output ), '200 characters plus the ellipsis.' );
+		$this->assertStringEndsWith( '…', $output );
+	}
+
+	/**
+	 * The original report: an alert for a profile edit must say which roles changed.
+	 */
+	public function test_email_alert_includes_event_details(): void {
+		add_filter( 'simple_history/is_rest_request', '__return_true' );
+		wp_set_current_user( $this->factory->user->create( [ 'role' => 'administrator' ] ) );
+
+		$inserted = null;
+		add_action(
+			'simple_history/log/inserted',
+			function ( $context, $data ) use ( &$inserted ) {
+				if ( ( $context['_message_key'] ?? '' ) === 'user_updated_profile' ) {
+					$inserted = [ $context, $data ];
+				}
+			},
+			10,
+			2
+		);
+
+		$user_id = $this->factory->user->create( [ 'role' => 'editor' ] );
+		wp_update_user(
+			[
+				'ID'   => $user_id,
+				'role' => 'author',
+			]
+		);
+
+		remove_all_filters( 'simple_history/is_rest_request' );
+		$this->assertNotNull( $inserted, 'The profile edit should be logged.' );
+
+		$body = null;
+		add_filter(
+			'wp_mail',
+			function ( $args ) use ( &$body ) {
+				$body = $args['message'];
+				return $args;
+			}
+		);
+
+		( new Email_Destination_Sender() )->send( [ 'config' => [ 'recipients' => 'test@example.com' ] ], $inserted[1], $inserted[0] );
+
+		$this->assertStringContainsString( 'Role added: author', $body );
+		$this->assertStringContainsString( 'Role removed: editor', $body );
+	}
 }

@@ -280,6 +280,10 @@ For more information, see our support page [GDPR and Privacy: How Your Data is S
 
 -   Experimental — Update checks for Premium and other add-ons run only when WordPress checks for updates, so admin pages no longer wait for simple-history.com.
 
+**Fixed**
+
+-   The log file only had the event message, not what changed. It now includes the event details too, like the roles added and removed when a user profile is edited.
+
 **Security**
 
 -   Editors could see events from loggers they don't have access to, such as failed logins, by opening an event's similar events.
