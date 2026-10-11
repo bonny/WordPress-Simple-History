@@ -75,12 +75,16 @@ class Changelog_Parser {
 		$section = '';
 
 		foreach ( explode( "\n", $body ) as $line ) {
-			if ( preg_match( '/^\*\*(Added|Changed|Fixed|Security|Deprecated|Removed)\*\*/', $line, $matches ) ) {
-				$section = $matches[1];
+			$line = rtrim( $line );
+
+			// A section label in bold as written, or as a heading, with a colon or in lower case.
+			if ( preg_match( '/^(?:\*\*|#{2,5}\s*)?(Added|Changed|Fixed|Security|Deprecated|Removed)(?:\*\*)?:?(?:\*\*)?$/i', $line, $matches ) ) {
+				$section = ucfirst( strtolower( $matches[1] ) );
 				continue;
 			}
 
-			if ( $section === '' || ! preg_match( '/^-\s+(.+)$/', $line, $matches ) ) {
+			// A bullet with a dash as written, or a star, with any spacing after it.
+			if ( $section === '' || ! preg_match( '/^[-*]\s+(.+)$/', $line, $matches ) ) {
 				continue;
 			}
 
