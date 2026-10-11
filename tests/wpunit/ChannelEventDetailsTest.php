@@ -194,4 +194,72 @@ class ChannelEventDetailsTest extends \Codeception\TestCase\WPTestCase {
 
 		$this->assertStringContainsString( 'Logged in | initiator=wp_user message_key=user_logged_in', $output );
 	}
+
+	/**
+	 * The list has every item in display order, also profile fields that
+	 * have no context key, which the keyed items leave out.
+	 */
+	public function test_list_has_all_items_in_order() {
+		$user_id = $this->factory->user->create(
+			[
+				'role'       => 'editor',
+				'first_name' => 'John',
+			]
+		);
+
+		wp_update_user(
+			[
+				'ID'         => $user_id,
+				'role'       => 'author',
+				'first_name' => 'Johnny',
+			]
+		);
+
+		$event   = $this->get_inserted( 'user_updated_profile' );
+		$details = Channel_Event_Details::get( $event['context'], $event['data'] );
+		$labels  = array_column( $details['list'], 'label' );
+
+		$this->assertSame( [ 'First name', 'Role added', 'Role removed' ], $labels );
+		$this->assertSame( 'John', $details['list'][0]['prev'] );
+		$this->assertSame( 'Johnny', $details['list'][0]['new'] );
+		$this->assertArrayNotHasKey( 'key', $details['list'][0], 'The first name item has no context key.' );
+		$this->assertSame( 'user_added_roles', $details['list'][1]['key'] );
+		$this->assertSame( 'author', $details['list'][1]['new'] );
+	}
+
+	/**
+	 * Two long texts: cut-off starts say nothing, so the item only says it changed.
+	 */
+	public function test_list_marks_a_change_between_long_values_as_changed() {
+		$user_id = $this->factory->user->create(
+			[
+				'role'        => 'editor',
+				'description' => str_repeat( 'a', 500 ),
+			]
+		);
+
+		wp_update_user(
+			[
+				'ID'          => $user_id,
+				'description' => str_repeat( 'b', 500 ),
+			]
+		);
+
+		$event   = $this->get_inserted( 'user_updated_profile' );
+		$details = Channel_Event_Details::get( $event['context'], $event['data'] );
+
+		$this->assertCount( 1, $details['list'] );
+		$this->assertTrue( $details['list'][0]['changed'] );
+		$this->assertArrayNotHasKey( 'new', $details['list'][0] );
+		$this->assertArrayNotHasKey( 'prev', $details['list'][0] );
+	}
+
+	public function test_event_without_details_has_an_empty_list() {
+		SimpleLogger()->info( 'A plain message without details' );
+
+		$event   = end( $this->inserted );
+		$details = Channel_Event_Details::get( $event['context'], $event['data'] );
+
+		$this->assertSame( [], $details['list'] );
+	}
 }
