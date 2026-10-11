@@ -307,4 +307,24 @@ class FormattersTest extends PremiumTestCase {
 		// Message should be at the end (before newline).
 		$this->assertStringEndsWith( "User logged in\n", $output );
 	}
+
+	/**
+	 * CR and LF in a value must not start a new, forged logfmt line.
+	 */
+	public function test_logfmt_escapes_line_breaks(): void {
+		$formatter = new Logfmt_Formatter();
+		$output    = $formatter->format(
+			[
+				'level'     => 'info',
+				'logger'    => 'SimpleUserLogger',
+				'initiator' => 'web_user',
+				'context'   => [ '_user_login' => "admin\r\nlevel=critical msg=\"forged\"" ],
+			],
+			"Failed login\nlevel=critical msg=\"forged\""
+		);
+
+		$this->assertSame( 1, substr_count( $output, "\n" ), 'Only the trailing newline is allowed.' );
+		$this->assertStringNotContainsString( "\r", $output );
+		$this->assertStringContainsString( 'Failed login\nlevel=critical', $output );
+	}
 }
