@@ -107,8 +107,7 @@ class WP_REST_SearchOptions_Controller extends WP_REST_Controller {
 		// it carries site wide data (event counts, activity date range, add-on
 		// list and versions, feature flags and the premium maps API key), so
 		// logged in alone is not a sufficient gate.
-		// phpcs:ignore WordPress.WP.Capabilities.Undetermined -- Dynamic capability from Helpers::get_view_history_capability().
-		if ( ! current_user_can( Helpers::get_view_history_capability() ) ) {
+		if ( ! Helpers::current_user_can_view_history() ) {
 			return new WP_Error(
 				'rest_forbidden_context',
 				__( 'Sorry, you are not allowed to view events.', 'simple-history' ),

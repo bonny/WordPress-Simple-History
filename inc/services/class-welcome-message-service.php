@@ -43,8 +43,7 @@ class Welcome_Message_Service extends Service {
 		}
 
 		// Only show the notice if the user can view history and WP supports it.
-		// phpcs:ignore WordPress.WP.Capabilities.Undetermined -- Capability from filterable helper.
-		if ( ! function_exists( 'wp_admin_notice' ) || ! current_user_can( Helpers::get_view_history_capability() ) ) {
+		if ( ! function_exists( 'wp_admin_notice' ) || ! Helpers::current_user_can_view_history() ) {
 			return;
 		}
 

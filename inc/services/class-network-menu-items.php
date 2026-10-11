@@ -50,8 +50,7 @@ class Network_Menu_Items extends Service {
 		}
 
 		// User must have capability to view the history page.
-		// phpcs:ignore WordPress.WP.Capabilities.Undetermined -- Capability is filterable, defaults to 'read'.
-		if ( ! current_user_can( Helpers::get_view_history_capability() ) ) {
+		if ( ! Helpers::current_user_can_view_history() ) {
 			return;
 		}
 
@@ -116,8 +115,7 @@ class Network_Menu_Items extends Service {
 		// }.
 
 		// User must have capability to view the history page.
-		// phpcs:ignore WordPress.WP.Capabilities.Undetermined -- Capability is filterable, defaults to 'read'.
-		if ( ! current_user_can( Helpers::get_view_history_capability() ) ) {
+		if ( ! Helpers::current_user_can_view_history() ) {
 			return;
 		}
 

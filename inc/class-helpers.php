@@ -4,6 +4,7 @@ namespace Simple_History;
 
 use Simple_History\Simple_History;
 use Simple_History\Services\Setup_Settings_Page;
+use Simple_History\Services\Stealth_Mode;
 use Simple_History\Date_Helper;
 
 /**
@@ -1493,6 +1494,25 @@ class Helpers {
 		$view_history_capability = apply_filters( 'simple_history/view_history_capability', $view_history_capability );
 
 		return $view_history_capability;
+	}
+
+	/**
+	 * Whether the current user may view the history.
+	 *
+	 * Checks the view history capability and Stealth Mode. Use this instead of
+	 * current_user_can( get_view_history_capability() ) wherever history or a
+	 * link to it is shown, so Stealth Mode hides it too.
+	 *
+	 * @since 5.36.0
+	 * @return bool
+	 */
+	public static function current_user_can_view_history() {
+		// phpcs:ignore WordPress.WP.Capabilities.Undetermined -- Capability is filterable, defaults to 'edit_pages'.
+		if ( ! current_user_can( self::get_view_history_capability() ) ) {
+			return false;
+		}
+
+		return Stealth_Mode::is_gui_visible_to_user();
 	}
 
 	/**

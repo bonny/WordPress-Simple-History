@@ -759,8 +759,7 @@ class Whats_New_Service extends Service {
 		$value   = isset( $_POST['value'] ) ? sanitize_text_field( wp_unslash( $_POST['value'] ) ) : '';
 		$user_id = get_current_user_id();
 
-		// phpcs:ignore WordPress.WP.Capabilities.Undetermined -- Dynamic capability from Helpers::get_view_history_capability(), filterable.
-		if ( $kind === 'whats_new' && current_user_can( Helpers::get_view_history_capability() ) ) {
+		if ( $kind === 'whats_new' && Helpers::current_user_can_view_history() ) {
 			$this->mark_all_seen( $user_id );
 			wp_send_json_success();
 		}
