@@ -21,6 +21,7 @@ See the **wordpress-org-compliance** skill for detailed guidelines on implementi
 -   PHP 7.4+ compatibility required
 -   Supports both MySQL/MariaDB and SQLite databases
 -   Use `Log_Query::get_db_engine()` to check database type (`'mysql'` or `'sqlite'`)
+-   Never put `#` comments in SQL that can run on SQLite: the SQLite integration plugin 2.x passes them through and the query silently returns nothing. See [docs/database/sqlite.md](docs/database/sqlite.md).
 -   Avoid MySQL-specific SQL (e.g., `OPTIMIZE TABLE`, `SHOW TABLE STATUS`) without a database type guard
 -   Composer's resolver is pinned to PHP 7.4 via `composer.json` `config.platform.php`, so never silence a platform error with `--ignore-platform-req=php`. See [docs/composer.md](docs/composer.md).
 -   Premium declares a **minimum core version** and calls core methods directly. Users update the two plugins independently, so adding a method here and calling it from premium is a fatal error for anyone on an older core. When premium starts using a new core API, bump `SIMPLE_HISTORY_PREMIUM_MIN_CORE_VERSION` in the add-ons repo. Run `npm run addons:check` from here to catch misses — it runs the add-ons repo's version and minimum-core checks without leaving core. `npm run addons:lint` and `npm run addons:phpstan` are also available.
