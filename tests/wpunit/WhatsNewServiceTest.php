@@ -162,6 +162,45 @@ class WhatsNewServiceTest extends \Codeception\TestCase\WPTestCase {
 		}
 	}
 
+	public function test_readme_in_an_unexpected_format_shows_no_box() {
+		$readme = wp_tempnam( 'readme.txt' );
+		file_put_contents( $readme, "## Changelog\n\n### 9.0.0\n\nSomething new, written as prose without sections." );
+
+		add_filter(
+			'simple_history/whats_new/plugins',
+			function ( $plugins ) use ( $readme ) {
+				$plugins['simple-history']['version'] = '9.0.0';
+				$plugins['simple-history']['readme']  = $readme;
+
+				return $plugins;
+			}
+		);
+		update_user_meta( $this->admin_id, Whats_New_Service::META_SEEN, [ 'simple-history' => [ 'version' => '5.0.0', 'views' => 0 ] ] );
+
+		ob_start();
+		$this->service()->output_top_slot();
+		$output = ob_get_clean();
+
+		unlink( $readme );
+
+		$this->assertSame( '', trim( $output ) );
+	}
+
+	public function test_missing_readme_shows_no_box() {
+		add_filter(
+			'simple_history/whats_new/plugins',
+			function ( $plugins ) {
+				$plugins['simple-history']['version'] = '9.0.0';
+				$plugins['simple-history']['readme']  = '/nonexistent/readme.txt';
+
+				return $plugins;
+			}
+		);
+		update_user_meta( $this->admin_id, Whats_New_Service::META_SEEN, [ 'simple-history' => [ 'version' => '5.0.0', 'views' => 0 ] ] );
+
+		$this->assertSame( [], $this->service()->get_pending_updates( $this->admin_id ) );
+	}
+
 	public function test_dismissing_marks_every_plugin_seen() {
 		update_user_meta( $this->admin_id, Whats_New_Service::META_SEEN, [ 'simple-history' => [ 'version' => '5.0.0', 'views' => 0 ] ] );
 

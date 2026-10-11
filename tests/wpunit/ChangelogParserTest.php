@@ -118,6 +118,46 @@ TXT;
 		$this->assertSame( [], Changelog_Parser::parse( null ) );
 	}
 
+	public function test_reads_common_variations_of_the_format() {
+		$text = "## Changelog\r\n\r\n### 3.0.0\r\n\r\n#### Added\r\n\r\n* One.\r\n- Two.\r\n\r\n**fixed:**\r\n\r\n-   Three.\r\n\r\nChanged:\r\n\r\n-   Four.\r\n";
+
+		$version = Changelog_Parser::parse( $text )['3.0.0'];
+
+		$this->assertCount( 2, $version['added'] );
+		$this->assertSame( 'One.', $version['added'][0]['text'] );
+		$this->assertSame( 1, $version['fixed'] );
+		$this->assertSame( 1, $version['other'] );
+	}
+
+	/**
+	 * A readme written some other way gives fewer or no versions, never an
+	 * error: the box then shows nothing for that plugin.
+	 */
+	public function test_unexpected_formats_give_nothing_and_no_error() {
+		$inputs = [
+			'',
+			'## Changelog',
+			"== Changelog ==\n\n= 1.0.0 =\n* Added a thing.",
+			"## Changelog\n\n### Version five\n\n**Added**\n\n-   Thing.",
+			"## Changelog\n\n### 1.0.0\n\nJust prose, no sections.\n\n-   A bullet with no section above it.",
+			"## Changelog\n\n### 1.0.0\n\n**Added**\n\n-",
+			str_repeat( "## Changelog\n### 1.0.0\n**Added**\n-   x\n", 2000 ),
+			"\x00\xff\xfe## Changelog\n### 1.0.0 \xc3\x28\n**Added**\n-   \xc3\x28",
+		];
+
+		foreach ( $inputs as $index => $input ) {
+			$versions = Changelog_Parser::parse( $input );
+			$summary  = Changelog_Parser::summarize( $versions, '0.1.0', '9.0.0' );
+
+			$this->assertIsArray( $versions, "Input {$index}" );
+			$this->assertIsInt( $summary['features'], "Input {$index}" );
+		}
+
+		$this->assertSame( [], Changelog_Parser::parse( $inputs[2] ), 'WordPress.org classic format is not read' );
+		$this->assertSame( [], Changelog_Parser::parse( $inputs[3] ), 'Headings without a version number are not read' );
+		$this->assertSame( 0, Changelog_Parser::summarize( Changelog_Parser::parse( $inputs[4] ), '0.1.0', '9.0.0' )['features'] );
+	}
+
 	/**
 	 * The released versions in the real readme must parse, and the newest
 	 * one must link its release post: the box links it.
@@ -131,6 +171,23 @@ TXT;
 
 		$this->assertMatchesRegularExpression( '/^\d+\.\d+\.\d+$/', (string) $newest );
 		$this->assertStringStartsWith( 'https://simple-history.com/', $versions[ $newest ]['release_url'] );
+		$this->assertGreaterThan( 0, count( $versions[ $newest ]['added'] ) + $versions[ $newest ]['fixed'] + $versions[ $newest ]['other'] );
+	}
+
+	/**
+	 * Premium writes its changelog the same way, and the box reads it too.
+	 */
+	public function test_real_premium_readme_parses() {
+		$readme = WP_PLUGIN_DIR . '/simple-history-premium/readme.txt';
+
+		if ( ! is_readable( $readme ) ) {
+			$this->markTestSkipped( 'Premium is not installed in the test site.' );
+		}
+
+		$versions = Changelog_Parser::parse( file_get_contents( $readme ) );
+		$newest   = array_key_first( $versions );
+
+		$this->assertNotEmpty( $versions );
 		$this->assertGreaterThan( 0, count( $versions[ $newest ]['added'] ) + $versions[ $newest ]['fixed'] + $versions[ $newest ]['other'] );
 	}
 }

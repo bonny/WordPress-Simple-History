@@ -195,7 +195,9 @@ class Whats_New_Service extends Service {
 
 			$summary = Changelog_Parser::summarize( $this->get_changelog( $plugin ), $seen[ $slug ]['version'], $plugin['version'] );
 
-			if ( $summary['versions'] === [] ) {
+			// Nothing to say when the changelog lacks these versions or none of
+			// their entries could be read (a readme in an unexpected format).
+			if ( $summary['versions'] === [] || $summary['features'] + $summary['fixes'] + $summary['other'] === 0 ) {
 				continue;
 			}
 
