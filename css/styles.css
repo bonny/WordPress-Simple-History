@@ -6629,3 +6629,120 @@ body.sh-has-premium .sh-UserCard--wp-user.sh-UserCard--loading {
 .sh-LicenseReminder-dismiss:focus-visible {
 	color: #1d2327;
 }
+
+/* What's new box and billing messages, between the page title and the filters.
+   Neutral on purpose: not cream (that means Premium upsell) and not a WordPress
+   notice. Billing messages may reach someone who doesn't pay, so no warning colours. */
+.sh-WhatsNew {
+	position: relative;
+	margin: var(--sh-spacing-small) 0 var(--sh-spacing-medium);
+	padding: 6px 40px 6px var(--sh-spacing-medium);
+	background: var(--sh-color-white);
+	border: 1px solid #dcdcde;
+	border-radius: var(--sh-border-radius);
+	font-size: var(--sh-font-size-normal);
+}
+
+.sh-WhatsNew-title {
+	margin-right: var(--sh-spacing-xsmall);
+	font-weight: 600;
+}
+
+.sh-WhatsNew-line {
+	margin: 0;
+	padding: 0;
+	line-height: 1.6;
+}
+
+.sh-WhatsNew-link {
+	margin-left: var(--sh-spacing-xsmall);
+	white-space: nowrap;
+}
+
+.sh-WhatsNew--billing {
+	display: flex;
+	gap: var(--sh-spacing-small);
+	align-items: flex-start;
+}
+
+.sh-WhatsNew-icon {
+	flex: none;
+	margin-top: 2px;
+	color: var(--sh-color-gray-3);
+}
+
+.sh-WhatsNew-body p {
+	margin: 0 0 var(--sh-spacing-xsmall);
+	line-height: 1.5;
+}
+
+.sh-WhatsNew-body .sh-WhatsNew-links {
+	display: flex;
+	flex-wrap: wrap;
+	gap: var(--sh-spacing-xsmall) var(--sh-spacing-medium);
+	margin-bottom: 0;
+}
+
+/* Shared by the box, the billing messages and the lapsed card. Last in the
+   source, placed top right. */
+.sh-WhatsNew-dismiss {
+	position: absolute;
+	top: var(--sh-spacing-xsmall);
+	right: var(--sh-spacing-xsmall);
+	padding: 2px;
+	background: none;
+	border: 0;
+	border-radius: var(--sh-border-radius);
+	color: var(--sh-color-gray-3);
+	cursor: pointer;
+}
+
+.sh-WhatsNew-dismiss:focus-visible {
+	outline: 2px solid var(--wp-admin-theme-color, #2271b1);
+	outline-offset: 2px;
+}
+
+/* Lapsed-license card in the sidebar. Cream is the Premium signal. */
+.sh-LapsedCard.postbox {
+	position: relative;
+	padding: var(--sh-spacing-medium);
+	background: var(--sh-color-cream);
+	border: 1px solid var(--sh-color-premium-cream-edge);
+	border-radius: var(--sh-border-radius);
+}
+
+/* Through .postbox to outrank WordPress's `.postbox h3` padding. */
+.sh-LapsedCard.postbox .sh-LapsedCard-title {
+	margin: 0 24px var(--sh-spacing-xsmall) 0;
+	padding: 0;
+	font-size: 14px;
+	font-weight: 600;
+	line-height: 1.4;
+}
+
+.sh-LapsedCard-subhead {
+	margin: 0 0 var(--sh-spacing-small);
+	color: #3c434a;
+	font-size: var(--sh-font-size-normal);
+}
+
+.sh-LapsedCard-features {
+	margin: 0 0 var(--sh-spacing-small);
+	padding-left: var(--sh-spacing-medium);
+	color: #3c434a;
+	list-style: disc;
+}
+
+.sh-LapsedCard-features li {
+	margin-bottom: var(--sh-spacing-xxsmall);
+}
+
+.sh-LapsedCard-features .sh-LapsedCard-more {
+	color: var(--sh-color-gray-3);
+	list-style: none;
+}
+
+.sh-LapsedCard-cta {
+	margin: 0;
+	font-weight: 600;
+}
