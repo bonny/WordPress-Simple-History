@@ -73,7 +73,7 @@ class Human_Readable_Formatter extends Formatter {
 	public function format( array $event_data, string $formatted_message ) {
 		$date      = $event_data['date'] ?? current_time( 'mysql', 1 );
 		$timestamp = $this->get_event_timestamp_utc( $date );
-		$level     = strtoupper( $event_data['level'] ?? 'info' );
+		$level     = $this->escape_line_breaks( strtoupper( (string) ( $event_data['level'] ?? 'info' ) ) );
 		$logger    = $this->escape_line_breaks( (string) ( $event_data['logger'] ?? 'Unknown' ) );
 		$initiator = $event_data['initiator'] ?? 'unknown';
 		$context   = $event_data['context'] ?? [];
