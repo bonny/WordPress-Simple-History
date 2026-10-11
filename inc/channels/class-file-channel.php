@@ -169,6 +169,10 @@ class File_Channel extends Channel {
 		$formatter = $this->get_formatter();
 		$log_entry = $formatter->format( $event_data, $formatted_message );
 
+		// One event, one line, whatever the formatter. Formatters added through the
+		// simple_history/file_channel/formatters filter may not escape their values.
+		$log_entry = str_replace( [ "\r", "\n" ], [ '\\r', '\\n' ], rtrim( (string) $log_entry, "\r\n" ) ) . "\n";
+
 		// Write to file.
 		// phpcs:ignore WordPressVIPMinimum.Functions.RestrictedFunctions.file_ops_file_put_contents -- Direct file operations required for log file channel.
 		$result = file_put_contents( $log_file, $log_entry, FILE_APPEND | LOCK_EX );

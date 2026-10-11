@@ -292,7 +292,7 @@ For more information, see our support page [GDPR and Privacy: How Your Data is S
 -   A forged plugin or theme file edit that WordPress rejected could still be logged as an edit.
 -   Stealth Mode hid the log screens, but users outside the allowlist could still read events through the REST API and Abilities API, and still saw history links, notices and the command palette. These are now hidden too.
 -   Hardened database queries and output escaping in the plugin stats and the category and settings events.
--   Line breaks in event text could start forged lines in the log file channel's output.
+-   Line breaks and terminal control characters in event text could start forged lines in the log file, or rewrite earlier lines for someone watching it in a terminal.
 
 ### 5.35.0 (October 2026)
 

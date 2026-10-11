@@ -189,13 +189,39 @@ abstract class Formatter implements Formatter_Interface {
 	}
 
 	/**
-	 * Escape CR and LF, so a value can never start a new, forged log line.
+	 * Escape a value for a line-based log format, so it can never start a
+	 * new, forged log line or drive the terminal of someone tailing the file.
+	 *
+	 * Backslashes are escaped first, so a real line break ("\n" in the
+	 * output) can be told apart from a backslash followed by an n ("\\n").
+	 * CR, LF and tab become \r, \n and \t. Other control characters, like the
+	 * ESC that starts terminal escape codes, become \xNN, and the Unicode line
+	 * separators NEL, LS and PS become \uNNNN.
 	 *
 	 * @param string $value Value to escape.
 	 * @return string
 	 */
 	protected function escape_line_breaks( string $value ): string {
-		return str_replace( [ "\r", "\n" ], [ '\\r', '\\n' ], $value );
+		$value = str_replace( [ '\\', "\r", "\n", "\t" ], [ '\\\\', '\\r', '\\n', '\\t' ], $value );
+
+		$escape_character = function ( $matches ) {
+			$separators = [
+				"\u{0085}" => '\\u0085',
+				"\u{2028}" => '\\u2028',
+				"\u{2029}" => '\\u2029',
+			];
+
+			return $separators[ $matches[0] ] ?? sprintf( '\\x%02X', ord( $matches[0] ) );
+		};
+
+		$escaped = preg_replace_callback( '/[\x00-\x1F\x7F]|\x{0085}|\x{2028}|\x{2029}/u', $escape_character, $value );
+
+		// Not valid UTF-8: the u modifier refuses the whole string, so escape byte by byte.
+		if ( $escaped === null ) {
+			$escaped = (string) preg_replace_callback( '/[\x00-\x1F\x7F]/', $escape_character, $value );
+		}
+
+		return $escaped;
 	}
 
 	/**
