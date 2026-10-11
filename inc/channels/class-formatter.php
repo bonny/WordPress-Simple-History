@@ -154,6 +154,51 @@ abstract class Formatter implements Formatter_Interface {
 	}
 
 	/**
+	 * Get the event details as one line: "Label: Value; Label: old → new".
+	 *
+	 * Line breaks are escaped, so values can never start a new, forged log line.
+	 *
+	 * @param array $event_data The event data array.
+	 * @return string Empty string if the event has no details.
+	 */
+	protected function get_details_line( array $event_data ): string {
+		$text = (string) ( $event_data['details_text'] ?? '' );
+
+		if ( $text === '' ) {
+			return '';
+		}
+
+		$lines = array_filter( array_map( 'trim', explode( "\n", $text ) ), 'strlen' );
+
+		return $this->escape_line_breaks( implode( '; ', $lines ) );
+	}
+
+	/**
+	 * Get the event details as structured data, keyed by context key.
+	 *
+	 * Each item has "new" and/or "prev", plus the translated "label".
+	 * Values are raw, so escape them for the output format.
+	 *
+	 * @param array $event_data The event data array.
+	 * @return array<string, array<string, string>>
+	 */
+	protected function get_details_items( array $event_data ): array {
+		$details = $event_data['details'] ?? [];
+
+		return is_array( $details ) ? $details : [];
+	}
+
+	/**
+	 * Escape CR and LF, so a value can never start a new, forged log line.
+	 *
+	 * @param string $value Value to escape.
+	 * @return string
+	 */
+	protected function escape_line_breaks( string $value ): string {
+		return str_replace( [ "\r", "\n" ], [ '\\r', '\\n' ], $value );
+	}
+
+	/**
 	 * Sanitize a value for safe inclusion in structured data.
 	 *
 	 * @param mixed $value The value to sanitize.

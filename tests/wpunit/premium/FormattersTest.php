@@ -4,6 +4,10 @@ use Helper\PremiumTestCase;
 use Simple_History\AddOns\Pro\Formatters\Json_Lines_Formatter;
 use Simple_History\AddOns\Pro\Formatters\Logfmt_Formatter;
 use Simple_History\AddOns\Pro\Formatters\Rfc5424_Formatter;
+use Simple_History\AddOns\Pro\Formatters\Splunk_Formatter;
+use Simple_History\AddOns\Pro\Formatters\Datadog_Formatter;
+use Simple_History\AddOns\Pro\Channels\Webhook_Channel;
+use Simple_History\AddOns\Pro\Channels\Local_Syslog_Channel;
 
 /**
  * Tests for premium formatters (JSON Lines, Logfmt, RFC5424).
@@ -326,5 +330,134 @@ class FormattersTest extends PremiumTestCase {
 		$this->assertSame( 1, substr_count( $output, "\n" ), 'Only the trailing newline is allowed.' );
 		$this->assertStringNotContainsString( "\r", $output );
 		$this->assertStringContainsString( 'Failed login\nlevel=critical', $output );
+	}
+
+	// =========================================================================
+	// Event details (issue 365)
+	// =========================================================================
+
+	/**
+	 * Sample event with the details core's channels manager adds.
+	 *
+	 * @return array Event data array.
+	 */
+	private function get_sample_event_data_with_details(): array {
+		$event = $this->get_sample_event_data();
+
+		$event['context']['_message_key'] = 'user_updated_profile';
+		$event['details_text']            = "Role added: administrator\nRole removed: author";
+		$event['details']                 = [
+			'user_added_roles'   => [
+				'label' => 'Role added',
+				'new'   => 'administrator',
+			],
+			'user_removed_roles' => [
+				'label' => 'Role removed',
+				'new'   => 'author',
+			],
+		];
+
+		return $event;
+	}
+
+	public function test_json_lines_includes_details(): void {
+		$output  = ( new Json_Lines_Formatter() )->format( $this->get_sample_event_data_with_details(), 'Edited the profile for user "john"' );
+		$decoded = json_decode( trim( $output ), true );
+
+		$this->assertSame( 'administrator', $decoded['details']['user_added_roles']['new'] );
+		$this->assertSame( 'Role added: administrator; Role removed: author', $decoded['details_text'] );
+	}
+
+	public function test_json_lines_without_details_has_no_details_keys(): void {
+		$output  = ( new Json_Lines_Formatter() )->format( $this->get_sample_event_data(), 'User logged in' );
+		$decoded = json_decode( trim( $output ), true );
+
+		$this->assertArrayNotHasKey( 'details', $decoded );
+		$this->assertArrayNotHasKey( 'details_text', $decoded );
+	}
+
+	public function test_logfmt_includes_details(): void {
+		$output = ( new Logfmt_Formatter() )->format( $this->get_sample_event_data_with_details(), 'Edited profile' );
+
+		$this->assertStringContainsString( 'details="Role added: administrator; Role removed: author"', $output );
+	}
+
+	public function test_rfc5424_includes_details_param(): void {
+		$output = ( new Rfc5424_Formatter() )->format( $this->get_sample_event_data_with_details(), 'Edited profile' );
+
+		$this->assertStringContainsString( 'details="Role added: administrator; Role removed: author"', $output );
+	}
+
+	public function test_splunk_and_datadog_include_details(): void {
+		$event = $this->get_sample_event_data_with_details();
+
+		$splunk  = ( new Splunk_Formatter() )->format_as_array( $event, 'Edited profile' );
+		$datadog = ( new Datadog_Formatter() )->format_as_array( $event, 'Edited profile' );
+
+		$this->assertSame( 'author', $splunk['event']['details']['user_removed_roles']['new'] );
+		$this->assertSame( 'Role added: administrator; Role removed: author', $splunk['event']['details_text'] );
+		$this->assertSame( 'author', $datadog['details']['user_removed_roles']['new'] );
+	}
+
+	/**
+	 * Details are user-controlled text, so they must not break a line-based format.
+	 */
+	public function test_details_line_breaks_cannot_forge_lines(): void {
+		$event                 = $this->get_sample_event_data_with_details();
+		$event['details_text'] = "Title: a\r[2026-01-01T00:00:00Z] CRITICAL forged";
+
+		foreach ( [ new Logfmt_Formatter(), new Rfc5424_Formatter(), new Json_Lines_Formatter() ] as $formatter ) {
+			$output = $formatter->format( $event, 'Updated post' );
+
+			$this->assertSame( 1, substr_count( $output, "\n" ), get_class( $formatter ) . ': only the trailing newline is allowed.' );
+			$this->assertStringNotContainsString( "\r", $output, get_class( $formatter ) );
+		}
+	}
+
+	public function test_local_syslog_message_includes_details_and_escapes_line_breaks(): void {
+		$event                 = $this->get_sample_event_data_with_details();
+		$event['details_text'] = "Role added: administrator\nRole removed: author\r\nforged";
+
+		$method = new \ReflectionMethod( Local_Syslog_Channel::class, 'format_message' );
+		$method->setAccessible( true );
+		$output = $method->invoke( new Local_Syslog_Channel(), $event, "Edited profile\nforged line" );
+
+		$this->assertStringContainsString( 'Edited profile\nforged line | Role added: administrator; Role removed: author; forged', $output );
+		$this->assertStringNotContainsString( "\n", $output );
+		$this->assertStringNotContainsString( "\r", $output );
+	}
+
+	public function test_webhook_details_placeholders(): void {
+		$method = new \ReflectionMethod( Webhook_Channel::class, 'process_template' );
+		$method->setAccessible( true );
+
+		$template = '{"message": "{message}", "details": "{details}", "changes": {details_json}}';
+		$output   = $method->invoke( new Webhook_Channel(), $template, $this->get_sample_event_data_with_details(), 'Edited "john"' );
+		$decoded  = json_decode( $output, true );
+
+		$this->assertIsArray( $decoded, 'Template output must be valid JSON: ' . $output );
+		$this->assertSame( 'Role added: administrator; Role removed: author', $decoded['details'] );
+		$this->assertSame( 'administrator', $decoded['changes']['user_added_roles']['new'] );
+
+		// No details: still valid JSON.
+		$output  = $method->invoke( new Webhook_Channel(), $template, $this->get_sample_event_data(), 'Logged in' );
+		$decoded = json_decode( $output, true );
+
+		$this->assertSame( '', $decoded['details'] );
+		$this->assertSame( [], $decoded['changes'] );
+	}
+
+	/**
+	 * A placeholder inside an event value must not be replaced in turn.
+	 */
+	public function test_webhook_placeholder_in_value_is_not_replaced(): void {
+		$method = new \ReflectionMethod( Webhook_Channel::class, 'process_template' );
+		$method->setAccessible( true );
+
+		$template = '{"message": "{message}", "changes": {details_json}}';
+		$output   = $method->invoke( new Webhook_Channel(), $template, $this->get_sample_event_data_with_details(), 'Post "{details_json}" updated' );
+
+		$this->assertIsArray( json_decode( $output, true ), 'Template output must be valid JSON: ' . $output );
+		$this->assertStringContainsString( 'Post \"{details_json}\" updated', $output );
 	}
 }

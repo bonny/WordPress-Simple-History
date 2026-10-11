@@ -10,6 +10,7 @@ namespace Simple_History\Channels;
  *
  * Example output:
  * [2025-12-05T12:34:56Z] INFO SimpleUserLogger: User logged in | message_key=user_logged_in user_id=42 initiator=wp_user
+ * [2025-12-05T12:35:10Z] INFO SimpleUserLogger: Edited the profile for user "john" | Role added: administrator; Role removed: author | initiator=wp_user ...
  *
  * @since 5.7.0
  */
@@ -97,24 +98,19 @@ class Human_Readable_Formatter extends Formatter {
 			$structured_suffix = ' | ' . implode( ' ', $structured_parts );
 		}
 
+		// What changed, like "Role added: administrator; Role removed: author".
+		$details_line   = $this->get_details_line( $event_data );
+		$details_suffix = $details_line === '' ? '' : ' | ' . $details_line;
+
 		return sprintf(
-			"[%s] %s %s: %s%s\n",
+			"[%s] %s %s: %s%s%s\n",
 			$timestamp,
 			$level_padded,
 			$logger,
 			$this->escape_line_breaks( $formatted_message ),
+			$details_suffix,
 			$structured_suffix
 		);
-	}
-
-	/**
-	 * Escape CR and LF, so a value can never start a new, forged log line.
-	 *
-	 * @param string $value Value to escape.
-	 * @return string
-	 */
-	private function escape_line_breaks( string $value ) {
-		return str_replace( [ "\r", "\n" ], [ '\\r', '\\n' ], $value );
 	}
 
 	/**

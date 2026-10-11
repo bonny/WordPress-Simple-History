@@ -129,6 +129,19 @@ class Channels_Manager extends Service {
 		$event_data = $this->prepare_event_data( $context, $data, $logger );
 
 		foreach ( $enabled_channels as $channel ) {
+			// Check if the event should be sent based on alert rules.
+			if ( ! $channel->should_send_event( $event_data ) ) {
+				continue;
+			}
+
+			// Render the details once, and only when a channel wants the event.
+			if ( ! isset( $event_data['details_text'] ) ) {
+				$details = Channel_Event_Details::get( $context, $data );
+
+				$event_data['details_text'] = $details['text'];
+				$event_data['details']      = $details['items'];
+			}
+
 			$this->send_to_channel( $channel, $event_data );
 		}
 	}
@@ -161,11 +174,6 @@ class Channels_Manager extends Service {
 	 * @param array             $event_data The event data to send.
 	 */
 	private function send_to_channel( Channel_Interface $channel, $event_data ) {
-		// Check if the event should be sent based on alert rules.
-		if ( ! $channel->should_send_event( $event_data ) ) {
-			return;
-		}
-
 		// Format the message for the channel.
 		$formatted_message = $this->format_message_for_channel( $channel, $event_data );
 
