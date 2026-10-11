@@ -887,6 +887,12 @@ class Log_Query {
 		 * 1 = where clause.
 		 * 2 = limit clause.
 		 * 3 = table name for events.
+		 *
+		 * subsequentOccasions is hard coded because the column exists in the
+		 * overview query. The join adds the context message key.
+		 *
+		 * No "#" comments inside the SQL: this query also runs on SQLite, and
+		 * the SQLite driver fails on them, so no occasions were returned there.
 		 */
 		$sql_statement_template = '
 			SELECT 
@@ -898,14 +904,9 @@ class Log_Query {
 				h.initiator,
 				h.occasionsID,
 				c1.value AS context_message_key,
-				# Hard code subsequentOccasions column that exist in overview query
 				1 as subsequentOccasions
 			FROM %3$s AS h
-			
-			# Add context message key
 			LEFT OUTER JOIN %4$s AS c1 ON (c1.history_id = h.id AND c1.key = "_message_key")
-			
-			# Where
 			%1$s
 			
 			ORDER BY date DESC, id DESC
