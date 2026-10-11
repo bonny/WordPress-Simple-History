@@ -154,6 +154,77 @@ abstract class Formatter implements Formatter_Interface {
 	}
 
 	/**
+	 * Get the event details as one line: "Label: Value; Label: old → new".
+	 *
+	 * Line breaks are escaped, so values can never start a new, forged log line.
+	 *
+	 * @param array $event_data The event data array.
+	 * @return string Empty string if the event has no details.
+	 */
+	protected function get_details_line( array $event_data ): string {
+		$text = (string) ( $event_data['details_text'] ?? '' );
+
+		if ( $text === '' ) {
+			return '';
+		}
+
+		$lines = array_filter( array_map( 'trim', explode( "\n", $text ) ), 'strlen' );
+
+		return $this->escape_line_breaks( implode( '; ', $lines ) );
+	}
+
+	/**
+	 * Get the event details as structured data, keyed by context key.
+	 *
+	 * Each item has "new" and/or "prev", plus the translated "label".
+	 * Values are raw, so escape them for the output format.
+	 *
+	 * @param array $event_data The event data array.
+	 * @return array<string, array<string, string>>
+	 */
+	protected function get_details_items( array $event_data ): array {
+		$details = $event_data['details'] ?? [];
+
+		return is_array( $details ) ? $details : [];
+	}
+
+	/**
+	 * Escape a value for a line-based log format, so it can never start a
+	 * new, forged log line or drive the terminal of someone tailing the file.
+	 *
+	 * Backslashes are escaped first, so a real line break ("\n" in the
+	 * output) can be told apart from a backslash followed by an n ("\\n").
+	 * CR, LF and tab become \r, \n and \t. Other control characters, like the
+	 * ESC that starts terminal escape codes, become \xNN, and the Unicode line
+	 * separators NEL, LS and PS become \uNNNN.
+	 *
+	 * @param string $value Value to escape.
+	 * @return string
+	 */
+	protected function escape_line_breaks( string $value ): string {
+		$value = str_replace( [ '\\', "\r", "\n", "\t" ], [ '\\\\', '\\r', '\\n', '\\t' ], $value );
+
+		$escape_character = function ( $matches ) {
+			$separators = [
+				"\u{0085}" => '\\u0085',
+				"\u{2028}" => '\\u2028',
+				"\u{2029}" => '\\u2029',
+			];
+
+			return $separators[ $matches[0] ] ?? sprintf( '\\x%02X', ord( $matches[0] ) );
+		};
+
+		$escaped = preg_replace_callback( '/[\x00-\x1F\x7F]|\x{0085}|\x{2028}|\x{2029}/u', $escape_character, $value );
+
+		// Not valid UTF-8: the u modifier refuses the whole string, so escape byte by byte.
+		if ( $escaped === null ) {
+			$escaped = (string) preg_replace_callback( '/[\x00-\x1F\x7F]/', $escape_character, $value );
+		}
+
+		return $escaped;
+	}
+
+	/**
 	 * Sanitize a value for safe inclusion in structured data.
 	 *
 	 * @param mixed $value The value to sanitize.

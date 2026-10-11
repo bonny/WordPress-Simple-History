@@ -1605,16 +1605,6 @@ class User_Logger extends Logger {
 				),
 			);
 
-			require_once ABSPATH . 'wp-admin/includes/translation-install.php';
-			$translations = wp_get_available_translations();
-
-			if ( ! isset( $translations['en_US'] ) ) {
-				$translations['en_US'] = array(
-					'language'     => 'en_US',
-					'english_name' => 'English',
-				);
-			}
-
 			foreach ( $arr_user_keys_to_show_diff_for as $key => $val ) {
 				if ( ! isset( $context[ "user_prev_{$key}" ] ) || ! isset( $context[ "user_new_{$key}" ] ) ) {
 					continue;
@@ -1625,6 +1615,11 @@ class User_Logger extends Logger {
 
 				// Transform locale codes to display names.
 				if ( $key === 'locale' ) {
+					// Only fetched for a language change: the list can come from an HTTP
+					// request to WordPress.org, and details are also rendered at log time
+					// for the log file and forwarding channels.
+					$translations = $this->get_available_translations();
+
 					if ( isset( $translations[ $user_old_value ] ) ) {
 						$user_old_value = "{$translations[ $user_old_value ]['english_name']} ({$user_old_value})";
 					} elseif ( $user_old_value === 'SITE_DEFAULT' ) {
@@ -1722,6 +1717,25 @@ class User_Logger extends Logger {
 		}
 
 		return $group;
+	}
+
+	/**
+	 * Get the available translations, with English added.
+	 *
+	 * @return array<string, array<string, mixed>> Translations keyed by locale.
+	 */
+	private function get_available_translations() {
+		require_once ABSPATH . 'wp-admin/includes/translation-install.php';
+		$translations = wp_get_available_translations();
+
+		if ( ! isset( $translations['en_US'] ) ) {
+			$translations['en_US'] = array(
+				'language'     => 'en_US',
+				'english_name' => 'English',
+			);
+		}
+
+		return $translations;
 	}
 
 	/**

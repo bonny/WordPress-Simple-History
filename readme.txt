@@ -280,6 +280,10 @@ For more information, see our support page [GDPR and Privacy: How Your Data is S
 
 -   Experimental — Update checks for Premium and other add-ons run only when WordPress checks for updates, so admin pages no longer wait for simple-history.com.
 
+**Fixed**
+
+-   The log file only had the event message, not what changed. It now includes the event details too, like the roles added and removed when a user profile is edited.
+
 **Security**
 
 -   Editors could see events from loggers they don't have access to, such as failed logins, by opening an event's similar events.
@@ -288,7 +292,7 @@ For more information, see our support page [GDPR and Privacy: How Your Data is S
 -   A forged plugin or theme file edit that WordPress rejected could still be logged as an edit.
 -   Stealth Mode hid the log screens, but users outside the allowlist could still read events through the REST API and Abilities API, and still saw history links, notices and the command palette. These are now hidden too.
 -   Hardened database queries and output escaping in the plugin stats and the category and settings events.
--   Line breaks in event text could start forged lines in the log file channel's output.
+-   Line breaks and terminal control characters in event text could start forged lines in the log file, or rewrite earlier lines for someone watching it in a terminal.
 
 ### 5.35.0 (October 2026)
 
