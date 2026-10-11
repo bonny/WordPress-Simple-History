@@ -272,8 +272,7 @@ class WP_REST_Events_Controller extends WP_REST_Controller {
 		// cannot open the history page still read single events by id, for any
 		// logger whose own capability they hold. The reaction routes share this
 		// callback, so they inherit the same floor.
-		// phpcs:ignore WordPress.WP.Capabilities.Undetermined -- Dynamic capability from Helpers::get_view_history_capability().
-		if ( ! current_user_can( Helpers::get_view_history_capability() ) ) {
+		if ( ! Helpers::current_user_can_view_history() ) {
 			return new WP_Error(
 				'rest_forbidden_context',
 				__( 'Sorry, you are not allowed to view events.', 'simple-history' ),
@@ -890,8 +889,7 @@ class WP_REST_Events_Controller extends WP_REST_Controller {
 		// e.g. an author could read Notes logger events despite being blocked
 		// from the history page. The per logger filter in Log_Query stays as
 		// defence in depth.
-		// phpcs:ignore WordPress.WP.Capabilities.Undetermined -- Dynamic capability from Helpers::get_view_history_capability().
-		if ( ! current_user_can( Helpers::get_view_history_capability() ) ) {
+		if ( ! Helpers::current_user_can_view_history() ) {
 			return new WP_Error(
 				'rest_forbidden_context',
 				__( 'Sorry, you are not allowed to view events.', 'simple-history' ),

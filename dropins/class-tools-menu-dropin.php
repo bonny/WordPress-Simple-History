@@ -66,6 +66,12 @@ class Tools_Menu_Dropin extends Dropin {
 
 		$tools_menu_page->add();
 
+		// Stealth Mode hides the other pages through Menu_Manager, but this one is
+		// registered directly, so check here.
+		if ( ! Helpers::current_user_can_view_history() ) {
+			return;
+		}
+
 		// Add a hidden redirect page for backwards compatibility with old Export URLs.
 		// This prevents permission errors when accessing the old slug.
 		// Using empty string instead of null to avoid PHP 8.x deprecation warnings.

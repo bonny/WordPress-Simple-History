@@ -191,8 +191,7 @@ class REST_API extends Service {
 	 * @return bool
 	 */
 	public function events_view_permissions_check() {
-		// phpcs:ignore WordPress.WP.Capabilities.Undetermined -- Dynamic capability from Helpers::get_view_history_capability().
-		return current_user_can( Helpers::get_view_history_capability() );
+		return Helpers::current_user_can_view_history();
 	}
 
 	/**

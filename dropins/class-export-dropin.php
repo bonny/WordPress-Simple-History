@@ -6,6 +6,7 @@ use Simple_History\Export;
 use Simple_History\Helpers;
 use Simple_History\Menu_Page;
 use Simple_History\Services\Admin_Pages;
+use Simple_History\Services\Stealth_Mode;
 
 /**
  * Dropin Name: Export
@@ -85,7 +86,7 @@ class Export_Dropin extends Dropin {
 		// to make it. This streams the entire log — every event, IP address and
 		// piece of activity — so gate it on capability as well.
 		// phpcs:ignore WordPress.WP.Capabilities.Undetermined -- Dynamic capability from Helpers::get_view_settings_capability().
-		if ( ! current_user_can( Helpers::get_view_settings_capability() ) ) {
+		if ( ! current_user_can( Helpers::get_view_settings_capability() ) || ! Stealth_Mode::is_gui_visible_to_user() ) {
 			wp_die( esc_html__( 'You do not have permission to export the history.', 'simple-history' ) );
 		}
 

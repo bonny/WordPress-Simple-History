@@ -21,8 +21,7 @@ class Dashboard_Widget extends Service {
 	 * and a setting to show dashboard to be set.
 	 */
 	public function add_dashboard_widget() {
-		// phpcs:ignore WordPress.WP.Capabilities.Undetermined -- Capability is filterable, defaults to 'read'.
-		if ( ! Helpers::setting_show_on_dashboard() || ! current_user_can( Helpers::get_view_history_capability() ) ) {
+		if ( ! Helpers::setting_show_on_dashboard() || ! Helpers::current_user_can_view_history() ) {
 			return;
 		}
 
