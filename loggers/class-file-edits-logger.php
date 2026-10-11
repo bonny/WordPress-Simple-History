@@ -75,12 +75,26 @@ class File_Edits_Logger extends Logger {
 		// phpcs:ignore WordPress.Security.NonceVerification.Missing, WordPress.Security.ValidatedSanitizedInput.InputNotSanitized
 		$theme = isset( $_POST['theme'] ) ? wp_unslash( $_POST['theme'] ) : '';
 
-		// Gate on the same capabilities WP core's handler enforces, so this
-		// priority-0 hook can't be used by lower-privileged users to trigger
-		// file reads before core's own check runs.
-		if ( $plugin && current_user_can( 'edit_plugins' ) && validate_file( $plugin ) === 0 ) {
+		// phpcs:ignore WordPress.Security.NonceVerification.Missing, WordPress.Security.ValidatedSanitizedInput.InputNotSanitized
+		$nonce = isset( $_POST['nonce'] ) ? wp_unslash( $_POST['nonce'] ) : '';
+
+		// Gate on the same capabilities and nonces WP core's handler enforces.
+		// The capability check stops lower-privileged users from triggering
+		// file reads before core's own check runs. The nonce check stops a
+		// forged request (CSRF) that core will reject from being logged as an edit.
+		if (
+			$plugin
+			&& current_user_can( 'edit_plugins' )
+			&& validate_file( $plugin ) === 0
+			&& wp_verify_nonce( $nonce, 'edit-plugin_' . $file )
+		) {
 			$this->capture_plugin_file_edit( $file, $plugin, $new_contents );
-		} elseif ( $theme && current_user_can( 'edit_themes' ) && validate_file( $theme ) === 0 ) {
+		} elseif (
+			$theme
+			&& current_user_can( 'edit_themes' )
+			&& validate_file( $theme ) === 0
+			&& wp_verify_nonce( $nonce, 'edit-theme_' . $theme . '_' . $file )
+		) {
 			$this->capture_theme_file_edit( $file, $theme, $new_contents );
 		}
 	}
