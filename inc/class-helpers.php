@@ -290,6 +290,46 @@ class Helpers {
 	}
 
 	/**
+	 * Shorten a value that comes from the request, such as a username typed
+	 * into the login form or the user agent header.
+	 *
+	 * These values are stored in full in a longtext column, so without a limit
+	 * one unauthenticated request could write a value as large as the request.
+	 *
+	 * @since 5.36.0
+	 *
+	 * @param string $value      Value to shorten.
+	 * @param int    $max_length Max number of characters to keep.
+	 * @return string Value with at most $max_length characters.
+	 */
+	public static function truncate_request_value( $value, $max_length = 255 ) {
+		$value = (string) $value;
+
+		// PCRE does not allow a repeat count above 65535.
+		$max_length = min( 65535, max( 0, (int) $max_length ) );
+
+		// Cut on a character boundary. PCRE's u flag works without mbstring.
+		if ( preg_match( '/^.{0,' . $max_length . '}/us', $value, $matches ) ) {
+			return $matches[0];
+		}
+
+		// Not valid UTF-8, so cut on a byte boundary instead.
+		return substr( $value, 0, $max_length );
+	}
+
+	/**
+	 * Get the user agent of the current request, shortened to a sane length.
+	 *
+	 * @since 5.36.0
+	 *
+	 * @return string User agent, or an empty string if the request has none.
+	 */
+	public static function get_request_user_agent() {
+		// phpcs:ignore WordPressVIPMinimum.Variables.RestrictedVariables.cache_constraints___SERVER__HTTP_USER_AGENT__ -- User agent logging important for security (brute force detection). Accept VIP caching limitation.
+		return self::truncate_request_value( sanitize_text_field( wp_unslash( $_SERVER['HTTP_USER_AGENT'] ?? '' ) ) );
+	}
+
+	/**
 	 * Returns the context key prefixes that hold an IP address for an event.
 	 *
 	 * A context key holds an IP address if it equals one of these or begins with
@@ -323,17 +363,19 @@ class Helpers {
 	 * Returns the exact context keys gated by the view IP address capability,
 	 * on top of the prefixes from get_ip_address_context_key_prefixes().
 	 *
-	 * The commenter IP address the comments logger stores, and the WP-CLI
-	 * server usernames and SSH client IP. Both the output gate and the search
-	 * exclusions read this list, so a key added here is hidden and unsearchable.
+	 * The commenter IP address the comments logger stores, the address the
+	 * Limit Login Attempts logger stores, and the WP-CLI server usernames and
+	 * SSH client IP. Both the output gate and the search exclusions read this
+	 * list, so a key added here is hidden and unsearchable.
 	 *
 	 * @since 5.35.0
+	 * @since 5.36.0 Added "ip", used by the Limit Login Attempts logger.
 	 *
 	 * @return array<string> Context keys.
 	 */
 	public static function get_ip_address_context_keys() {
 		return array_merge(
-			array( 'comment_author_IP' ),
+			array( 'comment_author_IP', 'ip' ),
 			Services\CLI_Origin_Detector::SENSITIVE_CONTEXT_KEYS
 		);
 	}
@@ -3270,10 +3312,13 @@ class Helpers {
 	 * and truncates to a reasonable length. Useful for cleaning up
 	 * error messages that may contain HTML (like WordPress database errors).
 	 *
+	 * Tags are stripped before entities are decoded, so the result can contain
+	 * "<" and other markup characters. Escape it before putting it in HTML.
+	 *
 	 * @since 5.6.0
 	 * @param string $message    The raw error message.
 	 * @param int    $max_length Maximum length before truncation. Default 500.
-	 * @return string The sanitized error message.
+	 * @return string The sanitized error message, as plain text that is not safe for HTML output.
 	 */
 	public static function sanitize_error_message( $message, $max_length = 500 ) {
 		// Strip HTML tags.
