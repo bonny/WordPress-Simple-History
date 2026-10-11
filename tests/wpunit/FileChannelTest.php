@@ -391,7 +391,7 @@ class FileChannelTest extends \Codeception\TestCase\WPTestCase {
 
 		$this->assertSame( 1, substr_count( $output, "\n" ), 'Only the trailing newline is allowed.' );
 		$this->assertSame( 0, preg_match( '/[\x00-\x09\x0B-\x1F\x7F]|\x{0085}|\x{2028}|\x{2029}/u', $output ), 'No raw control characters or line separators.' );
-		$this->assertStringContainsString( 'user_login=admin\x1B[1A\x1B[2K\x0B\x0C\u0085\u2028\u2029\t', $output );
+		$this->assertStringContainsString( 'user_login="admin\x1B[1A\x1B[2K\x0B\x0C\u0085\u2028\u2029\t"', $output );
 		$this->assertStringContainsString( 'INFO\n[2026-01-01', $output, 'The level is escaped too.' );
 	}
 
@@ -472,5 +472,50 @@ class FileChannelTest extends \Codeception\TestCase\WPTestCase {
 		remove_all_filters( 'simple_history/file_channel/formatters' );
 
 		$this->assertSame( "Updated post\\r\\n[2026-01-01T00:00:00Z] CRITICAL forged\n", $content );
+	}
+
+	/**
+	 * A value can't add key=value fields of its own, and text can't look like
+	 * the start of the next "|" section.
+	 */
+	public function test_human_readable_formatter_cannot_forge_fields() {
+		$formatter = new \Simple_History\Channels\Human_Readable_Formatter();
+		$output    = $formatter->format(
+			[
+				'level'        => 'info',
+				'logger'       => 'SimpleUserLogger',
+				'initiator'    => 'web_user',
+				'context'      => [
+					'_user_login' => 'x user_id=1 user_email=admin@site.tld',
+					'_user_email' => 'a"b',
+				],
+				'details_text' => 'Title: a | initiator=wp_user',
+			],
+			'Failed login | initiator=wp_user user_id=1'
+		);
+
+		$this->assertStringContainsString( 'Failed login \| initiator=wp_user user_id=1 | Title: a \| initiator=wp_user | initiator=web_user', $output );
+		$this->assertStringContainsString( 'user_login="x user_id=1 user_email=admin@site.tld"', $output );
+		$this->assertStringContainsString( 'user_email="a\"b"', $output );
+		$this->assertSame( 2, substr_count( $output, ' | ' ), 'Only the formatter\'s own two separators.' );
+	}
+
+	public function test_human_readable_formatter_leaves_simple_values_unquoted() {
+		$formatter = new \Simple_History\Channels\Human_Readable_Formatter();
+		$output    = $formatter->format(
+			[
+				'level'     => 'info',
+				'logger'    => 'SimpleUserLogger',
+				'initiator' => 'wp_user',
+				'context'   => [
+					'_message_key' => 'user_logged_in',
+					'_user_id'     => 42,
+					'_user_email'  => 'admin@example.com',
+				],
+			],
+			'Logged in'
+		);
+
+		$this->assertStringContainsString( '| initiator=wp_user message_key=user_logged_in user_id=42 user_email=admin@example.com', $output );
 	}
 }

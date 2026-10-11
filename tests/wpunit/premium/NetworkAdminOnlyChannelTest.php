@@ -21,6 +21,8 @@ class NetworkAdminOnlyChannelTest extends PremiumTestCase {
 		$this->activate_premium();
 
 		wp_set_current_user( $this->factory->user->create( [ 'role' => 'administrator' ] ) );
+
+		$GLOBALS['wp_settings_errors'] = [];
 	}
 
 	public function tearDown(): void {
@@ -71,6 +73,23 @@ class NetworkAdminOnlyChannelTest extends PremiumTestCase {
 		update_option( $channel->get_settings_option_name(), $settings );
 	}
 
+	/**
+	 * Codes of the settings errors added for an option.
+	 *
+	 * @param string $option_name Option name the error was added for.
+	 * @return string[]
+	 */
+	private function get_settings_error_codes( $option_name ) {
+		$errors = array_filter(
+			$GLOBALS['wp_settings_errors'] ?? [],
+			function ( $error ) use ( $option_name ) {
+				return $error['setting'] === $option_name;
+			}
+		);
+
+		return array_values( array_column( $errors, 'code' ) );
+	}
+
 	public function test_admin_can_configure_on_single_site() {
 		$channel = new Remote_Syslog_Channel();
 
@@ -88,6 +107,7 @@ class NetworkAdminOnlyChannelTest extends PremiumTestCase {
 		$sanitized = $channel->sanitize_settings( [ 'host' => '169.254.169.254' ] );
 
 		$this->assertSame( 'logs.example.com', $sanitized['host'] );
+		$this->assertSame( [ 'network_admin_only' ], $this->get_settings_error_codes( $channel->get_settings_option_name() ), 'The user is told why the change was not saved.' );
 	}
 
 	/**
@@ -102,6 +122,7 @@ class NetworkAdminOnlyChannelTest extends PremiumTestCase {
 			$sanitized = $channel->sanitize_settings( [ $key => $attempted ] );
 
 			$this->assertSame( $stored, $sanitized[ $key ], "$label: the stored host must be kept." );
+			$this->assertSame( [ 'network_admin_only' ], $this->get_settings_error_codes( $channel->get_settings_option_name() ), "$label: the user is told why." );
 		}
 	}
 
@@ -120,6 +141,7 @@ class NetworkAdminOnlyChannelTest extends PremiumTestCase {
 			$sanitized = $channel->sanitize_settings( [ $key => $attempted ] );
 
 			$this->assertSame( $attempted, $sanitized[ $key ], "$label: a network admin may change the host." );
+			$this->assertNotContains( 'network_admin_only', $this->get_settings_error_codes( $channel->get_settings_option_name() ), "$label: no restriction notice." );
 		}
 	}
 }

@@ -72,9 +72,9 @@ class Human_Readable_Formatter extends Formatter {
 	 */
 	public function format( array $event_data, string $formatted_message ) {
 		$date      = $event_data['date'] ?? current_time( 'mysql', 1 );
-		$timestamp = $this->get_event_timestamp_utc( $date );
-		$level     = $this->escape_line_breaks( strtoupper( (string) ( $event_data['level'] ?? 'info' ) ) );
-		$logger    = $this->escape_line_breaks( (string) ( $event_data['logger'] ?? 'Unknown' ) );
+		$timestamp = $this->escape_text( $this->get_event_timestamp_utc( $date ) );
+		$level     = $this->escape_text( strtoupper( (string) ( $event_data['level'] ?? 'info' ) ) );
+		$logger    = $this->escape_text( (string) ( $event_data['logger'] ?? 'Unknown' ) );
 		$initiator = $event_data['initiator'] ?? 'unknown';
 		$context   = $event_data['context'] ?? [];
 
@@ -85,12 +85,12 @@ class Human_Readable_Formatter extends Formatter {
 		$structured_parts = [];
 
 		// Always include initiator.
-		$structured_parts[] = 'initiator=' . $this->escape_line_breaks( (string) $initiator );
+		$structured_parts[] = 'initiator=' . $this->quote_value( (string) $initiator );
 
 		$essential = $this->get_human_readable_context( $context );
 
 		foreach ( $essential as $key => $value ) {
-			$structured_parts[] = $key . '=' . $this->escape_line_breaks( (string) $value );
+			$structured_parts[] = $key . '=' . $this->quote_value( (string) $value );
 		}
 
 		$structured_suffix = '';
@@ -99,18 +99,53 @@ class Human_Readable_Formatter extends Formatter {
 		}
 
 		// What changed, like "Role added: administrator; Role removed: author".
-		$details_line   = $this->get_details_line( $event_data );
+		// get_details_line() has escaped the line breaks already.
+		$details_line   = str_replace( '|', '\\|', $this->get_details_line( $event_data ) );
 		$details_suffix = $details_line === '' ? '' : ' | ' . $details_line;
 
+		// Every value on the line goes through escape_text() or quote_value(),
+		// and File_Channel::send_event() catches any line break left anyway.
 		return sprintf(
 			"[%s] %s %s: %s%s%s\n",
 			$timestamp,
 			$level_padded,
 			$logger,
-			$this->escape_line_breaks( $formatted_message ),
+			$this->escape_text( $formatted_message ),
 			$details_suffix,
 			$structured_suffix
 		);
+	}
+
+	/**
+	 * Escape free text on the line: line breaks and control characters, and
+	 * "|" as "\|", so text can never look like the start of the next section.
+	 * Backslashes are escaped first, so "\|" is unambiguous.
+	 *
+	 * @param string $value Text to escape.
+	 * @return string
+	 */
+	private function escape_text( string $value ): string {
+		return str_replace( '|', '\\|', $this->escape_line_breaks( $value ) );
+	}
+
+	/**
+	 * Format a key=value value, quoted logfmt style when needed, so a value
+	 * like "x user_id=1" can't add fields of its own.
+	 *
+	 * Values with whitespace, "=", a quote, "|", a control character, or that
+	 * are empty, are put in double quotes with the quotes inside escaped.
+	 *
+	 * @param string $value Value to format.
+	 * @return string
+	 */
+	private function quote_value( string $value ): string {
+		$escaped = $this->escape_line_breaks( $value );
+
+		if ( $value !== '' && $escaped === $value && preg_match( '/[\s="|]/', $value ) !== 1 ) {
+			return $value;
+		}
+
+		return '"' . str_replace( '"', '\\"', $escaped ) . '"';
 	}
 
 	/**
