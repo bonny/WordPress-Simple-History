@@ -3298,10 +3298,13 @@ class Helpers {
 	 * and truncates to a reasonable length. Useful for cleaning up
 	 * error messages that may contain HTML (like WordPress database errors).
 	 *
+	 * Tags are stripped before entities are decoded, so the result can contain
+	 * "<" and other markup characters. Escape it before putting it in HTML.
+	 *
 	 * @since 5.6.0
 	 * @param string $message    The raw error message.
 	 * @param int    $max_length Maximum length before truncation. Default 500.
-	 * @return string The sanitized error message.
+	 * @return string The sanitized error message, as plain text that is not safe for HTML output.
 	 */
 	public static function sanitize_error_message( $message, $max_length = 500 ) {
 		// Strip HTML tags.

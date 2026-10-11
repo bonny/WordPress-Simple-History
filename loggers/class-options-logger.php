@@ -404,7 +404,13 @@ class Options_Logger extends Logger {
 			);
 
 			$message = __( 'Updated setting "{option_translated}" on the <a href="{option_page_link}">{option_page_translated}</a>', 'simple-history' );
+
+			return Helpers::interpolate( $message, $context, $row );
 		}
+
+		// Fallback to the stored message. Escape the values it can contain,
+		// since this override skips the parent's esc_html().
+		$context = $this->esc_html_context_keys( $context, [ 'option', 'option_page' ] );
 
 		return Helpers::interpolate( $message, $context, $row );
 	}
