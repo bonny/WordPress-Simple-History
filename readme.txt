@@ -280,6 +280,14 @@ For more information, see our support page [GDPR and Privacy: How Your Data is S
 
 -   Experimental — Update checks for Premium and other add-ons run only when WordPress checks for updates, so admin pages no longer wait for simple-history.com.
 
+**Security**
+
+-   Editors could see events from loggers they don't have access to, such as failed logins, by opening an event's similar events.
+-   A single request with a long forwarded-IP header, username or user agent could write thousands of rows or very large values to the log. These values are now capped.
+-   Limit Login Attempts events showed the full IP address to every user who could see them. The address is now anonymized and hidden from users who can't view IP addresses.
+-   A forged plugin or theme file edit that WordPress rejected could still be logged as an edit.
+-   Hardened database queries and output escaping in the plugin stats and the category and settings events.
+
 ### 5.35.0 (October 2026)
 
 This release is about logins and privacy. Logins with two-factor authentication are logged when the code is accepted, IP addresses in the log are only shown to administrators, and there is suggested text about the log for your privacy policy. The weekly email settings got simpler too.
