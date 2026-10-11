@@ -295,16 +295,19 @@ class Categories_Logger extends Logger {
 			admin_url( 'term.php' )
 		);
 
-		$context['tax_edit_link'] = $tax_edit_link;
+		$context['tax_edit_link'] = esc_url( $tax_edit_link );
+
+		// Taxonomy slugs are used raw for lookups below and escaped only for output.
+		$taxonomy_keys = [ 'term_taxonomy', 'from_term_taxonomy', 'to_term_taxonomy' ];
 
 		$term_object = get_term( $term_id, $term_taxonomy );
 
 		if ( is_wp_error( $term_object ) ) {
-			return helpers::interpolate( $message, $context, $row );
+			return helpers::interpolate( $message, $this->esc_html_context_keys( $context, $taxonomy_keys ), $row );
 		}
 
 		$term_edit_link            = isset( $term_object ) ? get_edit_tag_link( $term_id, $term_object->taxonomy ) : null;
-		$context['term_edit_link'] = $term_edit_link;
+		$context['term_edit_link'] = $term_edit_link ? esc_url( $term_edit_link ) : $term_edit_link;
 
 		// Get taxonomy name to use in log but fall back to taxonomy slug if
 		// taxonomy has been deleted.
@@ -347,7 +350,7 @@ class Categories_Logger extends Logger {
 			);
 		}
 
-		return helpers::interpolate( $message, $context, $row );
+		return helpers::interpolate( $message, $this->esc_html_context_keys( $context, $taxonomy_keys ), $row );
 	}
 
 	/**

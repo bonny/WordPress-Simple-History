@@ -172,6 +172,10 @@ class Mail_Failure_Tracker extends Service {
 	 * @return string
 	 */
 	public static function mask_error_message( $message ) {
+		// Shorten first, so the regex below never scans a very long string.
+		// It backtracks on every start position, which is slow on long input with no @.
+		$message = Helpers::truncate_request_value( (string) $message, self::MAX_ERROR_LENGTH * 4 );
+
 		$message = (string) preg_replace( '/[^\s<>"\'(),;:]+@([A-Za-z0-9.-]+\.[A-Za-z]{2,})/', '***@$1', (string) $message );
 		$message = trim( $message );
 

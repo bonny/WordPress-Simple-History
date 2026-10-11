@@ -64,8 +64,11 @@ class Details_Text {
 	/**
 	 * Convert details HTML to plain text.
 	 *
+	 * The output has entities decoded, so it can contain "<" and other
+	 * characters that are markup again. Escape it before putting it in HTML.
+	 *
 	 * @param string $html Details HTML from a logger.
-	 * @return string Plain text, empty when there is nothing to show.
+	 * @return string Plain text, not safe for HTML output. Empty when there is nothing to show.
 	 */
 	public static function from_html( $html ) {
 		$html = (string) $html;

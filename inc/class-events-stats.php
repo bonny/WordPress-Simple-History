@@ -671,8 +671,13 @@ class Events_Stats {
 		$events_table   = $this->get_events_table_name();
 		$contexts_table = $this->get_contexts_table_name();
 
-		$sql = $wpdb->prepare(
-			'SELECT 
+		// Build the whole query in one prepare() call. Preparing the output of an
+		// earlier prepare() again can turn a stored value into SQL.
+		// $where_in only holds %s placeholders, so interpolating it is safe.
+		// phpcs:disable WordPress.DB.PreparedSQL.InterpolatedNotPrepared, WordPress.DB.PreparedSQLPlaceholders.UnfinishedPrepare, WordPress.DB.PreparedSQLPlaceholders.ReplacementsWrongNumber
+		$results = $wpdb->get_results(
+			$wpdb->prepare(
+				"SELECT 
 				h.date,
 				c1.value as plugin_name,
 				c2.value as plugin_version
@@ -690,34 +695,29 @@ class Events_Stats {
 				AND c1.key = %s
 				AND c2.key = %s
 				AND h.date >= FROM_UNIXTIME(%d)
-				AND h.date <= FROM_UNIXTIME(%d)',
-			$events_table,
-			$contexts_table,
-			$contexts_table,
-			$contexts_table,
-			$logger_slug,
-			'_message_key',
-			$name_key,
-			$version_key,
-			$date_from,
-			$date_to
-		);
-
-		// Add the IN clause and limit safely.
-		$sql .= " AND c.value IN ($where_in) ORDER BY h.date DESC LIMIT %d";
-		
-		// Prepare the complete query with all parameters.
-		// phpcs:disable WordPress.DB.PreparedSQL.InterpolatedNotPrepared, WordPress.DB.PreparedSQL.NotPrepared
-		$results = $wpdb->get_results(
-			$wpdb->prepare(
-				$sql,
+				AND h.date <= FROM_UNIXTIME(%d)
+				AND c.value IN ($where_in)
+			ORDER BY h.date DESC
+			LIMIT %d",
 				array_merge(
+					array(
+						$events_table,
+						$contexts_table,
+						$contexts_table,
+						$contexts_table,
+						$logger_slug,
+						'_message_key',
+						$name_key,
+						$version_key,
+						$date_from,
+						$date_to,
+					),
 					$message_keys,
 					array( $limit )
 				)
 			)
 		);
-		// phpcs:enable WordPress.DB.PreparedSQL.InterpolatedNotPrepared, WordPress.DB.PreparedSQL.NotPrepared
+		// phpcs:enable WordPress.DB.PreparedSQL.InterpolatedNotPrepared, WordPress.DB.PreparedSQLPlaceholders.UnfinishedPrepare, WordPress.DB.PreparedSQLPlaceholders.ReplacementsWrongNumber
 
 		$plugins = array();
 		foreach ( $results as $result ) {
