@@ -32,6 +32,7 @@ Simple History automatically logs various actions in WordPress and displays them
 -   [Schema](database/schema.md) - Database tables and fields
 -   [Versioning](database/versioning.md) - Database version management
 -   [Relationships](database/relationships.md) - How data is related
+-   [SQLite](database/sqlite.md) - What differs on SQLite, the `#` comment gotcha, and testing with `--env sqlite`
 
 ### Development Guide
 
