@@ -265,6 +265,22 @@ class MailFailureLoggerTest extends \Codeception\TestCase\WPTestCase {
 		$this->assertFalse( get_option( Mail_Failure_Logger::OPTION_WINDOW ) );
 	}
 
+	public function test_mask_error_message_does_not_leak_address_cut_at_input_limit() {
+		// Nine long addresses fill most of the 2000 character input limit and
+		// shrink to a few characters each when masked. The tenth address is cut
+		// by the input limit, so without care its local part would end up
+		// unmasked in the first 500 characters.
+		$long_address = str_repeat( 'a', 200 ) . '@example.com';
+		$message      = 'The following recipients failed: ' . implode( ', ', array_fill( 0, 9, $long_address ) ) . ', firstnamefirstname.lastnamelastname@example.com';
+
+		$this->assertGreaterThan( 2000, strlen( $message ), 'Test input must exceed the input limit.' );
+
+		$masked = Mail_Failure_Tracker::mask_error_message( $message );
+
+		$this->assertStringNotContainsString( 'firstname', $masked );
+		$this->assertStringNotContainsString( 'aaaa', $masked );
+	}
+
 	public function test_mask_error_message_caps_length() {
 		$masked = Mail_Failure_Tracker::mask_error_message( 'Error ' . str_repeat( 'x', 1000 ) );
 

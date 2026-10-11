@@ -558,9 +558,8 @@ class User_Logger extends Logger {
 			'error_code'             => (string) $error_code,
 			'error_message'          => $error_message,
 			'request_uri'            => Helpers::truncate_request_value( sanitize_text_field( wp_unslash( $_SERVER['REQUEST_URI'] ?? '' ) ), 1000 ),
-			'request_method'         => sanitize_text_field( wp_unslash( $_SERVER['REQUEST_METHOD'] ?? '' ) ),
-			// phpcs:ignore WordPressVIPMinimum.Variables.RestrictedVariables.cache_constraints___SERVER__HTTP_USER_AGENT__ -- User agent logging important for security (brute force detection). Accept VIP caching limitation.
-			'server_http_user_agent' => Helpers::truncate_request_value( sanitize_text_field( wp_unslash( $_SERVER['HTTP_USER_AGENT'] ?? '' ) ) ),
+			'request_method'         => Helpers::truncate_request_value( sanitize_text_field( wp_unslash( $_SERVER['REQUEST_METHOD'] ?? '' ) ), 20 ),
+			'server_http_user_agent' => Helpers::get_request_user_agent(),
 			// Same occasions group as failed logins through the login form. A
 			// brute force burst that mixes both channels then collapses into
 			// one row instead of alternating between two groups.
@@ -1212,8 +1211,7 @@ class User_Logger extends Logger {
 			self::CONTEXT_TWO_FACTOR_USED   => 1,
 			self::CONTEXT_TWO_FACTOR_PLUGIN => self::TWO_FACTOR_FAILED_ERROR_CODES[ $error_code ],
 			self::CONTEXT_TWO_FACTOR_ERROR  => $error_code,
-			// phpcs:ignore WordPressVIPMinimum.Variables.RestrictedVariables.cache_constraints___SERVER__HTTP_USER_AGENT__ -- User agent logging important for security (brute force detection). Accept VIP caching limitation.
-			'server_http_user_agent'        => Helpers::truncate_request_value( sanitize_text_field( wp_unslash( $_SERVER['HTTP_USER_AGENT'] ?? '' ) ) ),
+			'server_http_user_agent'        => Helpers::get_request_user_agent(),
 			'_occasionsID'                  => self::class . '/failed_user_login',
 		);
 
@@ -1320,12 +1318,11 @@ class User_Logger extends Logger {
 
 		// Override some data that is usually set automagically by Simple History
 		// Because wp_get_current_user() does not return any data yet at this point.
-		$context['_initiator']  = Log_Initiators::WP_USER;
-		$context['_user_id']    = $user_obj->ID;
-		$context['_user_login'] = $user_obj->user_login;
-		$context['_user_email'] = $user_obj->user_email;
-		// phpcs:ignore WordPressVIPMinimum.Variables.RestrictedVariables.cache_constraints___SERVER__HTTP_USER_AGENT__ -- User agent logging important for security (brute force detection). Accept VIP caching limitation.
-		$context['server_http_user_agent'] = Helpers::truncate_request_value( sanitize_text_field( wp_unslash( $_SERVER['HTTP_USER_AGENT'] ?? '' ) ) );
+		$context['_initiator']             = Log_Initiators::WP_USER;
+		$context['_user_id']               = $user_obj->ID;
+		$context['_user_login']            = $user_obj->user_login;
+		$context['_user_email']            = $user_obj->user_email;
+		$context['server_http_user_agent'] = Helpers::get_request_user_agent();
 
 		$this->info_message( 'user_logged_in', array_merge( $context, $extra_context ) );
 	}
@@ -1416,8 +1413,7 @@ class User_Logger extends Logger {
 				'login_id'               => $userOrError->ID,
 				'login_email'            => $userOrError->user_email,
 				'login'                  => $userOrError->user_login,
-				// phpcs:ignore WordPressVIPMinimum.Variables.RestrictedVariables.cache_constraints___SERVER__HTTP_USER_AGENT__ -- User agent logging important for security (brute force detection). Accept VIP caching limitation.
-				'server_http_user_agent' => Helpers::truncate_request_value( sanitize_text_field( wp_unslash( $_SERVER['HTTP_USER_AGENT'] ?? '' ) ) ),
+				'server_http_user_agent' => Helpers::get_request_user_agent(),
 				'_occasionsID'           => self::class . '/failed_user_login',
 			);
 
@@ -1461,8 +1457,7 @@ class User_Logger extends Logger {
 			$context = array(
 				'_initiator'             => Log_Initiators::WEB_USER,
 				'failed_username'        => Helpers::truncate_request_value( $username ),
-				// phpcs:ignore WordPressVIPMinimum.Variables.RestrictedVariables.cache_constraints___SERVER__HTTP_USER_AGENT__ -- User agent logging important for security (brute force detection). Accept VIP caching limitation.
-				'server_http_user_agent' => Helpers::truncate_request_value( sanitize_text_field( wp_unslash( $_SERVER['HTTP_USER_AGENT'] ?? '' ) ) ),
+				'server_http_user_agent' => Helpers::get_request_user_agent(),
 				// Count all failed logins to unknown users as the same occasions,
 				// to prevent log being flooded with login/hack attempts.
 				'_occasionsID'           => self::class . '/failed_user_login',

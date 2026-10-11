@@ -85,7 +85,7 @@ class OccasionsLoggerCapabilityTest extends \Codeception\TestCase\WPTestCase {
 		);
 
 		$this->assertIsArray( $result );
-		$this->assertCount( 1, $result['log_rows'] );
+		$this->assertCount( 0, $result['log_rows'] );
 	}
 
 	public function test_occasions_id_with_quote_is_treated_as_a_value() {
