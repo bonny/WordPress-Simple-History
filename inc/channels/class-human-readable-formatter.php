@@ -73,7 +73,7 @@ class Human_Readable_Formatter extends Formatter {
 		$date      = $event_data['date'] ?? current_time( 'mysql', 1 );
 		$timestamp = $this->get_event_timestamp_utc( $date );
 		$level     = strtoupper( $event_data['level'] ?? 'info' );
-		$logger    = $event_data['logger'] ?? 'Unknown';
+		$logger    = $this->escape_line_breaks( (string) ( $event_data['logger'] ?? 'Unknown' ) );
 		$initiator = $event_data['initiator'] ?? 'unknown';
 		$context   = $event_data['context'] ?? [];
 
@@ -84,12 +84,12 @@ class Human_Readable_Formatter extends Formatter {
 		$structured_parts = [];
 
 		// Always include initiator.
-		$structured_parts[] = 'initiator=' . $initiator;
+		$structured_parts[] = 'initiator=' . $this->escape_line_breaks( (string) $initiator );
 
 		$essential = $this->get_human_readable_context( $context );
 
 		foreach ( $essential as $key => $value ) {
-			$structured_parts[] = $key . '=' . $value;
+			$structured_parts[] = $key . '=' . $this->escape_line_breaks( (string) $value );
 		}
 
 		$structured_suffix = '';
@@ -102,9 +102,19 @@ class Human_Readable_Formatter extends Formatter {
 			$timestamp,
 			$level_padded,
 			$logger,
-			$formatted_message,
+			$this->escape_line_breaks( $formatted_message ),
 			$structured_suffix
 		);
+	}
+
+	/**
+	 * Escape CR and LF, so a value can never start a new, forged log line.
+	 *
+	 * @param string $value Value to escape.
+	 * @return string
+	 */
+	private function escape_line_breaks( string $value ) {
+		return str_replace( [ "\r", "\n" ], [ '\\r', '\\n' ], $value );
 	}
 
 	/**
