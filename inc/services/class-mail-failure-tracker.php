@@ -174,7 +174,15 @@ class Mail_Failure_Tracker extends Service {
 	public static function mask_error_message( $message ) {
 		// Shorten first, so the regex below never scans a very long string.
 		// It backtracks on every start position, which is slow on long input with no @.
-		$message = Helpers::truncate_request_value( (string) $message, self::MAX_ERROR_LENGTH * 4 );
+		$original = (string) $message;
+		$message  = Helpers::truncate_request_value( $original, self::MAX_ERROR_LENGTH * 4 );
+
+		// The cut can split an address so it no longer matches the mask below.
+		// Drop the partial word at the end, up to the max length of an address,
+		// so it can't be stored unmasked.
+		if ( $message !== $original ) {
+			$message = (string) preg_replace( '/[^\s<>"\'(),;:]{0,254}$/', '', $message );
+		}
 
 		$message = (string) preg_replace( '/[^\s<>"\'(),;:]+@([A-Za-z0-9.-]+\.[A-Za-z]{2,})/', '***@$1', (string) $message );
 		$message = trim( $message );

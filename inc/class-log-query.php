@@ -933,12 +933,12 @@ class Log_Query {
 
 		// Clamp the number of occasions to a sane range.
 		// A missing or negative value would otherwise give invalid SQL.
-		$occasions_count = max( 1, min( 1000, (int) $args['occasionsCount'] ) );
+		$occasions_count = max( 0, min( 1000, (int) $args['occasionsCount'] ) );
 
 		if ( isset( $args['occasionsCountMaxReturn'] ) && $args['occasionsCountMaxReturn'] < $occasions_count ) {
 			// Limit to max nn events if occasionsCountMaxReturn is set.
 			// Used for example in GUI to prevent to many events returned, that can stall the browser.
-			$limit = 'LIMIT ' . max( 1, (int) $args['occasionsCountMaxReturn'] );
+			$limit = 'LIMIT ' . max( 0, (int) $args['occasionsCountMaxReturn'] );
 		} else {
 			// Regular limit that gets all occasions.
 			$limit = 'LIMIT ' . $occasions_count;

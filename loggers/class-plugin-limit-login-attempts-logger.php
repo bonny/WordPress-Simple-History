@@ -208,9 +208,9 @@ class Plugin_Limit_Login_Attempts_Logger extends Logger {
 
 		// Events logged before 5.36.0 stored the full address, so anonymize at display too.
 		// Restore ".x" to ".0" first, so an already anonymized address stays valid.
-		if ( $ip !== '' ) {
-			$ip = Helpers::privacy_anonymize_ip( Helpers::get_valid_ip_address_from_anonymized( $ip ) );
-		}
+		// Anything that isn't a single valid address, like a list from a proxy header, is not shown.
+		$ip = Helpers::get_valid_ip_address_from_anonymized( (string) $ip );
+		$ip = filter_var( $ip, FILTER_VALIDATE_IP ) ? Helpers::privacy_anonymize_ip( $ip ) : '';
 
 		if ( $ip !== '' && Helpers::current_user_can_view_ip_addresses() ) {
 			$message_string = sprintf(

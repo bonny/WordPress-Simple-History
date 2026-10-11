@@ -2008,8 +2008,13 @@ abstract class Logger {
 			//
 			// Masking runs after esc_url_raw() because the replacement value is
 			// not URL safe and would be mangled by it.
-			$context['_server_http_referer'] = Helpers::mask_sensitive_query_string(
-				esc_url_raw( wp_unslash( $_SERVER['HTTP_REFERER'] ) )
+			//
+			// The header is sent by the client, so cap its length like other request values.
+			$context['_server_http_referer'] = Helpers::truncate_request_value(
+				Helpers::mask_sensitive_query_string(
+					esc_url_raw( wp_unslash( $_SERVER['HTTP_REFERER'] ) )
+				),
+				1000
 			);
 		}
 

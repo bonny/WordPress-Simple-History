@@ -303,8 +303,10 @@ class Helpers {
 	 * @return string Value with at most $max_length characters.
 	 */
 	public static function truncate_request_value( $value, $max_length = 255 ) {
-		$value      = (string) $value;
-		$max_length = max( 0, (int) $max_length );
+		$value = (string) $value;
+
+		// PCRE does not allow a repeat count above 65535.
+		$max_length = min( 65535, max( 0, (int) $max_length ) );
 
 		// Cut on a character boundary. PCRE's u flag works without mbstring.
 		if ( preg_match( '/^.{0,' . $max_length . '}/us', $value, $matches ) ) {
@@ -313,6 +315,18 @@ class Helpers {
 
 		// Not valid UTF-8, so cut on a byte boundary instead.
 		return substr( $value, 0, $max_length );
+	}
+
+	/**
+	 * Get the user agent of the current request, shortened to a sane length.
+	 *
+	 * @since 5.36.0
+	 *
+	 * @return string User agent, or an empty string if the request has none.
+	 */
+	public static function get_request_user_agent() {
+		// phpcs:ignore WordPressVIPMinimum.Variables.RestrictedVariables.cache_constraints___SERVER__HTTP_USER_AGENT__ -- User agent logging important for security (brute force detection). Accept VIP caching limitation.
+		return self::truncate_request_value( sanitize_text_field( wp_unslash( $_SERVER['HTTP_USER_AGENT'] ?? '' ) ) );
 	}
 
 	/**
