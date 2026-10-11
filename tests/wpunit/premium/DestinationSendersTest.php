@@ -1066,7 +1066,7 @@ class DestinationSendersTest extends PremiumTestCase {
 		$list = $rich['elements'][0];
 		$this->assertSame( 'rich_text_list', $list['type'] );
 		$this->assertSame( 'bullet', $list['style'] );
-		$this->assertCount( 4, $list['elements'], 'Three items and the "…" item.' );
+		$this->assertCount( 3, $list['elements'], 'Three items, the "…" is not a bullet.' );
 
 		$first = $list['elements'][0]['elements'];
 		$this->assertSame( 'Role added: ', $first[0]['text'] );
@@ -1076,7 +1076,8 @@ class DestinationSendersTest extends PremiumTestCase {
 		// Rich text is shown as is: the hostile value is passed through unescaped and unparsed.
 		$this->assertSame( 'John → x```*URGENT* <https://evil.example|Click> <b>bold</b>', $list['elements'][1]['elements'][1]['text'] );
 		$this->assertSame( 'changed', $list['elements'][2]['elements'][1]['text'] );
-		$this->assertSame( '…', $list['elements'][3]['elements'][0]['text'] );
+		$this->assertSame( 'rich_text_section', $rich['elements'][1]['type'], '"…" is plain text below the list.' );
+		$this->assertSame( '…', $rich['elements'][1]['elements'][0]['text'] );
 	}
 
 	public function test_slack_falls_back_to_code_block_without_list(): void {
