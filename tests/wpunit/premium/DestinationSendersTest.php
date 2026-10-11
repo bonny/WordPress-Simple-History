@@ -943,4 +943,83 @@ class DestinationSendersTest extends PremiumTestCase {
 		$this->assertStringContainsString( 'Role added: author', $body );
 		$this->assertStringContainsString( 'Role removed: editor', $body );
 	}
+
+	/**
+	 * Details are user-controlled. No run of backticks may survive inside the
+	 * code block, or it closes early and the rest renders as markup.
+	 *
+	 * @return array<string, array{0: string}>
+	 */
+	public function fence_breakers(): array {
+		return [
+			'three'        => [ 'x```*URGENT* _reset now_```' ],
+			'five'         => [ '`````[Reset password](https://evil.example)' ],
+			'two and four' => [ "a``b\n````c" ],
+			'at the edges' => [ '`edge`' ],
+		];
+	}
+
+	public function test_slack_details_code_block_cannot_be_closed(): void {
+		$method = new \ReflectionMethod( Slack_Destination_Sender::class, 'build_payload' );
+		$method->setAccessible( true );
+		$sender = new Slack_Destination_Sender();
+
+		foreach ( $this->fence_breakers() as $label => [ $details ] ) {
+			$payload = $method->invoke( $sender, $this->get_normalized_for_payload(), $details, 'https://example.com/event' );
+			$block   = $this->find_code_block( $payload['blocks'] );
+
+			$this->assertNotNull( $block, "$label: details block is missing." );
+
+			$inner = substr( $block, 3, -3 );
+			$this->assertStringNotContainsString( '``', $inner, "$label: two backticks in a row survived." );
+			$this->assertStringStartsNotWith( '`', $inner, "$label: a backtick touches the opening fence." );
+			$this->assertStringEndsNotWith( '`', $inner, "$label: a backtick touches the closing fence." );
+			$this->assertSame( $details, str_replace( "\u{200B}", '', $inner ), "$label: only zero-width spaces may be added." );
+		}
+	}
+
+	public function test_discord_details_code_block_cannot_be_closed(): void {
+		$method = new \ReflectionMethod( Discord_Destination_Sender::class, 'escape_discord_code_block' );
+		$method->setAccessible( true );
+		$sender = new Discord_Destination_Sender();
+
+		foreach ( $this->fence_breakers() as $label => [ $details ] ) {
+			$escaped = $method->invoke( $sender, $details );
+
+			$this->assertStringNotContainsString( '``', $escaped, "$label: two backticks in a row survived." );
+			$this->assertSame( $details, str_replace( "\u{200B}", '', $escaped ), "$label: only zero-width spaces may be added." );
+		}
+	}
+
+	/**
+	 * Normalized event data as build_payload() expects it.
+	 *
+	 * @return array
+	 */
+	private function get_normalized_for_payload(): array {
+		$sender = new Slack_Destination_Sender();
+		$test   = $sender->get_test_event_data();
+		$method = new \ReflectionMethod( Slack_Destination_Sender::class, 'get_normalized_event_data' );
+		$method->setAccessible( true );
+
+		return $method->invoke( $sender, $test['event_data'], $test['context'] );
+	}
+
+	/**
+	 * Find the text of the code block section in Slack blocks.
+	 *
+	 * @param array $blocks Slack blocks.
+	 * @return string|null
+	 */
+	private function find_code_block( array $blocks ): ?string {
+		foreach ( $blocks as $block ) {
+			$text = $block['text']['text'] ?? '';
+
+			if ( strpos( $text, '```' ) === 0 ) {
+				return $text;
+			}
+		}
+
+		return null;
+	}
 }

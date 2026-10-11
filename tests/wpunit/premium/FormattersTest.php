@@ -460,4 +460,37 @@ class FormattersTest extends PremiumTestCase {
 		$this->assertIsArray( json_decode( $output, true ), 'Template output must be valid JSON: ' . $output );
 		$this->assertStringContainsString( 'Post \"{details_json}\" updated', $output );
 	}
+
+	/**
+	 * ESC can rewrite earlier lines in a terminal running tail -f, and many
+	 * tools split lines on VT, FF, NEL, LS and PS.
+	 */
+	public function test_logfmt_and_local_syslog_escape_control_characters(): void {
+		$event                          = $this->get_sample_event_data_with_details();
+		$event['context']['_user_login'] = "admin\x1b[2K\x0B\u{2028}";
+		$event['details_text']          = "Title: a\x1b[1A\u{0085}b";
+
+		$logfmt = ( new Logfmt_Formatter() )->format( $event, 'Edited' );
+
+		$method = new \ReflectionMethod( Local_Syslog_Channel::class, 'format_message' );
+		$method->setAccessible( true );
+		$syslog = $method->invoke( new Local_Syslog_Channel(), $event, "Edited\x1b[2K" );
+
+		foreach ( [ 'logfmt' => rtrim( $logfmt, "\n" ), 'local syslog' => $syslog ] as $label => $output ) {
+			$this->assertSame( 0, preg_match( '/[\x00-\x1F\x7F]|\x{0085}|\x{2028}|\x{2029}/u', $output ), "$label: no raw control characters or line separators." );
+		}
+
+		$this->assertStringContainsString( 'user_login="admin\x1B[2K\x0B\u2028"', $logfmt );
+		$this->assertStringContainsString( 'Edited\x1B[2K', $syslog );
+		$this->assertStringContainsString( 'Title: a\x1B[1A\u0085b', $syslog );
+	}
+
+	public function test_logfmt_quotes_and_escapes_a_value_with_only_a_control_character(): void {
+		$event                           = $this->get_sample_event_data();
+		$event['context']['_user_login'] = "admin\x1b";
+
+		$output = ( new Logfmt_Formatter() )->format( $event, 'Logged in' );
+
+		$this->assertStringContainsString( 'user_login="admin\x1B"', $output );
+	}
 }
