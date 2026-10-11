@@ -804,4 +804,74 @@ class DestinationSendersTest extends PremiumTestCase {
 			$this->assertEquals( 1, $error_tracking['error_count'] );
 		}
 	}
+
+	// =========================================================================
+	// Markup injection in chat alerts
+	// =========================================================================
+
+	/**
+	 * Build a chat payload for an event whose message carries attacker markup.
+	 *
+	 * @param object $sender  Slack or Discord sender.
+	 * @param string $message Event message.
+	 * @param string $details Event details.
+	 * @return array
+	 */
+	private function build_chat_payload( $sender, string $message, string $details = '' ): array {
+		$normalize = new ReflectionMethod( $sender, 'get_normalized_event_data' );
+		$normalize->setAccessible( true );
+		$normalized = $normalize->invoke( $sender, [ 'message' => $message ], [] );
+
+		$build = new ReflectionMethod( $sender, 'build_payload' );
+		$build->setAccessible( true );
+
+		return $build->invoke( $sender, $normalized, $details );
+	}
+
+	/**
+	 * A masked link or mention in an event must not render in Discord.
+	 */
+	public function test_discord_escapes_links_and_never_mentions(): void {
+		$payload = $this->build_chat_payload(
+			new Discord_Destination_Sender(),
+			'Failed login for [Reset your password](https://evil.example) @everyone <@123>'
+		);
+
+		$description = $payload['embeds'][0]['description'];
+
+		$this->assertStringContainsString( '\[Reset your password\]\(https\:', $description );
+		$this->assertStringNotContainsString( '[Reset your password](https://evil.example)', $description );
+		$this->assertStringContainsString( '\<\@123\>', $description );
+		$this->assertSame( [ 'parse' => [] ], $payload['allowed_mentions'] );
+	}
+
+	/**
+	 * Details go in a code block: no backslashes there, only the fence is broken up.
+	 */
+	public function test_discord_details_code_block_is_not_backslash_escaped(): void {
+		$payload = $this->build_chat_payload(
+			new Discord_Destination_Sender(),
+			'Settings changed',
+			"option_name: my_option\n```\n[link](https://evil.example)"
+		);
+
+		$description = $payload['embeds'][0]['description'];
+
+		$this->assertStringContainsString( "option_name: my_option\n", $description );
+		$this->assertSame( 2, substr_count( $description, '```' ), 'Only the opening and closing fence remain.' );
+	}
+
+	/**
+	 * Slack's notification preview text must be escaped like the blocks.
+	 */
+	public function test_slack_text_fallback_is_escaped(): void {
+		$payload = $this->build_chat_payload(
+			new Slack_Destination_Sender(),
+			'Failed login for <!channel> <https://evil.example|Reset password>'
+		);
+
+		$this->assertStringNotContainsString( '<!channel>', $payload['text'] );
+		$this->assertStringNotContainsString( '<https://evil.example|', $payload['text'] );
+		$this->assertStringContainsString( '&lt;!channel&gt;', $payload['text'] );
+	}
 }

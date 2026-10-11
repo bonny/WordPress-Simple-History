@@ -351,4 +351,24 @@ class FileChannelTest extends \Codeception\TestCase\WPTestCase {
 		$property->setAccessible( true );
 		$property->setValue( $object, $value );
 	}
+
+	/**
+	 * CR and LF in the message or context must not start a new, forged log line.
+	 */
+	public function test_human_readable_formatter_escapes_line_breaks() {
+		$formatter = new \Simple_History\Channels\Human_Readable_Formatter();
+		$output    = $formatter->format(
+			[
+				'level'     => 'info',
+				'logger'    => 'SimpleUserLogger',
+				'initiator' => 'web_user',
+				'context'   => [ '_user_login' => "admin\r\n[2026-01-01T00:00:00Z] CRITICAL forged" ],
+			],
+			"Failed login\n[2026-01-01T00:00:00Z] CRITICAL SimpleUserLogger: forged"
+		);
+
+		$this->assertSame( 1, substr_count( $output, "\n" ), 'Only the trailing newline is allowed.' );
+		$this->assertStringNotContainsString( "\r", $output );
+		$this->assertStringContainsString( 'Failed login\n[2026-01-01', $output );
+	}
 }
