@@ -290,6 +290,32 @@ class Helpers {
 	}
 
 	/**
+	 * Shorten a value that comes from the request, such as a username typed
+	 * into the login form or the user agent header.
+	 *
+	 * These values are stored in full in a longtext column, so without a limit
+	 * one unauthenticated request could write a value as large as the request.
+	 *
+	 * @since 5.36.0
+	 *
+	 * @param string $value      Value to shorten.
+	 * @param int    $max_length Max number of characters to keep.
+	 * @return string Value with at most $max_length characters.
+	 */
+	public static function truncate_request_value( $value, $max_length = 255 ) {
+		$value      = (string) $value;
+		$max_length = max( 0, (int) $max_length );
+
+		// Cut on a character boundary. PCRE's u flag works without mbstring.
+		if ( preg_match( '/^.{0,' . $max_length . '}/us', $value, $matches ) ) {
+			return $matches[0];
+		}
+
+		// Not valid UTF-8, so cut on a byte boundary instead.
+		return substr( $value, 0, $max_length );
+	}
+
+	/**
 	 * Returns the context key prefixes that hold an IP address for an event.
 	 *
 	 * A context key holds an IP address if it equals one of these or begins with

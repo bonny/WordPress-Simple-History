@@ -1950,6 +1950,10 @@ abstract class Logger {
 			// http://blackbe.lt/advanced-method-to-obtain-the-client-ip-in-php/.
 			$ip_keys = Helpers::get_ip_number_header_names();
 
+			// Headers are sent by the client, so cap how many addresses we store.
+			// Without a cap one request with a long header could write thousands of context rows.
+			$max_ips_per_header = 5;
+
 			foreach ( $ip_keys as $key ) {
 				if ( ! array_key_exists( $key, $_SERVER ) ) {
 					continue;
@@ -1957,17 +1961,28 @@ abstract class Logger {
 
 				// Loop through all IPs.
 				$ip_loop_num = 0;
+				$stored_ips  = [];
+
 				foreach ( explode( ',', sanitize_text_field( wp_unslash( $_SERVER[ $key ] ) ) ) as $ip ) {
+					if ( count( $stored_ips ) >= $max_ips_per_header ) {
+						break;
+					}
+
 					// trim for safety measures.
 					$ip = trim( $ip );
 
 					// attempt to validate IP.
 					if ( Helpers::is_valid_public_ip( $ip ) ) {
-						// valid, add to context, with loop index appended so we can store many IPs.
-						$key_prefix = Helpers::get_ip_address_context_key_prefix( $key );
-						$ip         = Helpers::privacy_anonymize_ip( $ip );
+						$ip = Helpers::privacy_anonymize_ip( $ip );
 
-						$context[ $key_prefix . $ip_loop_num ] = $ip;
+						// Skip addresses already stored for this header.
+						if ( ! in_array( $ip, $stored_ips, true ) ) {
+							// valid, add to context, with loop index appended so we can store many IPs.
+							$key_prefix = Helpers::get_ip_address_context_key_prefix( $key );
+
+							$context[ $key_prefix . $ip_loop_num ] = $ip;
+							$stored_ips[]                          = $ip;
+						}
 					}
 
 					++$ip_loop_num;
