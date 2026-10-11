@@ -41,16 +41,23 @@ class Channel_Event_Details {
 	 *   Raw text, not escaped for any output format.
 	 * - items: changed values keyed by context key, for structured formats.
 	 *   Each item has new and/or prev, plus the translated label.
-	 *   Only loggers that use the Event Details API have items.
+	 * - list: every item in display order, also those without a context key,
+	 *   for alerts that show the details as a list. Each item has label,
+	 *   new and/or prev, and key when it has one. A change between two values
+	 *   too long to show has changed = true instead of the values.
+	 *
+	 * Only loggers that use the Event Details API have items and list. Loggers
+	 * that still return HTML only have text.
 	 *
 	 * @param array $context Context of the event, as passed to the inserted hook.
 	 * @param array $data    Event row data, as passed to the inserted hook.
-	 * @return array{text: string, items: array<string, array<string, string>>}
+	 * @return array{text: string, items: array<string, array<string, string>>, list: array<int, array<string, string|bool>>}
 	 */
 	public static function get( array $context, array $data ): array {
 		$empty = [
 			'text'  => '',
 			'items' => [],
+			'list'  => [],
 		];
 
 		try {
@@ -62,9 +69,12 @@ class Channel_Event_Details {
 			return $empty;
 		}
 
+		$is_structured = $details instanceof Event_Details_Container;
+
 		return [
 			'text'  => self::build_text( Details_Text::from_html( $html ) ),
-			'items' => $details instanceof Event_Details_Container ? self::build_items( $details ) : [],
+			'items' => $is_structured ? self::build_items( $details ) : [],
+			'list'  => $is_structured ? self::build_list( $details ) : [],
 		];
 	}
 
@@ -167,6 +177,71 @@ class Channel_Event_Details {
 		}
 
 		return $items;
+	}
+
+	/**
+	 * Collect every item in display order, with or without a context key.
+	 *
+	 * Values come from each item's formatter, so items rendered by a raw
+	 * formatter get their plain text value too. Items without a text value,
+	 * like image diffs, are left out.
+	 *
+	 * @param Event_Details_Container $details Details from the logger.
+	 * @return array<int, array<string, string|bool>>
+	 */
+	private static function build_list( Event_Details_Container $details ): array {
+		$list = [];
+
+		foreach ( $details->groups as $group ) {
+			foreach ( $group->items as $item ) {
+				$json = $item->get_formatter()->to_json();
+
+				$label = $json['name'] ?? $item->name;
+				$new   = $json['new_value'] ?? $item->new_value;
+				$prev  = $json['prev_value'] ?? $item->prev_value;
+
+				$new  = is_scalar( $new ) && (string) $new !== '' ? (string) $new : null;
+				$prev = is_scalar( $prev ) && (string) $prev !== '' ? (string) $prev : null;
+
+				if ( $new === null && $prev === null ) {
+					continue;
+				}
+
+				$entry = [
+					'label' => is_string( $label ) ? $label : '',
+				];
+
+				$key = $item->slug_new ?? $item->slug_prev ?? null;
+
+				if ( $key !== null ) {
+					$entry['key'] = $key;
+				}
+
+				// Two long texts, like post content: cut-off starts of both say nothing
+				// about what changed, so only say that it changed.
+				$is_long = self::truncate( (string) $new ) !== (string) $new || self::truncate( (string) $prev ) !== (string) $prev;
+
+				if ( $new !== null && $prev !== null && $is_long ) {
+					$entry['changed'] = true;
+				} else {
+					if ( $new !== null ) {
+						$entry['new'] = self::truncate( $new );
+					}
+
+					if ( $prev !== null ) {
+						$entry['prev'] = self::truncate( $prev );
+					}
+				}
+
+				$list[] = $entry;
+
+				if ( count( $list ) >= self::MAX_ITEMS ) {
+					return $list;
+				}
+			}
+		}
+
+		return $list;
 	}
 
 	/**
