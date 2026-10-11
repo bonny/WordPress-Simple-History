@@ -7,7 +7,7 @@ namespace Simple_History;
  *
  * Core and Premium write their changelogs the same way: a `## Changelog`
  * section with `### X.Y.Z (Month Year)` headings, an optional summary
- * paragraph with a "Read more … release post" link, and keepachangelog
+ * paragraph with a link to the release post, and keepachangelog
  * sections (`**Added**`, `**Fixed**` …) with one `-   ` bullet per entry.
  *
  * Plain PHP with no WordPress calls, so it can be tested on the real files.
@@ -65,7 +65,10 @@ class Changelog_Parser {
 			'release_url' => '',
 		];
 
-		if ( preg_match( '/\[Read more[^\]]*\]\((https:\/\/simple-history\.com\/[^)\s]+)\)/', $body, $matches ) ) {
+		// The release post is the first simple-history.com link whose slug ends in
+		// "-released" (or "-released-<words>" for older posts), whatever the link
+		// text says. Links to feature pages in the summary are skipped.
+		if ( preg_match( '/\]\((https:\/\/simple-history\.com\/[^)\s]*-released(?:-[a-z0-9-]+)?\/?)\)/', $body, $matches ) ) {
 			$version['release_url'] = $matches[1];
 		}
 

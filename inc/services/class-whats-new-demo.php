@@ -47,6 +47,8 @@ class Whats_New_Demo {
 		add_filter( 'simple_history/whats_new/billing_state', [ $this, 'filter_billing_state' ] );
 		add_filter( 'simple_history/whats_new/lapse', [ $this, 'filter_lapse' ] );
 		add_filter( 'get_user_metadata', [ $this, 'filter_user_meta' ], 10, 3 );
+		add_filter( 'update_user_metadata', [ $this, 'skip_user_meta_write' ], 10, 3 );
+		add_filter( 'add_user_metadata', [ $this, 'skip_user_meta_write' ], 10, 3 );
 		add_filter( 'simple_history/whats_new/plugins', [ $this, 'filter_plugins' ] );
 	}
 
@@ -107,6 +109,22 @@ class Whats_New_Demo {
 			'expires_timestamp' => time() - $days[ $this->scenario ] * DAY_IN_SECONDS,
 			'features'          => $features,
 		];
+	}
+
+	/**
+	 * Keep the demo from saving its pretend seen state over the real one.
+	 *
+	 * @param null|bool $check Null to let the write happen.
+	 * @param int       $object_id User ID.
+	 * @param string    $meta_key Meta key.
+	 * @return null|bool
+	 */
+	public function skip_user_meta_write( $check, $object_id, $meta_key ) {
+		if ( in_array( $meta_key, [ Whats_New_Service::META_SEEN, Whats_New_Service::META_BILLING_DISMISSED, Whats_New_Service::META_LAPSED_DISMISSED ], true ) ) {
+			return true;
+		}
+
+		return $check;
 	}
 
 	/**
