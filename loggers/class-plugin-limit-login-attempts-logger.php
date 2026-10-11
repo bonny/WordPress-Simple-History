@@ -179,7 +179,7 @@ class Plugin_Limit_Login_Attempts_Logger extends Logger {
 				'count'                      => $count, // num of failed login attempts before block.
 				'time'                       => $time, // duration in minutes for block.
 				'lockouts'                   => $lockouts,
-				'ip'                         => $ip,
+				'ip'                         => Helpers::privacy_anonymize_ip( $ip ),
 				'lockout_type'               => $lockout_type,
 			)
 		);
@@ -202,17 +202,32 @@ class Plugin_Limit_Login_Attempts_Logger extends Logger {
 
 		$count        = $context['count'];
 		$lockouts     = $context['lockouts'];
-		$ip           = $context['ip'];
+		$ip           = $context['ip'] ?? '';
 		$lockout_type = $context['lockout_type'];
 		$time         = $context['time'];
 
-		$message_string = sprintf(
-			/* translators: 1: number of login attempts, 2: number of lockouts, 3: IP that caused lockout. */
-			_x( '%1$d failed login attempts (%2$d lockout(s)) from IP: %3$s', 'Logger: Plugin Limit Login Attempts', 'simple-history' ),
-			$count,
-			$lockouts,
-			$ip
-		);
+		// Events logged before 5.36.0 stored the full address, so anonymize at display too.
+		// Restore ".x" to ".0" first, so an already anonymized address stays valid.
+		// Anything that isn't a single valid address, like a list from a proxy header, is not shown.
+		$ip = Helpers::get_valid_ip_address_from_anonymized( (string) $ip );
+		$ip = filter_var( $ip, FILTER_VALIDATE_IP ) ? Helpers::privacy_anonymize_ip( $ip ) : '';
+
+		if ( $ip !== '' && Helpers::current_user_can_view_ip_addresses() ) {
+			$message_string = sprintf(
+				/* translators: 1: number of login attempts, 2: number of lockouts, 3: IP that caused lockout. */
+				_x( '%1$d failed login attempts (%2$d lockout(s)) from IP: %3$s', 'Logger: Plugin Limit Login Attempts', 'simple-history' ),
+				$count,
+				$lockouts,
+				$ip
+			);
+		} else {
+			$message_string = sprintf(
+				/* translators: 1: number of login attempts, 2: number of lockouts. */
+				_x( '%1$d failed login attempts (%2$d lockout(s))', 'Logger: Plugin Limit Login Attempts', 'simple-history' ),
+				$count,
+				$lockouts
+			);
+		}
 
 		$when = null;
 		if ( $lockout_type === 'longer' ) {
