@@ -273,7 +273,7 @@ For more information, see our support page [GDPR and Privacy: How Your Data is S
 
 **Added**
 
--   Experimental — A "What's new in Simple History" box at the top of the log after an update, with the main changes in each new version of Simple History and Premium.
+-   Experimental — A short "Updated to Simple History X.Y.Z" line at the top of the log after an update, with how many new features and fixes it brought and a link to the release post. Premium updates get their own line.
 -   Experimental — Premium customers see a message on the log page when a subscription payment didn't go through or the subscription is about to end, and sites with an expired Premium license see what's new in Premium since their version.
 
 **Changed**
