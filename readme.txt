@@ -286,6 +286,7 @@ For more information, see our support page [GDPR and Privacy: How Your Data is S
 -   A single request with a long forwarded-IP header, username or user agent could write thousands of rows or very large values to the log. These values are now capped.
 -   Limit Login Attempts events showed the full IP address to every user who could see them. The address is now anonymized and hidden from users who can't view IP addresses.
 -   A forged plugin or theme file edit that WordPress rejected could still be logged as an edit.
+-   Stealth Mode hid the log screens, but users outside the allowlist could still read events through the REST API and Abilities API, and still saw history links, notices and the command palette. These are now hidden too.
 -   Hardened database queries and output escaping in the plugin stats and the category and settings events.
 
 ### 5.35.0 (October 2026)
