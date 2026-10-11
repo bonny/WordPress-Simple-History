@@ -29,8 +29,7 @@ class Quick_View_Dropin extends Dropin {
 		}
 
 		// Only available for users with the view history capability.
-		// phpcs:ignore WordPress.WP.Capabilities.Undetermined -- Capability is filterable, defaults to 'read'.
-		if ( ! current_user_can( Helpers::get_view_history_capability() ) ) {
+		if ( ! Helpers::current_user_can_view_history() ) {
 			return;
 		}
 
@@ -127,8 +126,7 @@ class Quick_View_Dropin extends Dropin {
 				[
 					'adminPageUrl'              => Helpers::get_history_admin_url(),
 					'viewSettingsUrl'           => Helpers::get_settings_page_url(),
-					// phpcs:ignore WordPress.WP.Capabilities.Undetermined -- Capability is filterable, defaults to 'read'.
-					'currentUserCanViewHistory' => current_user_can( Helpers::get_view_history_capability() ),
+					'currentUserCanViewHistory' => Helpers::current_user_can_view_history(),
 					'currentPostId'             => is_singular() ? get_queried_object_id() : 0,
 					'currentPostTitle'          => is_singular() ? get_the_title() : '',
 				]

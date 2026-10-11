@@ -31,8 +31,7 @@ class Post_Row_Actions extends Service {
 	 * @return array Modified array of row action links.
 	 */
 	public function add_view_history_link( $actions, $post ) {
-		// phpcs:ignore WordPress.WP.Capabilities.Undetermined -- Capability is filterable, defaults to 'edit_pages'.
-		if ( ! current_user_can( Helpers::get_view_history_capability() ) ) {
+		if ( ! Helpers::current_user_can_view_history() ) {
 			return $actions;
 		}
 

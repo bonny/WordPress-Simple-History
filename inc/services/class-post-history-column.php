@@ -51,6 +51,10 @@ class Post_History_Column extends Service {
 			return;
 		}
 
+		if ( ! Helpers::current_user_can_view_history() ) {
+			return;
+		}
+
 		echo '<style>
 			.sh-PostHistoryColumn-actions {
 				padding: 2px 0 0;
@@ -91,8 +95,7 @@ class Post_History_Column extends Service {
 	 * @return array Modified columns.
 	 */
 	public function add_column( $columns ) {
-		// phpcs:ignore WordPress.WP.Capabilities.Undetermined
-		if ( ! current_user_can( Helpers::get_view_history_capability() ) ) {
+		if ( ! Helpers::current_user_can_view_history() ) {
 			return $columns;
 		}
 

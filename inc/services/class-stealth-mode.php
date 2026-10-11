@@ -7,10 +7,210 @@ namespace Simple_History\Services;
  */
 class Stealth_Mode extends Service {
 	/**
+	 * REST namespace used by core and premium routes. Other plugins can
+	 * register routes here too, for example the add-on update API on
+	 * simple-history.com, so routes are hidden by owner, not by namespace.
+	 */
+	const REST_NAMESPACE = 'simple-history/v1';
+
+	/**
 	 * Called when service is loaded.
 	 */
 	public function loaded() {
 		add_action( 'init', [ $this, 'initialize' ], 10 );
+
+		// The REST checks run per request instead of from initialize(): on
+		// init the user from an application password is not known yet.
+		add_filter( 'rest_endpoints', [ $this, 'filter_rest_endpoints' ] );
+		add_filter( 'rest_index', [ $this, 'filter_rest_index' ] );
+
+		// Priority 5 runs before core answers OPTIONS requests at priority 10.
+		add_filter( 'rest_pre_dispatch', [ $this, 'restrict_abilities_routes' ], 5, 3 );
+		add_filter( 'rest_request_after_callbacks', [ $this, 'filter_abilities_lists' ], 10, 3 );
+	}
+
+	/**
+	 * Whether a REST route handler belongs to Simple History core or an add-on.
+	 *
+	 * @param mixed $handler Route handler from the REST endpoints list.
+	 * @return bool
+	 */
+	protected static function is_simple_history_handler( $handler ) {
+		$callback = is_array( $handler ) ? ( $handler['callback'] ?? null ) : null;
+
+		if ( ! is_array( $callback ) || ! is_object( $callback[0] ?? null ) ) {
+			return false;
+		}
+
+		return strpos( get_class( $callback[0] ), 'Simple_History\\' ) === 0;
+	}
+
+	/**
+	 * Remove Simple History's own REST routes for users who may not see the GUI.
+	 *
+	 * Hiding the GUI alone left the log readable at
+	 * /wp-json/simple-history/v1/events. With the routes gone the server
+	 * answers like for any unknown route, also for OPTIONS requests, any
+	 * casing of the URL and the REST index, so the response does not reveal
+	 * that Simple History is installed. Routes other plugins register in the
+	 * same namespace are kept.
+	 *
+	 * @param array $endpoints REST endpoints, keyed by route.
+	 * @return array
+	 */
+	public function filter_rest_endpoints( $endpoints ) {
+		if ( ! is_array( $endpoints ) || self::is_gui_visible_to_user() ) {
+			return $endpoints;
+		}
+
+		$namespace_route = '/' . self::REST_NAMESPACE;
+		$other_routes    = false;
+
+		foreach ( $endpoints as $route => $handlers ) {
+			if ( strpos( $route, $namespace_route . '/' ) !== 0 ) {
+				continue;
+			}
+
+			$own_handlers = array_filter( (array) $handlers, [ self::class, 'is_simple_history_handler' ] );
+
+			if ( $own_handlers === [] ) {
+				$other_routes = true;
+				continue;
+			}
+
+			unset( $endpoints[ $route ] );
+		}
+
+		// Drop the namespace index too when nothing else lives in the namespace.
+		if ( ! $other_routes ) {
+			unset( $endpoints[ $namespace_route ] );
+		}
+
+		return $endpoints;
+	}
+
+	/**
+	 * Remove the Simple History namespace from the REST index when no routes
+	 * are left in it for the current user.
+	 *
+	 * @param \WP_REST_Response $response REST index response.
+	 * @return \WP_REST_Response
+	 */
+	public function filter_rest_index( $response ) {
+		if ( ! $response instanceof \WP_REST_Response || self::is_gui_visible_to_user() ) {
+			return $response;
+		}
+
+		$data = $response->get_data();
+
+		if ( ! isset( $data['namespaces'], $data['routes'] ) || ! is_array( $data['namespaces'] ) || ! is_array( $data['routes'] ) ) {
+			return $response;
+		}
+
+		if ( isset( $data['routes'][ '/' . self::REST_NAMESPACE ] ) ) {
+			return $response;
+		}
+
+		$data['namespaces'] = array_values( array_diff( $data['namespaces'], [ self::REST_NAMESPACE ] ) );
+		$response->set_data( $data );
+
+		return $response;
+	}
+
+	/**
+	 * Whether a REST route is a Simple History ability or ability category
+	 * in the Abilities API.
+	 *
+	 * Compared in lowercase because WordPress matches routes case-insensitively.
+	 *
+	 * @param string $route REST route.
+	 * @return bool
+	 */
+	protected static function is_abilities_route( $route ) {
+		$route = strtolower( (string) $route );
+
+		return strpos( $route, '/wp-abilities/v1/abilities/simple-history/' ) === 0
+			|| rtrim( $route, '/' ) === '/wp-abilities/v1/categories/simple-history';
+	}
+
+	/**
+	 * Answer Simple History ability routes like unknown routes for users who
+	 * may not see the GUI.
+	 *
+	 * @param mixed            $result  Response to send instead of dispatching, usually null.
+	 * @param \WP_REST_Server  $server  REST server.
+	 * @param \WP_REST_Request $request Request.
+	 * @return mixed
+	 */
+	public function restrict_abilities_routes( $result, $server, $request ) {
+		if ( ! self::is_abilities_route( $request->get_route() ) || self::is_gui_visible_to_user() ) {
+			return $result;
+		}
+
+		return new \WP_Error(
+			'rest_no_route',
+			__( 'No route was found matching the URL and request method.', 'simple-history' ),
+			[ 'status' => 404 ]
+		);
+	}
+
+	/**
+	 * Remove Simple History abilities and their category from the Abilities
+	 * API lists for users who may not see the GUI.
+	 *
+	 * Core lists abilities to any user with the read capability and never asks
+	 * the ability's permission callback, so the lists are filtered here. The
+	 * total headers are lowered to match, so they do not give the items away.
+	 *
+	 * @param \WP_HTTP_Response $response Response.
+	 * @param array             $handler  Route handler.
+	 * @param \WP_REST_Request  $request  Request.
+	 * @return \WP_HTTP_Response
+	 */
+	public function filter_abilities_lists( $response, $handler, $request ) {
+		$route = rtrim( strtolower( $request->get_route() ), '/' );
+
+		if ( ! in_array( $route, [ '/wp-abilities/v1/abilities', '/wp-abilities/v1/categories' ], true ) ) {
+			return $response;
+		}
+
+		if ( ! $response instanceof \WP_HTTP_Response || ! is_array( $response->get_data() ) || self::is_gui_visible_to_user() ) {
+			return $response;
+		}
+
+		$data  = $response->get_data();
+		$items = array_values(
+			array_filter(
+				$data,
+				function ( $item ) {
+					$name     = strtolower( (string) ( $item['name'] ?? '' ) );
+					$slug     = strtolower( (string) ( $item['slug'] ?? '' ) );
+					$category = strtolower( (string) ( $item['category'] ?? '' ) );
+
+					return strpos( $name, 'simple-history/' ) !== 0 && $slug !== 'simple-history' && $category !== 'simple-history';
+				}
+			)
+		);
+
+		$removed = count( $data ) - count( $items );
+
+		if ( $removed === 0 ) {
+			return $response;
+		}
+
+		$response->set_data( $items );
+
+		$headers = $response->get_headers();
+
+		if ( isset( $headers['X-WP-Total'] ) ) {
+			$total    = max( 0, (int) $headers['X-WP-Total'] - $removed );
+			$per_page = max( 1, (int) $request->get_param( 'per_page' ) );
+
+			$response->header( 'X-WP-Total', (string) $total );
+			$response->header( 'X-WP-TotalPages', (string) (int) ceil( $total / $per_page ) );
+		}
+
+		return $response;
 	}
 
 	/**
@@ -120,7 +320,10 @@ class Stealth_Mode extends Service {
 	 * @return bool True if the user's email is allowed, false otherwise.
 	 */
 	public static function is_user_email_allowed_in_stealth_mode( $user_email ) {
-		$allowed_emails = self::get_allowed_email_addresses();
+		// Email addresses are compared in lowercase: a stored "Admin@Example.com"
+		// must match an allowlist entry of "@example.com".
+		$user_email     = strtolower( (string) $user_email );
+		$allowed_emails = array_map( 'strtolower', array_map( 'strval', self::get_allowed_email_addresses() ) );
 
 		// Check for exact email match.
 		if ( in_array( $user_email, $allowed_emails, true ) ) {
