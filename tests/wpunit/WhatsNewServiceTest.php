@@ -135,6 +135,33 @@ class WhatsNewServiceTest extends \Codeception\TestCase\WPTestCase {
 		$this->assertSame( '', trim( ob_get_clean() ) );
 	}
 
+	public function test_views_of_an_older_update_do_not_count_for_a_newer_one() {
+		$newest = $this->newest_core_version();
+		add_filter( 'simple_history/whats_new/plugins', fn( $plugins ) => $this->with_core_version( $plugins, $newest ) );
+
+		// Shown twice for an earlier update, then a newer one was installed.
+		update_user_meta(
+			$this->admin_id,
+			Whats_New_Service::META_SEEN,
+			[
+				'simple-history' => [
+					'version'   => '5.0.0',
+					'views'     => 2,
+					'views_for' => '5.0.1',
+				],
+			]
+		);
+
+		$service = $this->service();
+
+		for ( $i = 0; $i < 3; $i++ ) {
+			ob_start();
+			$service->output_top_slot();
+
+			$this->assertStringContainsString( 'sh-WhatsNew', ob_get_clean(), "Shown on view {$i}" );
+		}
+	}
+
 	public function test_dismissing_marks_every_plugin_seen() {
 		update_user_meta( $this->admin_id, Whats_New_Service::META_SEEN, [ 'simple-history' => [ 'version' => '5.0.0', 'views' => 0 ] ] );
 
@@ -171,13 +198,62 @@ class WhatsNewServiceTest extends \Codeception\TestCase\WPTestCase {
 		$this->assertSame( 'Simple History 5.35.0: 3 improvements.', $line( 0, 0, 3 ) );
 	}
 
-	public function test_core_highlights_are_available_as_data() {
-		$highlights = apply_filters( 'simple_history/update_highlights', null, 'simple-history', '5.35.0' );
+	public function test_box_title_names_the_new_version() {
+		$service = $this->service();
+		$core    = [
+			'slug'    => 'simple-history',
+			'name'    => 'Simple History',
+			'version' => '5.36.0',
+		];
+		$premium = [
+			'slug'    => 'simple-history-premium',
+			'name'    => 'Premium',
+			'version' => '1.17.0',
+		];
 
-		$this->assertIsArray( $highlights );
-		$this->assertNotEmpty( $highlights['features'] );
-		$this->assertStringStartsWith( 'https://simple-history.com/', $highlights['release_link'] );
-		$this->assertNull( apply_filters( 'simple_history/update_highlights', null, 'simple-history', '5.34.1' ) );
+		$this->assertSame( 'Updated to Simple History 5.36.0', $service->get_box_title( [ 'simple-history-premium' => $premium, 'simple-history' => $core ] ) );
+		$this->assertSame( 'Updated to Simple History Premium 1.17.0', $service->get_box_title( [ 'simple-history-premium' => $premium ] ) );
+	}
+
+	public function test_counts_text_after_the_title() {
+		$service = $this->service();
+		$counts  = fn( $features, $fixes, $other ) => $service->get_counts_text(
+			[
+				'features' => $features,
+				'fixes'    => $fixes,
+				'other'    => $other,
+			]
+		);
+
+		$this->assertSame( '9 new features and 15 fixes.', $counts( 9, 15, 3 ) );
+		$this->assertSame( '1 new feature.', $counts( 1, 0, 0 ) );
+		$this->assertSame( 'Fixes and small improvements.', $counts( 0, 1, 0 ) );
+	}
+
+	public function test_first_line_leads_with_the_bold_title() {
+		$newest = $this->newest_core_version();
+		add_filter( 'simple_history/whats_new/plugins', fn( $plugins ) => $this->with_core_version( $plugins, $newest ) );
+		update_user_meta( $this->admin_id, Whats_New_Service::META_SEEN, [ 'simple-history' => [ 'version' => '5.0.0', 'views' => 0 ] ] );
+
+		ob_start();
+		$this->service()->output_top_slot();
+		$output = ob_get_clean();
+
+		$this->assertMatchesRegularExpression( '/<strong class="sh-WhatsNew-title"[^>]*>Updated to Simple History ' . preg_quote( $newest, '/' ) . '<\/strong>\s*\d+ new features?/', $output );
+	}
+
+	public function test_line_links_the_release_post() {
+		$newest = $this->newest_core_version();
+		add_filter( 'simple_history/whats_new/plugins', fn( $plugins ) => $this->with_core_version( $plugins, $newest ) );
+		update_user_meta( $this->admin_id, Whats_New_Service::META_SEEN, [ 'simple-history' => [ 'version' => '5.0.0', 'views' => 0 ] ] );
+
+		ob_start();
+		$this->service()->output_top_slot();
+		$output = ob_get_clean();
+
+		$this->assertStringContainsString( 'href="https://simple-history.com/', $output );
+		$this->assertStringContainsString( 'Release post →', $output );
+		$this->assertStringNotContainsString( '<details', $output );
 	}
 
 	// Billing messages.

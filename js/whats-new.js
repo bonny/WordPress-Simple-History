@@ -1,7 +1,7 @@
 /**
  * Dismissals for the "What's new" box, billing messages and the lapsed card.
  *
- * Opening the "What's new" box counts as having seen it, like dismissing it.
+ * Opening the release post counts as having seen the "What's new" box, like dismissing it.
  */
 ( function () {
 	'use strict';
@@ -49,27 +49,14 @@
 		container.remove();
 	} );
 
-	// The toggle event doesn't bubble, so listen in the capture phase.
-	document.addEventListener(
-		'toggle',
-		function ( event ) {
-			var details = event.target;
+	// Opening the release post counts as having seen the box.
+	document.addEventListener( 'click', function ( event ) {
+		var link = event.target.closest
+			? event.target.closest( '.js-sh-whats-new-seen' )
+			: null;
 
-			if (
-				! details.open ||
-				! details.classList ||
-				! details.classList.contains( 'sh-WhatsNew-details' )
-			) {
-				return;
-			}
-
-			var container = getContainer( details );
-
-			if ( container && ! container.dataset.shWhatsNewOpened ) {
-				container.dataset.shWhatsNewOpened = '1';
-				send( 'whats_new', '' );
-			}
-		},
-		true
-	);
+		if ( link ) {
+			send( 'whats_new', '' );
+		}
+	} );
 } )();

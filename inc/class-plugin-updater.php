@@ -60,6 +60,18 @@ class Plugin_Updater {
 	public $check_only_with_wordpress = false;
 
 	/**
+	 * Largest update answer read from the server, in bytes.
+	 */
+	private const MAX_RESPONSE_BYTES = 256 * 1024;
+
+	/**
+	 * The stored answer, read once per request. Null until read.
+	 *
+	 * @var object|false|null
+	 */
+	private $stored_answer = null;
+
+	/**
 	 * @param string $plugin_id   The ID of the plugin.
 	 * @param string $plugin_slug The slug of the plugin.
 	 * @param string $version     The current version of the plugin.
@@ -173,7 +185,10 @@ class Plugin_Updater {
 		$remote = wp_remote_get(
 			$url,
 			[
-				'timeout' => 3,
+				'timeout'             => 3,
+				// An update answer is a few KB. Keeps a broken server's reply out
+				// of memory and the database; a cut-off body fails to decode below.
+				'limit_response_size' => self::MAX_RESPONSE_BYTES,
 			]
 		);
 
@@ -204,7 +219,9 @@ class Plugin_Updater {
 
 		// Kept without expiry and not autoloaded: read back by
 		// get_stored_answer() when only WordPress's own check may ask the server.
-		update_option( self::get_answer_option_for_slug( $this->plugin_slug ), $payload, false );
+		// Only the parts that offer the update are kept, not the license details.
+		update_option( self::get_answer_option_for_slug( $this->plugin_slug ), $this->get_answer_to_store( $decoded ), false );
+		$this->stored_answer = null;
 
 		// Cache a 200 answer for an hour. Cache a 401 refusal for only 10
 		// minutes, the same window used for the network/decode errors above,
@@ -374,20 +391,44 @@ class Plugin_Updater {
 	}
 
 	/**
+	 * The part of an update answer that is kept for get_stored_answer().
+	 *
+	 * @param object $decoded Decoded answer from the update server.
+	 * @return string JSON with success and, when there is one, the update's version and download link.
+	 */
+	private function get_answer_to_store( $decoded ) {
+		$answer = [
+			'success' => ! empty( $decoded->success ),
+		];
+
+		if ( $answer['success'] && isset( $decoded->update->version, $decoded->update->download_link ) && is_string( $decoded->update->version ) && is_string( $decoded->update->download_link ) ) {
+			$answer['update'] = [
+				'version'       => $decoded->update->version,
+				'download_link' => $decoded->update->download_link,
+			];
+		}
+
+		return (string) wp_json_encode( $answer );
+	}
+
+	/**
 	 * The last answer from the update server, without asking it again.
+	 *
+	 * Read once per request: the update data filter runs many times per page.
 	 *
 	 * @return object|false Decoded answer, or false when there is none.
 	 */
 	public function get_stored_answer() {
-		$payload = get_option( self::get_answer_option_for_slug( $this->plugin_slug ) );
-
-		if ( ! is_string( $payload ) || $payload === '' ) {
-			return false;
+		if ( $this->stored_answer !== null ) {
+			return $this->stored_answer;
 		}
 
-		$decoded = json_decode( $payload );
+		$payload = get_option( self::get_answer_option_for_slug( $this->plugin_slug ) );
+		$decoded = is_string( $payload ) && $payload !== '' ? json_decode( $payload ) : null;
 
-		return is_object( $decoded ) ? $decoded : false;
+		$this->stored_answer = is_object( $decoded ) ? $decoded : false;
+
+		return $this->stored_answer;
 	}
 
 	/**

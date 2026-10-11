@@ -18,7 +18,7 @@ use Simple_History\Helpers;
  *   listing the Premium features released since their version.
  *
  * Nothing here makes a remote request or runs on a schedule. Counts come from
- * the plugins' own readme.txt, highlights from the update-details methods,
+ * the plugins' own readme.txt,
  * and license and subscription data from the existing update check.
  */
 class Whats_New_Service extends Service {
@@ -62,7 +62,6 @@ class Whats_New_Service extends Service {
 		add_action( 'simple_history/dropin/sidebar/sidebar_html', [ $this, 'output_lapsed_card' ], 5 );
 		add_action( 'wp_ajax_' . self::AJAX_ACTION, [ $this, 'handle_ajax' ] );
 		add_action( 'admin_enqueue_scripts', [ $this, 'enqueue_scripts' ] );
-		add_action( 'upgrader_process_complete', [ $this, 'forget_parsed_changelogs' ] );
 
 		if ( ! Helpers::dev_mode_is_enabled() ) {
 			return;
@@ -93,9 +92,25 @@ class Whats_New_Service extends Service {
 				$this->record_view( get_current_user_id(), $updates );
 			}
 		} catch ( \Throwable $error ) {
-			// phpcs:ignore WordPress.PHP.DevelopmentFunctions.error_log_error_log
-			error_log( 'Simple History: what\'s new render failed: ' . $error->getMessage() );
+			$this->log_error( 'Simple History: what\'s new render failed: ' . $error->getMessage() );
 		}
+	}
+
+	/**
+	 * Log a render error at most once an hour, so a lasting problem does not
+	 * fill the error log with one line per page view.
+	 *
+	 * @param string $message Message.
+	 */
+	private function log_error( $message ) {
+		if ( get_transient( 'simple_history_whats_new_error_logged' ) ) {
+			return;
+		}
+
+		set_transient( 'simple_history_whats_new_error_logged', 1, HOUR_IN_SECONDS );
+
+		// phpcs:ignore WordPress.PHP.DevelopmentFunctions.error_log_error_log
+		error_log( $message );
 	}
 
 	/**
@@ -109,8 +124,7 @@ class Whats_New_Service extends Service {
 				$this->render_lapsed_card( $card );
 			}
 		} catch ( \Throwable $error ) {
-			// phpcs:ignore WordPress.PHP.DevelopmentFunctions.error_log_error_log
-			error_log( 'Simple History: lapsed card render failed: ' . $error->getMessage() );
+			$this->log_error( 'Simple History: lapsed card render failed: ' . $error->getMessage() );
 		}
 	}
 
@@ -186,11 +200,10 @@ class Whats_New_Service extends Service {
 			}
 
 			$updates[ $slug ] = [
-				'slug'       => $slug,
-				'name'       => $plugin['name'],
-				'version'    => $plugin['version'],
-				'summary'    => $summary,
-				'highlights' => $this->get_highlights( $slug, $summary['versions'] ),
+				'slug'    => $slug,
+				'name'    => $plugin['name'],
+				'version' => $plugin['version'],
+				'summary' => $summary,
 			];
 		}
 
@@ -211,7 +224,10 @@ class Whats_New_Service extends Service {
 		$seen = $this->get_seen( $user_id );
 
 		foreach ( $updates as $slug => $update ) {
-			$views = (int) ( $seen[ $slug ]['views'] ?? 0 ) + 1;
+			// Views count for one installed version. A newer update starts over,
+			// so it gets its own MAX_VIEWS showings.
+			$counted_for = $seen[ $slug ]['views_for'] ?? '';
+			$views       = ( $counted_for === $update['version'] ? (int) ( $seen[ $slug ]['views'] ?? 0 ) : 0 ) + 1;
 
 			$seen[ $slug ] = $views >= self::MAX_VIEWS
 				? [
@@ -219,8 +235,9 @@ class Whats_New_Service extends Service {
 					'views'   => 0,
 				]
 				: [
-					'version' => $seen[ $slug ]['version'],
-					'views'   => $views,
+					'version'   => $seen[ $slug ]['version'],
+					'views'     => $views,
+					'views_for' => $update['version'],
 				];
 		}
 
@@ -249,7 +266,7 @@ class Whats_New_Service extends Service {
 	 * Get the stored seen state of a user.
 	 *
 	 * @param int $user_id User ID.
-	 * @return array<string,array{version:string,views:int}>
+	 * @return array<string,array{version:string,views:int,views_for?:string}>
 	 */
 	private function get_seen( $user_id ) {
 		$seen = get_user_meta( $user_id, self::META_SEEN, true );
@@ -259,6 +276,9 @@ class Whats_New_Service extends Service {
 
 	/**
 	 * Parsed changelog of a plugin, parsed once per installed version.
+	 *
+	 * The cache knows which version it was parsed for, so an update re-parses
+	 * on the next view without an upgrade hook.
 	 *
 	 * @param array{slug:string,version:string,readme:string} $plugin Plugin.
 	 * @return array<string,array<string,mixed>> Parsed versions.
@@ -275,8 +295,13 @@ class Whats_New_Service extends Service {
 
 		$text = is_readable( $plugin['readme'] ) ? file_get_contents( $plugin['readme'] ) : '';
 
-		// Keep only the versions the box can ever need, newest first.
+		// Keep only the versions the box can ever need, newest first, and of
+		// the Added entries only their names: the box counts them.
 		$versions = array_slice( Changelog_Parser::parse( $text ), 0, 20, true );
+
+		foreach ( $versions as $version => $data ) {
+			$versions[ $version ]['added'] = array_column( $data['added'], 'name' );
+		}
 
 		$cache[ $plugin['slug'] ] = [
 			'version'  => $plugin['version'],
@@ -286,49 +311,6 @@ class Whats_New_Service extends Service {
 		update_option( self::CHANGELOG_CACHE_OPTION, $cache, false );
 
 		return $versions;
-	}
-
-	/**
-	 * Forget the parsed changelogs after an update, so the next log page view
-	 * parses the new readme.txt once.
-	 */
-	public function forget_parsed_changelogs() {
-		delete_option( self::CHANGELOG_CACHE_OPTION );
-	}
-
-	/**
-	 * Highlights of the given versions, newest first, from the plugins'
-	 * update-details methods. Only X.Y.0 releases usually have them.
-	 *
-	 * @param string             $slug Plugin slug.
-	 * @param array<int, string> $versions Versions, newest first.
-	 * @return array<int,array{version:string,features:array<int,string>,release_link:string}>
-	 */
-	private function get_highlights( $slug, $versions ) {
-		$highlights = [];
-
-		foreach ( $versions as $version ) {
-			/**
-			 * Filter a plugin version's highlights, shown in the "What's new" box.
-			 *
-			 * @param array{features:array<int,string>,release_link:string}|null $version_highlights Highlights, or null for none.
-			 * @param string $slug Plugin slug.
-			 * @param string $version Plugin version.
-			 */
-			$version_highlights = apply_filters( 'simple_history/update_highlights', null, $slug, $version );
-
-			if ( ! is_array( $version_highlights ) || empty( $version_highlights['features'] ) || ! is_array( $version_highlights['features'] ) ) {
-				continue;
-			}
-
-			$highlights[] = [
-				'version'      => $version,
-				'features'     => array_values( array_filter( $version_highlights['features'], 'is_string' ) ),
-				'release_link' => isset( $version_highlights['release_link'] ) && is_string( $version_highlights['release_link'] ) ? $version_highlights['release_link'] : '',
-			];
-		}
-
-		return $highlights;
 	}
 
 	/**
@@ -524,18 +506,20 @@ class Whats_New_Service extends Service {
 	}
 
 	/**
-	 * Output the "What's new in Simple History" box.
+	 * Output the "What's new" box, titled "Updated to Simple History 5.36.0".
 	 *
 	 * @param array<string,array<string,mixed>> $updates Updates from get_pending_updates().
 	 */
 	private function render_whats_new_box( $updates ) {
 		?>
 		<section class="sh-WhatsNew" data-sh-whats-new-kind="whats_new" aria-labelledby="sh-WhatsNew-title">
-			<h2 class="sh-WhatsNew-title" id="sh-WhatsNew-title"><?php esc_html_e( 'What\'s new in Simple History', 'simple-history' ); ?></h2>
-
 			<?php
+			// The first line names the update in bold, the rest follow below it.
+			$title = $this->get_box_title( $updates );
+
 			foreach ( $updates as $update ) {
-				$this->render_update_line( $update );
+				$this->render_update_line( $update, $title );
+				$title = null;
 			}
 
 			$this->render_dismiss_button( __( 'Dismiss what\'s new', 'simple-history' ) );
@@ -545,51 +529,95 @@ class Whats_New_Service extends Service {
 	}
 
 	/**
-	 * Output one plugin's line in the box, expandable when there's more to show.
+	 * Output a line's text, led by the box's bold title on the first line.
+	 *
+	 * @param string      $line Line text.
+	 * @param string|null $title Title, or null on the lines after the first.
+	 */
+	private function render_line_text( $line, $title ) {
+		if ( $title !== null ) {
+			?>
+			<strong class="sh-WhatsNew-title" id="sh-WhatsNew-title"><?php echo esc_html( $title ); ?></strong>
+			<?php
+		}
+
+		echo esc_html( $line );
+	}
+
+	/**
+	 * What an update brought, like "9 new features and 15 fixes.", for the
+	 * first line after the box's title.
+	 *
+	 * @param array<string,mixed> $summary Summary from Changelog_Parser::summarize().
+	 * @return string
+	 */
+	public function get_counts_text( $summary ) {
+		$features = (int) $summary['features'];
+		$fixes    = (int) $summary['fixes'];
+		$other    = (int) $summary['other'];
+
+		/* translators: %d: number of new features. */
+		$features_text = sprintf( _n( '%d new feature', '%d new features', $features, 'simple-history' ), $features );
+
+		/* translators: %d: number of fixes. */
+		$fixes_text = sprintf( _n( '%d fix', '%d fixes', $fixes, 'simple-history' ), $fixes );
+
+		if ( $features > 0 && $fixes > 0 ) {
+			/* translators: 1: e.g. "9 new features", 2: e.g. "15 fixes". */
+			return sprintf( __( '%1$s and %2$s.', 'simple-history' ), $features_text, $fixes_text );
+		}
+
+		if ( $features > 0 ) {
+			return $features_text . '.';
+		}
+
+		if ( $fixes > 2 ) {
+			return $fixes_text . '.';
+		}
+
+		if ( $fixes > 0 ) {
+			return __( 'Fixes and small improvements.', 'simple-history' );
+		}
+
+		/* translators: %d: number of improvements. */
+		return sprintf( _n( '%d improvement.', '%d improvements.', $other, 'simple-history' ), $other );
+	}
+
+	/**
+	 * The box's title, like "Updated to Simple History 5.36.0".
+	 *
+	 * Names core's new version when core was updated, else Premium's.
+	 *
+	 * @param array<string,array<string,mixed>> $updates Updates from get_pending_updates().
+	 * @return string
+	 */
+	public function get_box_title( $updates ) {
+		$update = $updates['simple-history'] ?? reset( $updates );
+		$name   = $update['slug'] === 'simple-history' ? 'Simple History' : 'Simple History ' . $update['name'];
+
+		/* translators: 1: plugin name, e.g. "Simple History" or "Simple History Premium", 2: version, e.g. "5.36.0". */
+		return sprintf( __( 'Updated to %1$s %2$s', 'simple-history' ), $name, $update['version'] );
+	}
+
+	/**
+	 * Output one plugin's line in the box, with a link to the newest release post.
+	 *
+	 * Like Claude Code's update notice: what the update brought in one line,
+	 * and the release post for the details.
 	 *
 	 * @param array<string,mixed> $update Update from get_pending_updates().
+	 * @param string|null         $title The box's title, to lead the first line; null on the others.
 	 */
-	private function render_update_line( $update ) {
-		$line         = $this->get_update_line( $update );
+	private function render_update_line( $update, $title = null ) {
+		$line         = $title === null ? $this->get_update_line( $update ) : $this->get_counts_text( $update['summary'] );
 		$release_link = $update['summary']['release_url'];
-
-		// Prefer the highlights' own link: it's there even when the readme has none.
-		if ( isset( $update['highlights'][0]['release_link'] ) && $update['highlights'][0]['release_link'] !== '' ) {
-			$release_link = $update['highlights'][0]['release_link'];
-		}
-
-		if ( $update['highlights'] === [] && $release_link === '' ) {
-			?>
-			<p class="sh-WhatsNew-line"><?php echo esc_html( $line ); ?></p>
-			<?php
-
-			return;
-		}
-
-		$release_link = Helpers::get_tracking_url( $release_link, 'whats_new_box', 'wpadmin', 'plugin', $update['slug'] );
 		?>
-		<details class="sh-WhatsNew-details">
-			<summary class="sh-WhatsNew-line">
-				<?php echo esc_html( $line ); ?>
-				<span class="sh-WhatsNew-toggle"><?php esc_html_e( 'Show', 'simple-history' ); ?></span>
-			</summary>
-
-			<div class="sh-WhatsNew-content">
-				<?php foreach ( $update['highlights'] as $version_highlights ) { ?>
-					<ul class="sh-WhatsNew-features">
-						<?php foreach ( $version_highlights['features'] as $feature ) { ?>
-							<li><?php echo esc_html( $feature ); ?></li>
-						<?php } ?>
-					</ul>
-				<?php } ?>
-
-				<?php if ( $release_link !== '' ) { ?>
-					<p class="sh-WhatsNew-link">
-						<a href="<?php echo esc_url( $release_link ); ?>" target="_blank" rel="noopener"><?php esc_html_e( 'Read the release post →', 'simple-history' ); ?></a>
-					</p>
-				<?php } ?>
-			</div>
-		</details>
+		<p class="sh-WhatsNew-line">
+			<?php $this->render_line_text( $line, $title ); ?>
+			<?php if ( $release_link !== '' ) { ?>
+				<a class="sh-WhatsNew-link js-sh-whats-new-seen" href="<?php echo esc_url( Helpers::get_tracking_url( $release_link, 'whats_new_box', 'wpadmin', 'plugin', $update['slug'] ) ); ?>" target="_blank" rel="noopener"><?php esc_html_e( 'Release post →', 'simple-history' ); ?></a>
+			<?php } ?>
+		</p>
 		<?php
 	}
 
@@ -735,7 +763,10 @@ class Whats_New_Service extends Service {
 			wp_send_json_success();
 		}
 
-		if ( $kind === 'billing' && current_user_can( 'manage_options' ) && $value !== '' ) {
+		$billing_state = $kind === 'billing' ? $this->get_billing_state() : null;
+
+		// Only the message being shown can be dismissed.
+		if ( $billing_state !== null && $value === $billing_state['key'] && current_user_can( 'manage_options' ) ) {
 			update_user_meta( $user_id, self::META_BILLING_DISMISSED, $value );
 			wp_send_json_success();
 		}

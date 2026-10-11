@@ -28,8 +28,8 @@ Text before the changelog is ignored.
 
 ### 2.1.0 (October 2026)
 
-Short summary.
-[Read more about it in the release post](https://simple-history.com/2026/release-2-1-0/)
+Short summary, see the [table view](https://simple-history.com/features/table-view/) page.
+[Screenshots and details in the release post](https://simple-history.com/2026/simple-history-2-1-0-released/)
 
 **Added**
 
@@ -58,7 +58,7 @@ Short summary.
 
 ### 2.0.0 (August 2026)
 
-[Read more about all changes in the release post →](https://simple-history.com/2026/release-2-0-0/).
+[Read more about all changes in the release post →](https://simple-history.com/2025/simple-history-premium-2-0-0-released-splunk-forwarding/).
 
 **Added**
 
@@ -85,8 +85,8 @@ TXT;
 
 		$this->assertSame( 'Table view', $versions['2.1.0']['added'][0]['name'] );
 		$this->assertSame( '', $versions['2.1.0']['added'][1]['name'] );
-		$this->assertSame( 'https://simple-history.com/2026/release-2-1-0/', $versions['2.1.0']['release_url'] );
-		$this->assertSame( 'https://simple-history.com/2026/release-2-0-0/', $versions['2.0.0']['release_url'] );
+		$this->assertSame( 'https://simple-history.com/2026/simple-history-2-1-0-released/', $versions['2.1.0']['release_url'] );
+		$this->assertSame( 'https://simple-history.com/2025/simple-history-premium-2-0-0-released-splunk-forwarding/', $versions['2.0.0']['release_url'] );
 		$this->assertSame( '', $versions['2.0.1']['release_url'] );
 	}
 
@@ -99,7 +99,7 @@ TXT;
 		$this->assertSame( 3, $summary['fixes'] );
 		$this->assertSame( 2, $summary['other'] );
 		$this->assertSame( [ '2.1.0', '2.0.1', '2.0.0' ], $summary['versions'] );
-		$this->assertSame( 'https://simple-history.com/2026/release-2-1-0/', $summary['release_url'] );
+		$this->assertSame( 'https://simple-history.com/2026/simple-history-2-1-0-released/', $summary['release_url'] );
 	}
 
 	public function test_summarize_counts_only_the_range() {

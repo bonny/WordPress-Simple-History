@@ -113,6 +113,32 @@ class PluginUpdaterBackgroundCheckTest extends \Codeception\TestCase\WPTestCase 
 		$this->assertSame( '2.0.0', $read->response[ self::ID ]->new_version );
 	}
 
+	public function test_kept_answer_holds_only_the_update_and_no_license_details() {
+		$this->reply_body = '{"success":true,"update":{"version":"2.0.0","download_link":"https://example.test/addon.zip","changelog":"Long text"},"license":{"status":"active","customer_email":"someone@example.test"}}';
+
+		$this->updater->request();
+
+		$this->assertSame(
+			'{"success":true,"update":{"version":"2.0.0","download_link":"https:\\/\\/example.test\\/addon.zip"}}',
+			get_option( Plugin_Updater::get_answer_option_for_slug( self::SLUG ) )
+		);
+	}
+
+	public function test_request_limits_the_response_size() {
+		$args_seen = null;
+		$capture   = function ( $preempt, $args ) use ( &$args_seen ) {
+			$args_seen = $args;
+
+			return $preempt;
+		};
+
+		add_filter( 'pre_http_request', $capture, 5, 2 );
+		$this->updater->request();
+		remove_filter( 'pre_http_request', $capture, 5 );
+
+		$this->assertSame( 256 * 1024, $args_seen['limit_response_size'] );
+	}
+
 	public function test_saving_without_checked_plugins_makes_no_request() {
 		$data          = $this->update_data();
 		$data->checked = [];
