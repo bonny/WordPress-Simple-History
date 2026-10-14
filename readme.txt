@@ -289,6 +289,7 @@ For more information, see our support page [GDPR and Privacy: How Your Data is S
 -   Log files written by Log Forwarding → Local Files now include what changed in each event, like the roles added and removed on a profile edit, not only the event message.
 -   The one-click weekly email offer and its confirmation now name everyone who will get the email, like the site admin, not only you.
 -   A page template change showed an extra row labelled "page_template_name" next to the Template row.
+-   "Check again" on Dashboard → Updates now checks for new versions of Premium and other add-ons right away, instead of up to an hour later.
 
 **Security**
 

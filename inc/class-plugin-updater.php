@@ -90,6 +90,9 @@ class Plugin_Updater {
 		add_filter( 'site_transient_update_plugins', array( $this, 'site_transient_update_plugins_update' ) );
 		add_action( 'upgrader_process_complete', array( $this, 'purge' ), 10, 2 );
 
+		// Before core's own wp_update_plugins() at priority 10 on this hook.
+		add_action( 'load-update-core.php', array( $this, 'on_force_check' ), 9 );
+
 		$this->check_only_with_wordpress = Helpers::experimental_features_is_enabled();
 
 		if ( ! $this->check_only_with_wordpress ) {
@@ -97,6 +100,27 @@ class Plugin_Updater {
 		}
 
 		add_filter( 'pre_set_site_transient_update_plugins', array( $this, 'on_pre_set_update_plugins' ) );
+	}
+
+	/**
+	 * Ask the update server again when someone clicks "Check again" on Dashboard → Updates.
+	 *
+	 * Core's force-check only forces the WordPress version check, and our
+	 * cached answer would otherwise hide a new release for up to an hour.
+	 * Ask here instead of waiting for core's plugin check, which it skips
+	 * when the last one ran less than a minute ago. When it does run, it
+	 * gets the fresh answer from the cache.
+	 */
+	public function on_force_check() {
+		// phpcs:ignore WordPress.Security.NonceVerification.Recommended -- Core's own link has no nonce; this only clears a cache.
+		if ( empty( $_GET['force-check'] ) || ! current_user_can( 'update_plugins' ) ) {
+			return;
+		}
+
+		delete_transient( $this->cache_key );
+		delete_transient( $this->cache_key_plugin_info );
+
+		$this->request();
 	}
 
 	/**
