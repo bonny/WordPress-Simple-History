@@ -222,4 +222,31 @@ class PluginUpdaterBackgroundCheckTest extends \Codeception\TestCase\WPTestCase 
 
 		$this->assertCount( 1, $this->requests );
 	}
+
+	public function test_an_update_saved_by_wordpress_is_withdrawn_when_the_answer_changes() {
+		// WordPress's check saved the update data with the update in it.
+		$saved = $this->updater->on_pre_set_update_plugins( $this->update_data() );
+		$this->assertArrayHasKey( self::ID, $saved->response );
+
+		// Then "Check again" gets a refusal, like after the license expired.
+		wp_set_current_user( self::factory()->user->create( [ 'role' => 'administrator' ] ) );
+		$this->reply_code    = 401;
+		$this->reply_body    = '{"success":false,"error_code":"invalid_license_key"}';
+		$_GET['force-check'] = '1';
+		$this->updater->on_force_check();
+
+		$read = $this->updater->site_transient_update_plugins_update( $saved );
+
+		$this->assertArrayNotHasKey( self::ID, $read->response );
+		$this->assertArrayHasKey( self::ID, $read->no_update );
+	}
+
+	public function test_an_update_is_listed_once() {
+		$data = $this->updater->on_pre_set_update_plugins( $this->update_data() );
+		$data = $this->updater->site_transient_update_plugins_update( $data );
+		$data = $this->updater->site_transient_update_plugins_update( $data );
+
+		$this->assertCount( 1, $data->response );
+		$this->assertArrayNotHasKey( self::ID, $data->no_update );
+	}
 }
