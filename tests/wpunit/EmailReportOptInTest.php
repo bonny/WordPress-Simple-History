@@ -185,6 +185,11 @@ class EmailReportOptInTest extends \Codeception\TestCase\WPTestCase {
 	 * @return string Notice HTML.
 	 */
 	private function get_confirmation_notice() {
+		// The notice uses wp_admin_notice(), added in WordPress 6.4.
+		if ( ! function_exists( 'wp_admin_notice' ) ) {
+			$this->markTestSkipped( 'wp_admin_notice() requires WordPress 6.4.' );
+		}
+
 		$_GET['simple-history-email-report-opt-in'] = 'enabled';
 
 		$service = Simple_History::get_instance()->get_service( Email_Report_Service::class );
