@@ -137,14 +137,63 @@ class Email_Report_Service extends Service {
 	 * The button label already says the click turns the email on, so this only says
 	 * what it contains, where it goes, when, and how to stop it.
 	 *
+	 * The click only adds the user and keeps everyone else. When the email is off,
+	 * it also turns it on for everyone the settings already name, like the site
+	 * admin on a site that never saved them, so they are listed too.
+	 *
 	 * @return string Plain text, unescaped.
 	 */
 	public static function get_opt_in_description() {
+		$user_email = wp_get_current_user()->user_email;
+		$others     = get_option( 'simple_history_email_report_enabled', false ) ? [] : self::get_effective_recipients();
+
 		return sprintf(
-			/* translators: %s: email address of the current user. */
+			/* translators: %s: email addresses that will get the email, starting with the current user's. */
 			__( 'A summary of the past week, sent to %s every Monday. You can turn it off in the Simple History settings.', 'simple-history' ),
-			wp_get_current_user()->user_email
+			self::format_recipient_list( $others, $user_email )
 		);
+	}
+
+	/**
+	 * Check if an email address is the site admin email under Settings → General.
+	 *
+	 * @param string $email Email address.
+	 * @return bool
+	 */
+	private static function is_site_admin_email( $email ) {
+		return strtolower( (string) $email ) === strtolower( (string) get_option( 'admin_email' ) );
+	}
+
+	/**
+	 * Format recipients as a list for a sentence, the user's own address first.
+	 *
+	 * Up to four addresses are listed. With more, the rest are counted.
+	 *
+	 * @param string[] $recipients Email addresses, with or without the user's own.
+	 * @param string   $user_email Email address of the current user.
+	 * @param bool     $html       Escape the addresses and wrap them in <strong>.
+	 * @return string
+	 */
+	private static function format_recipient_list( $recipients, $user_email, $html = false ) {
+		$format = fn( $email ) => $html ? '<strong>' . esc_html( $email ) . '</strong>' : $email;
+
+		$others = array_values(
+			array_filter(
+				$recipients,
+				fn( $email ) => strcasecmp( $email, (string) $user_email ) !== 0
+			)
+		);
+
+		if ( count( $others ) > 3 ) {
+			return sprintf(
+				/* translators: 1: email address of the current user, 2: number of other recipients. */
+				_n( '%1$s and %2$s other recipient', '%1$s and %2$s other recipients', count( $others ), 'simple-history' ),
+				$format( $user_email ),
+				number_format_i18n( count( $others ) )
+			);
+		}
+
+		return wp_sprintf( '%l', array_map( $format, array_merge( [ $user_email ], $others ) ) );
 	}
 
 	/**
@@ -233,7 +282,7 @@ class Email_Report_Service extends Service {
 
 		// The site admin follows Settings → General through the checkbox, so tick
 		// it instead of typing in an address that would go stale.
-		if ( strtolower( $user_email ) === strtolower( (string) get_option( 'admin_email' ) ) ) {
+		if ( self::is_site_admin_email( $user_email ) ) {
 			$include_admin = true;
 		} else {
 			// Add the current user and keep any recipients that are already set.
@@ -278,10 +327,12 @@ class Email_Report_Service extends Service {
 			return;
 		}
 
+		$recipients = self::format_recipient_list( self::get_effective_recipients(), $user_email, true );
+
 		$message = sprintf(
-			/* translators: 1: email address, 2: opening link tag, 3: closing link tag. */
+			/* translators: 1: email addresses that get the email, starting with the current user's, 2: opening link tag, 3: closing link tag. */
 			esc_html__( 'Done. Every Monday, %1$s will get a summary of the past week. %2$sChange recipients or turn it off%3$s', 'simple-history' ),
-			'<strong>' . esc_html( $user_email ) . '</strong>',
+			$recipients,
 			'<a href="' . esc_url( Helpers::get_settings_page_sub_tab_url( self::SETTINGS_SUB_TAB_SLUG ) ) . '">',
 			'</a>'
 		);
