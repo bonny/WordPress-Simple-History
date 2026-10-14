@@ -199,12 +199,15 @@ class PostLoggerEventDetailsTest extends \Codeception\TestCase\WPTestCase {
 
 	/**
 	 * A content change in whitespace only gives no diff, so no Content row.
+	 * The same for the other diffed fields.
 	 */
 	public function test_whitespace_only_content_change_has_no_content_row() {
 		$row = $this->make_row( array(
 			'_message_key'           => 'post_updated',
 			'post_prev_post_content' => "First paragraph.\n",
 			'post_new_post_content'  => "First paragraph.\n\n",
+			'post_prev_post_excerpt' => "Short text\n",
+			'post_new_post_excerpt'  => 'Short text',
 			'post_prev_post_status'  => 'draft',
 			'post_new_post_status'   => 'publish',
 		) );

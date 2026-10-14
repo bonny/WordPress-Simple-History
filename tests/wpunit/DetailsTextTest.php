@@ -118,15 +118,23 @@ class DetailsTextTest extends \Codeception\TestCase\WPTestCase {
 	 */
 	public function one_line_fixtures() {
 		return [
-			'a line removed from the side-by-side content diff has no dangling arrow' => [
+			'a line removed from the side-by-side content diff says it was removed' => [
 				'<dl><dt>Content</dt><dd><table class="diff-wrapper diff diff-html diff-side-by-side">'
 				. '<tbody class="change change-del"><tr><td class="old"><del>&lt;p&gt;Removed paragraph&lt;/p&gt;</del></td><td class="new none"></td></tr></tbody>'
 				. '</table></dd></dl>',
-				'Content: <p>Removed paragraph</p>',
+				'Content: <p>Removed paragraph</p> → (removed)',
 			],
-			'a change to nothing shows the old value'        => [
+			'a change to nothing says it was removed'        => [
 				'<dl><dt>Bio</dt><dd><del>Old bio</del> <ins></ins></dd></dl>',
-				'Bio: Old bio',
+				'Bio: Old bio → (removed)',
+			],
+			'a line removed in a WordPress text diff says it was removed' => [
+				'<dl><dt>Content</dt><dd><table class="diff SimpleHistory__diff"><tbody>'
+				. '<tr><td class="diff-deletedline"><span class="screen-reader-text">Deleted: </span>First line</td><td>&nbsp;</td></tr>'
+				. '<tr><td class="diff-context">Same</td><td></td><td class="diff-context">Same</td></tr>'
+				. '<tr><td class="diff-deletedline">Old</td><td></td><td class="diff-addedline">New</td></tr>'
+				. '</tbody></table></dd></dl>',
+				'Content: First line → (removed); Old → New',
 			],
 			'cells classed "new" outside the side-by-side diff are not a diff side' => [
 				'<dl><dt>Status</dt><dd><table class="diff"><tbody>'

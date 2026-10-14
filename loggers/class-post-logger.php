@@ -2419,9 +2419,13 @@ class Post_Logger extends Logger {
 					continue;
 				}
 
-				// The compact JSON diff of the content is rendered below, and
-				// changes in whitespace only give no diff.
-				if ( $key_to_diff === 'post_content' && ( isset( $context['post_content_diff'] ) || normalize_whitespace( $post_old_value ) === normalize_whitespace( $post_new_value ) ) ) {
+				// The compact JSON diff of the content is rendered below.
+				if ( $key_to_diff === 'post_content' && isset( $context['post_content_diff'] ) ) {
+					continue;
+				}
+
+				// Changes in whitespace only give an empty word diff.
+				if ( is_string( $post_old_value ) && is_string( $post_new_value ) && normalize_whitespace( $post_old_value ) === normalize_whitespace( $post_new_value ) ) {
 					continue;
 				}
 
