@@ -24,6 +24,16 @@ class PurgeDBTest extends \Codeception\TestCase\WPTestCase {
 		$this->simple_history = Simple_History::get_instance();
 		$this->purge_service = $this->get_purge_service();
 
+		// Clear event history, so only events from the test are purged.
+		// The tables are not reset between runs, and every run's WordPress
+		// install logs events outside any test transaction, so earlier runs'
+		// events pass the retention limit and would be counted.
+		// Use DELETE (not TRUNCATE) so the cleanup stays inside the test's
+		// transaction and is rolled back in tearDown.
+		global $wpdb;
+		$wpdb->query( "DELETE FROM {$this->simple_history->get_events_table_name()}" );
+		$wpdb->query( "DELETE FROM {$this->simple_history->get_contexts_table_name()}" );
+
 		// Create admin user for logging.
 		$user_id = $this->factory->user->create( [ 'role' => 'administrator' ] );
 		wp_set_current_user( $user_id );
