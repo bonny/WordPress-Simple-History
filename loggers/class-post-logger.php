@@ -2477,8 +2477,6 @@ class Post_Logger extends Logger {
 				}
 			}
 
-			$rows_before_filter = substr_count( strtolower( $diff_table_output ), '<tr' );
-
 			/**
 			 * Modify the formatted diff output of a saved/modified post.
 			 *
@@ -2510,15 +2508,15 @@ class Post_Logger extends Logger {
 			);
 
 			if ( $diff_table_output !== '' ) {
-				$legacy_rows_added = substr_count( strtolower( $diff_table_output ), '<tr' ) > $rows_before_filter;
+				// The string only has what callbacks added.
+				$legacy_rows_added = stripos( $diff_table_output, '<tr' ) !== false;
 
 				if ( $legacy_rows_added ) {
 					// Browsers drop <tr>/<td> tags inside a <dl>, so the rows a
 					// pre-5.33 callback appended would turn into loose text and
 					// shift every pair after them. Fall back to the table form,
-					// which the stylesheet lays out identically. Our own pairs
-					// translate with plain replacement: <dt>/<dd> never nest
-					// and never occur inside a value.
+					// which the stylesheet lays out identically. Pairs that other
+					// callbacks added translate with plain replacement.
 					$diff_table_output = str_replace(
 						[ '<dt>', '</dt>', '<dd>', '</dd>' ],
 						[ '<tr><td>', '</td>', '<td>', '</td></tr>' ],

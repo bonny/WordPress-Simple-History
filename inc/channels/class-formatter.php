@@ -182,7 +182,7 @@ abstract class Formatter implements Formatter_Interface {
 	 * Values are raw, so escape them for the output format.
 	 *
 	 * @param array $event_data The event data array.
-	 * @return array<string, array<string, string|array<int, array<string, string>>>>
+	 * @return array<string, array<string, string|array<int, array<string, string|bool>>>>
 	 */
 	protected function get_details_items( array $event_data ): array {
 		$details = $event_data['details'] ?? [];

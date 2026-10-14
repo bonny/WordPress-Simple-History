@@ -222,6 +222,34 @@ class PostLoggerChannelDetailsTest extends \Codeception\TestCase\WPTestCase {
 		$this->assertContains( [ 'label' => 'Content' ] + $change + [ 'key' => 'post_content_diff' ], $details['list'] );
 	}
 
+	public function test_channel_changes_between_long_lines_say_changed() {
+		$content = $this->get_long_content();
+		$long    = str_repeat( 'Long line words ', 20 );
+
+		$post_id = wp_insert_post(
+			[
+				'post_title'   => 'Long lines',
+				'post_status'  => 'draft',
+				'post_content' => $content . "\n" . $long . 'old end',
+			]
+		);
+
+		wp_update_post(
+			[
+				'ID'           => $post_id,
+				'post_content' => $content . "\n" . $long . 'new end',
+			]
+		);
+
+		$event = $this->get_inserted( 'post_updated' );
+
+		$this->assertArrayHasKey( 'post_content_diff', $event['context'] );
+
+		$details = $this->get_channel_details( $event );
+
+		$this->assertSame( [ [ 'changed' => true ] ], $details['items']['post_content_diff']['changes'] ?? null, 'Got: ' . wp_json_encode( $details['items'] ) );
+	}
+
 	public function test_channel_list_has_a_label_for_every_entry() {
 		$list = $this->get_channel_details( $this->update_post_with_many_changes() )['list'];
 
