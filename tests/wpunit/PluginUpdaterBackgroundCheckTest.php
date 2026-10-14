@@ -4,9 +4,8 @@ use Simple_History\AddOn_Plugin;
 use Simple_History\Plugin_Updater;
 
 /**
- * With experimental features on, the updater asks the server only while
- * WordPress saves its own update check, never while update data is read on
- * an ordinary admin page.
+ * The updater asks the server only while WordPress saves its own update
+ * check, never while update data is read on an ordinary admin page.
  */
 class PluginUpdaterBackgroundCheckTest extends \Codeception\TestCase\WPTestCase {
 	private const SLUG    = 'sh-test-addon';
@@ -29,7 +28,6 @@ class PluginUpdaterBackgroundCheckTest extends \Codeception\TestCase\WPTestCase 
 	public function setUp(): void {
 		parent::setUp();
 
-		add_filter( 'simple_history/experimental_features_enabled', '__return_true' );
 		add_filter( 'pre_http_request', [ $this, 'fake_http' ], 10, 3 );
 
 		update_option(
@@ -52,7 +50,6 @@ class PluginUpdaterBackgroundCheckTest extends \Codeception\TestCase\WPTestCase 
 		remove_filter( 'plugins_api', [ $this->updater, 'on_plugins_api_handle_plugin_info' ], 20 );
 		remove_action( 'load-update-core.php', [ $this->updater, 'on_force_check' ], 9 );
 		remove_filter( 'pre_http_request', [ $this, 'fake_http' ] );
-		remove_filter( 'simple_history/experimental_features_enabled', '__return_true' );
 
 		unset( $_GET['force-check'] );
 
@@ -91,13 +88,33 @@ class PluginUpdaterBackgroundCheckTest extends \Codeception\TestCase\WPTestCase 
 		];
 	}
 
-	public function test_reading_update_data_makes_no_request() {
-		$this->assertTrue( $this->updater->check_only_with_wordpress );
+	public function test_reading_update_data_makes_no_request_once_an_answer_is_stored() {
+		update_option( Plugin_Updater::get_answer_option_for_slug( self::SLUG ), '{"success":true}', false );
 
 		$data = $this->updater->site_transient_update_plugins_update( $this->update_data() );
 
 		$this->assertSame( [], $this->requests );
 		$this->assertArrayNotHasKey( self::ID, $data->response );
+	}
+
+	public function test_reading_update_data_with_nothing_stored_asks_once() {
+		// Right after updating from a version that stored no answer.
+		$first  = $this->updater->site_transient_update_plugins_update( $this->update_data() );
+		$second = $this->updater->site_transient_update_plugins_update( $this->update_data() );
+
+		$this->assertCount( 1, $this->requests );
+		$this->assertSame( '2.0.0', $first->response[ self::ID ]->new_version );
+		$this->assertSame( '2.0.0', $second->response[ self::ID ]->new_version );
+	}
+
+	public function test_reading_update_data_with_nothing_stored_and_a_failing_server_asks_once() {
+		$this->reply_code = 500;
+		$this->reply_body = 'Server error';
+
+		$this->updater->site_transient_update_plugins_update( $this->update_data() );
+		$this->updater->site_transient_update_plugins_update( $this->update_data() );
+
+		$this->assertCount( 1, $this->requests );
 	}
 
 	public function test_saving_update_data_asks_once_and_the_answer_is_kept() {

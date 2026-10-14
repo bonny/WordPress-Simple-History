@@ -48,18 +48,6 @@ class Plugin_Updater {
 	public $cache_allowed = true;
 
 	/**
-	 * Ask the update server only during WordPress's own plugin update check,
-	 * never while something merely reads the update data.
-	 *
-	 * Reading the update data happens on almost every admin page (the menu
-	 * badge, the admin bar), and a remote call there makes the page wait for
-	 * simple-history.com. Experimental for now; on by default once proven.
-	 *
-	 * @var bool
-	 */
-	public $check_only_with_wordpress = false;
-
-	/**
 	 * Largest update answer read from the server, in bytes.
 	 */
 	private const MAX_RESPONSE_BYTES = 256 * 1024;
@@ -93,12 +81,10 @@ class Plugin_Updater {
 		// Before core's own wp_update_plugins() at priority 10 on this hook.
 		add_action( 'load-update-core.php', array( $this, 'on_force_check' ), 9 );
 
-		$this->check_only_with_wordpress = Helpers::experimental_features_is_enabled();
-
-		if ( ! $this->check_only_with_wordpress ) {
-			return;
-		}
-
+		// Ask the update server only during WordPress's own plugin update check,
+		// never while something merely reads the update data. Reading happens on
+		// almost every admin page (the menu badge, the admin bar), and a remote
+		// call there makes the page wait for simple-history.com.
 		add_filter( 'pre_set_site_transient_update_plugins', array( $this, 'on_pre_set_update_plugins' ) );
 	}
 
@@ -373,7 +359,15 @@ class Plugin_Updater {
 			'compatibility' => new \stdClass(),
 		);
 
-		$remote = $this->check_only_with_wordpress ? $this->get_stored_answer() : $this->request();
+		$remote = $this->get_stored_answer();
+
+		// Nothing stored yet, like right after updating from a version that did not
+		// store answers. Ask once rather than hide an update until WordPress's next
+		// check. request() caches its answer, errors included, so the remote call
+		// can't repeat on every page.
+		if ( $remote === false ) {
+			$remote = $this->request();
+		}
 
 		if (
 			$remote && ! empty( $remote->success ) && ! empty( $remote->update )
