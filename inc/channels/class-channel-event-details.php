@@ -207,8 +207,10 @@ class Channel_Event_Details {
 
 				// Raw HTML without a label and value of its own, like the post
 				// logger's content diff, rows that third-party code adds, or
-				// custom fields: one entry per line of its text.
-				$is_unlabelled_raw = $formatter instanceof Event_Details_Item_RAW_Formatter && ( empty( $label ) || ( $new === null && $prev === null ) );
+				// custom fields: one entry per line of its text. A raw item
+				// with a previous value has structured data, which is kept.
+				$has_label         = is_string( $label ) && $label !== '';
+				$is_unlabelled_raw = $formatter instanceof Event_Details_Item_RAW_Formatter && $prev === null && ( ! $has_label || $new === null );
 
 				if ( $is_unlabelled_raw ) {
 					foreach ( self::build_list_from_html( $formatter->to_html(), is_string( $label ) ? $label : '' ) as $entry ) {

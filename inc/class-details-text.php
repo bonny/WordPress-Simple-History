@@ -20,7 +20,8 @@ namespace Simple_History;
  *
  * With $one_line_per_pair, each key-value pair stays on one line, for log
  * files and other line-based channels: the lines inside a value are joined
- * with "; ", and a change from or to nothing shows only the value that is there.
+ * with "; ", a change from nothing shows only the new value, and a change to
+ * nothing shows "old → (removed)".
  *
  * Parsing is done with WP_HTML_Processor, which understands nesting, so a diff
  * table inside a value cell cannot be confused with the value's own markup.
@@ -158,8 +159,14 @@ class Details_Text {
 		}
 
 		if ( $type === '#text' ) {
-			if ( $this->skip_depth === null ) {
-				$this->append( $processor->get_modifiable_text() );
+			$text = $processor->get_modifiable_text();
+
+			// Blank text between the cells of a diff table, like the &nbsp; of
+			// an empty cell, would end up in front of the next change.
+			$is_blank_between_diff_cells = $this->diff_table_depth !== null && $this->diff_text === null && trim( $text, " \t\n\r\0\x0B\u{00A0}" ) === '';
+
+			if ( $this->skip_depth === null && ! $is_blank_between_diff_cells ) {
+				$this->append( $text );
 			}
 
 			return;
@@ -271,7 +278,9 @@ class Details_Text {
 				if ( $this->diff_table_depth !== null ) {
 					// A diff row with only a deleted side.
 					if ( $is_closer && $this->diff_old !== null ) {
-						$this->append( $this->diff_old . "\n" );
+						$removed = $this->one_line_per_pair && $this->diff_old !== '' ? self::change_to_text( $this->diff_old, '', true ) : $this->diff_old;
+
+						$this->append( $removed . "\n" );
 						$this->diff_old = null;
 					}
 				} else {
@@ -407,16 +416,22 @@ class Details_Text {
 	 *
 	 * @param string $old_value         Old value.
 	 * @param string $new_value         New value.
-	 * @param bool   $one_line_per_pair Whether a change from or to nothing shows only the other value.
+	 * @param bool   $one_line_per_pair Whether a change from nothing shows only the new value, and a change to nothing "old → (removed)".
 	 * @return string
 	 */
 	private static function change_to_text( $old_value, $new_value, $one_line_per_pair ) {
 		$old_value = trim( (string) $old_value );
 		$new_value = trim( (string) $new_value );
 
-		// Like a diff row with only a deleted or only an added side.
-		if ( $one_line_per_pair && ( $old_value === '' || $new_value === '' ) ) {
-			return $old_value . $new_value;
+		// A change from nothing reads as the value being set. A change to
+		// nothing says so, or it would read the same way.
+		if ( $one_line_per_pair && $old_value === '' ) {
+			return $new_value;
+		}
+
+		if ( $one_line_per_pair && $new_value === '' ) {
+			/* translators: Shown after a value that was removed, as in "Old text → (removed)". */
+			return $old_value . ' → ' . __( '(removed)', 'simple-history' );
 		}
 
 		return trim( $old_value . ' → ' . $new_value );
@@ -483,17 +498,26 @@ class Details_Text {
 		// Diff rows: deleted side and added side become "old → new".
 		// The split view has an empty cell between the two sides.
 		$html = (string) preg_replace_callback(
-			'/<tr[^>]*>\s*<td[^>]*class=[\'"][^"\']*diff-deletedline[^"\']*[\'"][^>]*>(.*?)<\/td>(?:\s*<td[^>]*>\s*<\/td>)?\s*<td[^>]*class=[\'"][^"\']*diff-addedline[^"\']*[\'"][^>]*>(.*?)<\/td>\s*<\/tr>/is',
+			'/<tr[^>]*>\s*<td[^>]*class=[\'"][^"\']*diff-deletedline[^"\']*[\'"][^>]*>((?:(?!<\/td>).)*)<\/td>(?:\s*<td[^>]*>\s*<\/td>)?\s*<td[^>]*class=[\'"][^"\']*diff-addedline[^"\']*[\'"][^>]*>((?:(?!<\/td>).)*)<\/td>\s*<\/tr>/is',
 			$diff_row_to_line,
 			$html
 		);
+
+		// Diff rows with only a deleted side.
+		if ( $one_line_per_pair ) {
+			$html = (string) preg_replace_callback(
+				'/<tr[^>]*>\s*<td[^>]*class=[\'"][^"\']*diff-deletedline[^"\']*[\'"][^>]*>((?:(?!<\/td>).)*)<\/td>(?:\s*<td[^>]*>(?:\s|&nbsp;)*<\/td>)*\s*<\/tr>/is',
+				fn( $matches ) => self::tidy( wp_strip_all_tags( $matches[1] ) ) === '' ? '' : self::change_to_text( wp_strip_all_tags( $matches[1] ), '', true ) . "\n",
+				$html
+			);
+		}
 
 		// Rows of the side-by-side diff of post content. Its cells use the
 		// generic classes "old" and "new", so only look for them when the
 		// side-by-side table is there.
 		if ( stripos( $html, 'diff-side-by-side' ) !== false ) {
 			$html = (string) preg_replace_callback(
-				'/<tr[^>]*>\s*<td[^>]*class=[\'"](?:[^"\']*\s)?old(?:\s[^"\']*)?[\'"][^>]*>(.*?)<\/td>\s*<td[^>]*class=[\'"](?:[^"\']*\s)?new(?:\s[^"\']*)?[\'"][^>]*>(.*?)<\/td>\s*<\/tr>/is',
+				'/<tr[^>]*>\s*<td[^>]*class=[\'"](?:[^"\']*\s)?old(?:\s[^"\']*)?[\'"][^>]*>((?:(?!<\/td>).)*)<\/td>\s*<td[^>]*class=[\'"](?:[^"\']*\s)?new(?:\s[^"\']*)?[\'"][^>]*>((?:(?!<\/td>).)*)<\/td>\s*<\/tr>/is',
 				$diff_row_to_line,
 				$html
 			);

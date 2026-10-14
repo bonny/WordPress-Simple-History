@@ -208,7 +208,7 @@ function formatDetailsDataAsMarkdown( detailsData ) {
 		// An item with a list of changes, like post content stored as a
 		// diff of the changed lines, gets one row per change.
 		const items = group.items.flatMap( ( item ) =>
-			Array.isArray( item.changes )
+			Array.isArray( item.changes ) && item.changes.length > 0
 				? item.changes.map( ( change ) => ( {
 						name: item.name,
 						prev_value: change.prev_value,
