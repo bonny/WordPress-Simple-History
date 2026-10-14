@@ -41,7 +41,9 @@ class Channel_Event_Details {
 	 * - text: "Label: Value" lines, one per line, with "old → new" for changes.
 	 *   Raw text, not escaped for any output format.
 	 * - items: changed values keyed by context key, for structured formats.
-	 *   Each item has new and/or prev, plus the translated label.
+	 *   Each item has new and/or prev, plus the translated label. An item
+	 *   with a list of changes, like the changed lines of post content
+	 *   (key post_content_diff), has changes instead: a list of new/prev.
 	 * - list: every item in display order, also those without a context key,
 	 *   for alerts that show the details as a list. Each item has label,
 	 *   new and/or prev, and key when it has one. A change between two values
@@ -52,7 +54,7 @@ class Channel_Event_Details {
 	 *
 	 * @param array $context Context of the event, as passed to the inserted hook.
 	 * @param array $data    Event row data, as passed to the inserted hook.
-	 * @return array{text: string, items: array<string, array<string, string>>, list: array<int, array<string, string|bool>>}
+	 * @return array{text: string, items: array<string, array<string, string|array<int, array<string, string>>>>, list: array<int, array<string, string|bool>>}
 	 */
 	public static function get( array $context, array $data ): array {
 		$empty = [
@@ -144,7 +146,7 @@ class Channel_Event_Details {
 	 * "changes" with a new/prev entry per change instead of new and prev.
 	 *
 	 * @param Event_Details_Container $details Details from the logger.
-	 * @return array<string, array<string, mixed>>
+	 * @return array<string, array<string, string|array<int, array<string, string>>>>
 	 */
 	private static function build_items( Event_Details_Container $details ): array {
 		$items = [];
@@ -159,7 +161,7 @@ class Channel_Event_Details {
 					$items[ $json['slug_new'] ] = array_filter(
 						[
 							'label'   => $item->name,
-							'changes' => $changes,
+							'changes' => array_slice( $changes, 0, self::MAX_ITEMS ),
 						]
 					);
 

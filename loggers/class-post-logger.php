@@ -6,7 +6,7 @@ use Simple_History\Event_Details\Event_Details_Container;
 use Simple_History\Event_Details\Event_Details_Group;
 use Simple_History\Event_Details\Event_Details_Group_Diff_Table_Formatter;
 use Simple_History\Event_Details\Event_Details_Item;
-use Simple_History\Event_Details\Event_Details_Item_Default_Formatter;
+use Simple_History\Event_Details\Event_Details_Item_Table_Row_Formatter;
 use Simple_History\Event_Details\Event_Details_Item_Diff_Table_Row_Formatter;
 use Simple_History\Event_Details\Event_Details_Item_Image_Diff_Table_Row_Formatter;
 use Simple_History\Event_Details\Event_Details_Item_RAW_Formatter;
@@ -2446,7 +2446,7 @@ class Post_Logger extends Logger {
 				// which would hide a change like "0" to "". An item with its
 				// own formatter is kept.
 				if ( empty( $values['new'] ) && empty( $values['prev'] ) ) {
-					$item->set_formatter( $group === $diff_group ? new Event_Details_Item_Diff_Table_Row_Formatter() : new Event_Details_Item_Default_Formatter() );
+					$item->set_formatter( $group === $diff_group ? new Event_Details_Item_Diff_Table_Row_Formatter() : new Event_Details_Item_Table_Row_Formatter() );
 				}
 
 				$group->add_item( $item );

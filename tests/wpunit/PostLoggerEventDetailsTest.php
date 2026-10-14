@@ -270,6 +270,19 @@ class PostLoggerEventDetailsTest extends \Codeception\TestCase\WPTestCase {
 		$this->assertSame( 'string', $captured['first_arg_type'], 'diff_table_output filter must still receive a string as first arg' );
 	}
 
+	public function test_inline_change_between_empty_values_is_a_pair_in_the_list() {
+		$row = $this->make_row( array(
+			'_message_key'             => 'post_updated',
+			'post_prev_comment_status' => '0',
+			'post_new_comment_status'  => '',
+		) );
+
+		$html = (string) $this->sh->get_log_row_details_output( $row );
+
+		$this->assertMatchesRegularExpression( '#<dl class="SimpleHistoryLogitem__keyValueTable">\s*<dt>Comment status</dt>#', $html );
+		$this->assertStringNotContainsString( 'SimpleHistoryLogitem__inlineDivided', $html );
+	}
+
 	public function test_post_updated_details_are_a_definition_list() {
 		$row = $this->make_row( array(
 			'_message_key'         => 'post_updated',
