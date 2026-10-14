@@ -43,12 +43,19 @@ class DetailsTextTest extends \Codeception\TestCase\WPTestCase {
 			],
 			'diff table inside a value'                    => [
 				'<dl><dt>Content</dt><dd>' . $diff . '</dd><dt>Status</dt><dd><ins>publish</ins> <del></del></dd></dl>',
-				"Content: Hello world → Hello world, again\n→ Third paragraph added\nStatus: → publish",
+				"Content: Hello world → Hello world, again\nThird paragraph added\nStatus: publish",
 			],
 			'word diff inside a diff table'                => [
 				'<dl><dt>Title</dt><dd><table class="diff SimpleHistory__diff"><tbody><tr><td class="diff-deletedline"><span class="screen-reader-text">Deleted: </span><del>Old</del> title' . "\n"
 				. '</td><td class="diff-addedline"><span class="screen-reader-text">Added: </span><ins>New</ins> title' . "\n" . '</td></tr></tbody></table></dd></dl>',
 				'Title: Old title → New title',
+			],
+			'a line removed from the side-by-side diff says it was removed' => [
+				'<dl><dt>Content</dt><dd><table class="diff-wrapper diff diff-html diff-side-by-side">'
+				. '<tbody class="change change-del"><tr><td class="old"><del>Removed paragraph</del></td><td class="new none"></td></tr></tbody>'
+				. '<tbody class="change change-ins"><tr><td class="old none"></td><td class="new"><ins>Added paragraph</ins></td></tr></tbody>'
+				. '</table></dd></dl>',
+				"Content: Removed paragraph → (removed)\nAdded paragraph",
 			],
 			'side-by-side diff of the compact post content diff' => [
 				'<dl><dt>Content</dt><dd><table class="diff-wrapper diff diff-html diff-side-by-side">'
@@ -162,6 +169,33 @@ class DetailsTextTest extends \Codeception\TestCase\WPTestCase {
 	 */
 	public function test_one_line_regex_converter( $html, $expected ) {
 		$this->assertSame( $expected, $this->tidy( Details_Text::convert_with_regex( $html, true ) ) );
+	}
+
+	public function test_regex_converter_handles_a_very_long_diff_cell() {
+		$long = str_repeat( 'a', 100000 );
+		$html = '<dl><dt>Content</dt><dd><table class="diff"><tbody>'
+			. '<tr><td class="diff-deletedline">' . $long . '</td><td></td><td class="diff-addedline">' . $long . 'b</td></tr>'
+			. '</tbody></table></dd></dl>';
+
+		$this->assertSame( 'Content: ' . $long . ' → ' . $long . 'b', $this->tidy( Details_Text::convert_with_regex( $html, true ) ) );
+	}
+
+	public function test_pairs_keeps_keys_apart_from_values_with_colons() {
+		$html = '<dl><dt>Status</dt><dd><ins>publish</ins> <del>draft</del></dd></dl>'
+			. '<table class="diff"><tbody><tr><td class="diff-deletedline">Note: fixed typo</td><td></td><td class="diff-addedline">Note: fixed</td></tr></tbody></table>';
+
+		$expected = [
+			[
+				'key'   => 'Status',
+				'value' => 'draft → publish',
+			],
+			[
+				'key'   => '',
+				'value' => 'Note: fixed typo → Note: fixed',
+			],
+		];
+
+		$this->assertSame( $expected, Details_Text::pairs( $html ) );
 	}
 
 	public function test_event_get_details_text_uses_logger_details() {
