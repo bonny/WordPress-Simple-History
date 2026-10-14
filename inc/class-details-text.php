@@ -61,6 +61,9 @@ class Details_Text {
 	/** @var string|null Deleted side of a diff row waiting for the added side. */
 	private $diff_old = null;
 
+	/** @var string[] Lines of deleted-only diff rows, waiting for added-only rows that replace them. */
+	private $removed_lines = [];
+
 	/** @var int|null Depth of an element whose text is dropped (screen-reader text, diff context). */
 	private $skip_depth = null;
 
@@ -315,6 +318,7 @@ class Details_Text {
 			case 'TABLE':
 				if ( $is_closer ) {
 					if ( $this->diff_table_depth !== null && $depth <= $this->diff_table_depth ) {
+						$this->flush_removed_lines();
 						$this->diff_table_depth = null;
 						$this->side_by_side     = false;
 					}
@@ -333,11 +337,13 @@ class Details_Text {
 
 			case 'TR':
 				if ( $this->diff_table_depth !== null ) {
-					// A diff row with only a deleted side.
+					// A diff row with only a deleted side. Kept until the next
+					// row shows whether the line was replaced or removed.
 					if ( $is_closer && $this->diff_old !== null ) {
-						$removed = $this->diff_old !== '' ? self::change_to_text( $this->diff_old, '' ) : $this->diff_old;
+						if ( $this->diff_old !== '' ) {
+							$this->removed_lines[] = $this->diff_old;
+						}
 
-						$this->append( $removed . "\n" );
 						$this->diff_old = null;
 					}
 				} else {
@@ -418,8 +424,18 @@ class Details_Text {
 		if ( $cell === 'deleted' ) {
 			$this->diff_old = $cell_text;
 		} elseif ( $cell === 'added' ) {
-			if ( $this->diff_old !== null || $cell_text !== '' ) {
-				$this->append( self::change_to_text( (string) $this->diff_old, $cell_text ) . "\n" );
+			$is_added_only = (string) $this->diff_old === '';
+
+			// WordPress writes a line it cannot diff word by word as a
+			// deleted-only row and then an added-only row: a replacement.
+			if ( $is_added_only && $cell_text !== '' && $this->removed_lines !== [] ) {
+				$this->append( self::change_to_text( (string) array_shift( $this->removed_lines ), $cell_text ) . "\n" );
+			} else {
+				$this->flush_removed_lines();
+
+				if ( $this->diff_old !== null || $cell_text !== '' ) {
+					$this->append( self::change_to_text( (string) $this->diff_old, $cell_text ) . "\n" );
+				}
 			}
 
 			$this->diff_old = null;
@@ -446,6 +462,19 @@ class Details_Text {
 		} else {
 			$this->out .= $text;
 		}
+	}
+
+	/**
+	 * Write deleted-only diff rows that no added row replaced.
+	 *
+	 * @return void
+	 */
+	private function flush_removed_lines() {
+		foreach ( $this->removed_lines as $line ) {
+			$this->append( self::change_to_text( $line, '' ) . "\n" );
+		}
+
+		$this->removed_lines = [];
 	}
 
 	/**
@@ -557,6 +586,34 @@ class Details_Text {
 		$html = (string) preg_replace_callback(
 			'/<tr[^>]*>\s*<td[^>]*class=[\'"][^"\']*diff-deletedline[^"\']*[\'"][^>]*>([^<]*+(?:<(?!\/td>)[^<]*+)*+)<\/td>(?:\s*<td[^>]*>\s*<\/td>)?\s*<td[^>]*class=[\'"][^"\']*diff-addedline[^"\']*[\'"][^>]*>([^<]*+(?:<(?!\/td>)[^<]*+)*+)<\/td>\s*<\/tr>/is',
 			$diff_row_to_line,
+			$html
+		);
+
+		// Deleted-only rows followed by added-only rows: WordPress writes a
+		// line it cannot diff word by word that way, so pair them up.
+		$cell          = '([^<]*+(?:<(?!\/td>)[^<]*+)*+)';
+		$empty_cells   = '(?:\s*<td[^>]*>(?:\s|&nbsp;)*<\/td>)*';
+		$deleted_row   = '<tr[^>]*>\s*<td[^>]*class=[\'"][^"\']*diff-deletedline[^"\']*[\'"][^>]*>' . $cell . '<\/td>' . $empty_cells . '\s*<\/tr>';
+		$added_row     = '<tr[^>]*>' . $empty_cells . '\s*<td[^>]*class=[\'"][^"\']*diff-addedline[^"\']*[\'"][^>]*>' . $cell . '<\/td>\s*<\/tr>';
+		$non_capturing = fn( $pattern ) => str_replace( $cell, '(?:' . substr( $cell, 1 ), $pattern );
+
+		$html = (string) preg_replace_callback(
+			'/((?:' . $non_capturing( $deleted_row ) . '\s*)+)((?:' . $non_capturing( $added_row ) . '\s*)+)/is',
+			function ( $matches ) use ( $deleted_row, $added_row ) {
+				preg_match_all( '/' . $deleted_row . '/is', $matches[1], $deleted );
+				preg_match_all( '/' . $added_row . '/is', $matches[2], $added );
+
+				$old_lines = array_values( array_filter( array_map( fn( $text ) => self::tidy( wp_strip_all_tags( $text ) ), $deleted[1] ), 'strlen' ) );
+				$new_lines = array_values( array_filter( array_map( fn( $text ) => self::tidy( wp_strip_all_tags( $text ) ), $added[1] ), 'strlen' ) );
+				$out       = '';
+				$row_count = max( count( $old_lines ), count( $new_lines ) );
+
+				for ( $i = 0; $i < $row_count; $i++ ) {
+					$out .= self::change_to_text( $old_lines[ $i ] ?? '', $new_lines[ $i ] ?? '' ) . "\n";
+				}
+
+				return $out;
+			},
 			$html
 		);
 

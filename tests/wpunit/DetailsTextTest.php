@@ -143,6 +143,16 @@ class DetailsTextTest extends \Codeception\TestCase\WPTestCase {
 				. '</tbody></table></dd></dl>',
 				'Content: First line → (removed); Old → New',
 			],
+			'deleted-only rows followed by added-only rows are replacements' => [
+				'<dl><dt>Excerpt</dt><dd><table class="diff"><tbody>'
+				. '<tr><td class="diff-deletedline">Old one</td><td>&nbsp;</td></tr>'
+				. '<tr><td class="diff-deletedline">Old two</td><td>&nbsp;</td></tr>'
+				. '<tr><td class="diff-deletedline">Old three</td><td>&nbsp;</td></tr>'
+				. '<tr><td>&nbsp;</td><td class="diff-addedline">New one</td></tr>'
+				. '<tr><td>&nbsp;</td><td class="diff-addedline">New two</td></tr>'
+				. '</tbody></table></dd></dl>',
+				'Excerpt: Old one → New one; Old two → New two; Old three → (removed)',
+			],
 			'cells classed "new" outside the side-by-side diff are not a diff side' => [
 				'<dl><dt>Status</dt><dd><table class="diff"><tbody>'
 				. '<tr><td class="diff-deletedline">draft</td><td class="diff-addedline">publish</td></tr>'
