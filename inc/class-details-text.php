@@ -409,7 +409,9 @@ class Details_Text {
 				$this->diff_cell = 'added';
 				$this->diff_text = '';
 			} elseif ( self::has_class( $class_attr, 'diff-context' ) ) {
-				// Unchanged lines add noise in plain text.
+				// Unchanged lines add noise in plain text. A deleted line
+				// before them was not replaced by an added line after them.
+				$this->flush_removed_lines();
 				$this->skip_depth = $depth;
 			}
 
@@ -564,8 +566,10 @@ class Details_Text {
 		// Screen-reader-only text.
 		$html = (string) preg_replace( '/<(span|h[1-6])[^>]*class=[\'"][^"\']*screen-reader-text[^"\']*[\'"][^>]*>[^<]*<\/\1>/i', '', $html );
 
-		// Unchanged diff context rows add noise in plain text.
-		$html = (string) preg_replace( '/<tr[^>]*>\s*<td[^>]*class=[\'"][^"\']*diff-context[^"\']*[\'"][^>]*>[^<]*<\/td>\s*<td[^>]*>[^<]*<\/td>\s*<td[^>]*>[^<]*<\/td>\s*<\/tr>/i', '', $html );
+		// Unchanged diff context rows add noise in plain text. The empty
+		// span keeps a deleted row before them from looking adjacent to an
+		// added row after them.
+		$html = (string) preg_replace( '/<tr[^>]*>\s*<td[^>]*class=[\'"][^"\']*diff-context[^"\']*[\'"][^>]*>[^<]*<\/td>\s*<td[^>]*>[^<]*<\/td>\s*<td[^>]*>[^<]*<\/td>\s*<\/tr>/i', '<span></span>', $html );
 
 		// Unchanged lines in the side-by-side diff of post content.
 		$html = (string) preg_replace( '/<tbody[^>]*class=[\'"][^"\']*change-eq[^"\']*[\'"][^>]*>.*?<\/tbody>/is', '', $html );
@@ -614,6 +618,13 @@ class Details_Text {
 
 				return $out;
 			},
+			$html
+		);
+
+		// Diff rows with only an added side.
+		$html = (string) preg_replace_callback(
+			'/' . $added_row . '/is',
+			fn( $matches ) => self::tidy( wp_strip_all_tags( $matches[1] ) ) . "\n",
 			$html
 		);
 
