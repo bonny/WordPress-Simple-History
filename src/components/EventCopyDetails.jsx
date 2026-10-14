@@ -205,7 +205,19 @@ function formatDetailsDataAsMarkdown( detailsData ) {
 			lines.push( '' );
 		}
 
-		const hasPrev = group.items.some(
+		// An item with a list of changes, like post content stored as a
+		// diff of the changed lines, gets one row per change.
+		const items = group.items.flatMap( ( item ) =>
+			Array.isArray( item.changes )
+				? item.changes.map( ( change ) => ( {
+						name: item.name,
+						prev_value: change.prev_value,
+						new_value: change.new_value,
+				  } ) )
+				: [ item ]
+		);
+
+		const hasPrev = items.some(
 			( item ) =>
 				item.prev_value !== undefined &&
 				item.prev_value !== null &&
@@ -215,7 +227,7 @@ function formatDetailsDataAsMarkdown( detailsData ) {
 		if ( hasPrev ) {
 			lines.push( '| Field | Previous | New |' );
 			lines.push( '| --- | --- | --- |' );
-			for ( const item of group.items ) {
+			for ( const item of items ) {
 				lines.push(
 					`| ${ mdEscape( item.name ) } | ${ mdEscape(
 						item.prev_value
@@ -225,7 +237,7 @@ function formatDetailsDataAsMarkdown( detailsData ) {
 		} else {
 			lines.push( '| Field | Value |' );
 			lines.push( '| --- | --- |' );
-			for ( const item of group.items ) {
+			for ( const item of items ) {
 				lines.push(
 					`| ${ mdEscape( item.name ) } | ${ mdEscape(
 						item.new_value

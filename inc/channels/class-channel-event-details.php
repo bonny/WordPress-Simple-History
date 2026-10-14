@@ -4,6 +4,7 @@ namespace Simple_History\Channels;
 
 use Simple_History\Details_Text;
 use Simple_History\Event_Details\Event_Details_Container;
+use Simple_History\Event_Details\Event_Details_Item_RAW_Formatter;
 use Simple_History\Helpers;
 use Simple_History\Simple_History;
 
@@ -72,7 +73,7 @@ class Channel_Event_Details {
 		$is_structured = $details instanceof Event_Details_Container;
 
 		return [
-			'text'  => self::build_text( Details_Text::from_html( $html ) ),
+			'text'  => self::build_text( Details_Text::from_html( $html, true ) ),
 			'items' => $is_structured ? self::build_items( $details ) : [],
 			'list'  => $is_structured ? self::build_list( $details ) : [],
 		];
@@ -194,7 +195,8 @@ class Channel_Event_Details {
 
 		foreach ( $details->groups as $group ) {
 			foreach ( $group->items as $item ) {
-				$json = $item->get_formatter()->to_json();
+				$formatter = $item->get_formatter();
+				$json      = $formatter->to_json();
 
 				$label = $json['name'] ?? $item->name;
 				$new   = $json['new_value'] ?? $item->new_value;
@@ -202,6 +204,23 @@ class Channel_Event_Details {
 
 				$new  = is_scalar( $new ) && (string) $new !== '' ? (string) $new : null;
 				$prev = is_scalar( $prev ) && (string) $prev !== '' ? (string) $prev : null;
+
+				// Raw HTML without a label and value of its own, like the post
+				// logger's content diff, rows that third-party code adds, or
+				// custom fields: one entry per line of its text.
+				$is_unlabelled_raw = $formatter instanceof Event_Details_Item_RAW_Formatter && ( empty( $label ) || ( $new === null && $prev === null ) );
+
+				if ( $is_unlabelled_raw ) {
+					foreach ( self::build_list_from_html( $formatter->to_html(), is_string( $label ) ? $label : '' ) as $entry ) {
+						$list[] = $entry;
+
+						if ( count( $list ) >= self::MAX_ITEMS ) {
+							return $list;
+						}
+					}
+
+					continue;
+				}
 
 				if ( $new === null && $prev === null ) {
 					continue;
@@ -238,6 +257,43 @@ class Channel_Event_Details {
 				if ( count( $list ) >= self::MAX_ITEMS ) {
 					return $list;
 				}
+			}
+		}
+
+		return $list;
+	}
+
+	/**
+	 * Turn raw details HTML into list entries, one per "Label: value" line.
+	 *
+	 * The value is the whole change as text, like "old → new", so it goes in
+	 * new. Lines without a "Label: " of their own get the item's label.
+	 *
+	 * @param string $html  Details HTML.
+	 * @param string $label Label of the item, for lines without one.
+	 * @return array<int, array<string, string>>
+	 */
+	private static function build_list_from_html( $html, $label ) {
+		$list = [];
+		$text = Details_Text::from_html( $html, true );
+
+		foreach ( explode( "\n", $text ) as $line ) {
+			if ( trim( $line ) === '' ) {
+				continue;
+			}
+
+			$parts = explode( ': ', $line, 2 );
+
+			if ( count( $parts ) === 2 && ( $label === '' || $parts[0] === $label ) ) {
+				$list[] = [
+					'label' => $parts[0],
+					'new'   => self::truncate( $parts[1] ),
+				];
+			} else {
+				$list[] = [
+					'label' => $label,
+					'new'   => self::truncate( $line ),
+				];
 			}
 		}
 

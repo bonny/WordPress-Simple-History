@@ -5,16 +5,22 @@ namespace Simple_History;
 /**
  * Turns the HTML that loggers produce for event details into plain text.
  *
- * Used for text-only surfaces: Copy as text, plain-text alerts and emails,
- * the abilities API. The rules:
+ * Used for text-only surfaces: log files and other log channels, plain-text
+ * alerts and emails. The rules:
  *
  * - A key-value pair (<dt>key</dt><dd>value</dd>, or the pre-5.33 form
  *   <tr><td>key</td><td>value</td></tr>) becomes "key: value" on its own line.
  * - <ins>new</ins> next to <del>old</del>, in either order, becomes "old → new".
- * - A diff table row (td.diff-deletedline / td.diff-addedline) becomes
- *   "old → new"; unchanged context rows are dropped.
+ * - A diff table row (td.diff-deletedline / td.diff-addedline, or td.old /
+ *   td.new in the side-by-side diff of post content, table.diff-side-by-side) becomes "old → new";
+ *   unchanged context rows are dropped. Word-level <ins>/<del> inside a diff
+ *   row only mark what changed within that row.
  * - Screen-reader-only text is dropped.
  * - Line breaks and block elements end a line; blank lines are removed.
+ *
+ * With $one_line_per_pair, each key-value pair stays on one line, for log
+ * files and other line-based channels: the lines inside a value are joined
+ * with "; ", and a change from or to nothing shows only the value that is there.
  *
  * Parsing is done with WP_HTML_Processor, which understands nesting, so a diff
  * table inside a value cell cannot be confused with the value's own markup.
@@ -58,8 +64,14 @@ class Details_Text {
 	/** @var int|null Depth of the open diff table, so its cells are not read as legacy key-value cells. */
 	private $diff_table_depth = null;
 
+	/** @var bool Whether the open diff table is the side-by-side diff of post content, whose cells use the classes "old" and "new". */
+	private $side_by_side = false;
+
 	/** @var int Which cell of a legacy <tr><td>key</td><td>value</td></tr> row comes next. */
 	private $legacy_cell = 0;
+
+	/** @var bool Whether each key-value pair is kept on one line. */
+	private $one_line_per_pair = false;
 
 	/**
 	 * Convert details HTML to plain text.
@@ -67,20 +79,21 @@ class Details_Text {
 	 * The output has entities decoded, so it can contain "<" and other
 	 * characters that are markup again. Escape it before putting it in HTML.
 	 *
-	 * @param string $html Details HTML from a logger.
+	 * @param string $html              Details HTML from a logger.
+	 * @param bool   $one_line_per_pair Keep each key-value pair on one line.
 	 * @return string Plain text, not safe for HTML output. Empty when there is nothing to show.
 	 */
-	public static function from_html( $html ) {
+	public static function from_html( $html, $one_line_per_pair = false ) {
 		$html = (string) $html;
 
 		if ( trim( $html ) === '' ) {
 			return '';
 		}
 
-		$text = self::convert_with_html_api( $html );
+		$text = self::convert_with_html_api( $html, $one_line_per_pair );
 
 		if ( $text === null ) {
-			$text = self::convert_with_regex( $html );
+			$text = self::convert_with_regex( $html, $one_line_per_pair );
 		}
 
 		return self::tidy( $text );
@@ -89,11 +102,12 @@ class Details_Text {
 	/**
 	 * Convert using WP_HTML_Processor.
 	 *
-	 * @param string $html Details HTML.
+	 * @param string $html              Details HTML.
+	 * @param bool   $one_line_per_pair Keep each key-value pair on one line.
 	 * @return string|null Text with one entry per line, or null when the
 	 *                     processor is unavailable or cannot parse the markup.
 	 */
-	public static function convert_with_html_api( $html ) {
+	public static function convert_with_html_api( $html, $one_line_per_pair = false ) {
 		// The processor exists since 6.4, but get_current_depth() and the
 		// other methods used here were complete first in 6.6.
 		if ( ! class_exists( '\WP_HTML_Processor' ) || version_compare( get_bloginfo( 'version' ), '6.6', '<' ) ) {
@@ -107,6 +121,8 @@ class Details_Text {
 		}
 
 		$converter = new self();
+
+		$converter->one_line_per_pair = (bool) $one_line_per_pair;
 
 		while ( $processor->next_token() ) {
 			$converter->handle_token( $processor );
@@ -188,6 +204,11 @@ class Details_Text {
 				break;
 
 			case 'INS':
+				// Inside a diff row, <ins> only marks the changed words of the added side.
+				if ( $this->diff_cell !== null ) {
+					break;
+				}
+
 				if ( $is_closer ) {
 					$this->new      = trim( (string) $this->ins_text );
 					$this->ins_text = null;
@@ -206,6 +227,11 @@ class Details_Text {
 				break;
 
 			case 'DEL':
+				// Inside a diff row, <del> only marks the changed words of the deleted side.
+				if ( $this->diff_cell !== null ) {
+					break;
+				}
+
 				if ( $is_closer ) {
 					$this->old      = trim( (string) $this->del_text );
 					$this->del_text = null;
@@ -226,9 +252,18 @@ class Details_Text {
 				if ( $is_closer ) {
 					if ( $this->diff_table_depth !== null && $depth <= $this->diff_table_depth ) {
 						$this->diff_table_depth = null;
+						$this->side_by_side     = false;
 					}
 				} elseif ( self::has_class( $class, 'diff' ) ) {
 					$this->diff_table_depth = $depth;
+					$this->side_by_side     = self::has_class( $class, 'diff-side-by-side' );
+				}
+				break;
+
+			case 'TBODY':
+				// Unchanged lines in the side-by-side diff of post content.
+				if ( ! $is_closer && $this->diff_table_depth !== null && self::has_class( $class, 'change-eq' ) ) {
+					$this->skip_depth = $depth;
 				}
 				break;
 
@@ -295,10 +330,10 @@ class Details_Text {
 	 */
 	private function handle_diff_cell( $is_closer, $class_attr, $depth ) {
 		if ( ! $is_closer ) {
-			if ( self::has_class( $class_attr, 'diff-deletedline' ) ) {
+			if ( self::has_class( $class_attr, 'diff-deletedline' ) || ( $this->side_by_side && self::has_class( $class_attr, 'old' ) ) ) {
 				$this->diff_cell = 'deleted';
 				$this->diff_text = '';
-			} elseif ( self::has_class( $class_attr, 'diff-addedline' ) ) {
+			} elseif ( self::has_class( $class_attr, 'diff-addedline' ) || ( $this->side_by_side && self::has_class( $class_attr, 'new' ) ) ) {
 				$this->diff_cell = 'added';
 				$this->diff_text = '';
 			} elseif ( self::has_class( $class_attr, 'diff-context' ) ) {
@@ -318,7 +353,7 @@ class Details_Text {
 			$this->diff_old = $cell_text;
 		} elseif ( $cell === 'added' ) {
 			if ( $this->diff_old !== null || $cell_text !== '' ) {
-				$this->append( trim( (string) $this->diff_old . ' → ' . $cell_text ) . "\n" );
+				$this->append( self::change_to_text( (string) $this->diff_old, $cell_text, $this->one_line_per_pair ) . "\n" );
 			}
 
 			$this->diff_old = null;
@@ -358,13 +393,33 @@ class Details_Text {
 		}
 
 		if ( $this->old !== null && $this->new !== null ) {
-			$this->append( trim( $this->old . ' → ' . $this->new ) );
+			$this->append( self::change_to_text( $this->old, $this->new, $this->one_line_per_pair ) );
 		} else {
 			$this->append( (string) ( $this->old ?? $this->new ) );
 		}
 
 		$this->old = null;
 		$this->new = null;
+	}
+
+	/**
+	 * Format a change as "old → new".
+	 *
+	 * @param string $old_value         Old value.
+	 * @param string $new_value         New value.
+	 * @param bool   $one_line_per_pair Whether a change from or to nothing shows only the other value.
+	 * @return string
+	 */
+	private static function change_to_text( $old_value, $new_value, $one_line_per_pair ) {
+		$old_value = trim( (string) $old_value );
+		$new_value = trim( (string) $new_value );
+
+		// Like a diff row with only a deleted or only an added side.
+		if ( $one_line_per_pair && ( $old_value === '' || $new_value === '' ) ) {
+			return $old_value . $new_value;
+		}
+
+		return trim( $old_value . ' → ' . $new_value );
 	}
 
 	/**
@@ -375,7 +430,13 @@ class Details_Text {
 	private function flush_pair() {
 		$this->flush_change();
 
-		$line = self::format_pair( (string) $this->key, (string) $this->value );
+		$value = (string) $this->value;
+
+		if ( $this->one_line_per_pair ) {
+			$value = self::join_lines( $value );
+		}
+
+		$line = self::format_pair( (string) $this->key, $value );
 
 		if ( $line !== '' ) {
 			$this->out .= $line . "\n";
@@ -392,10 +453,11 @@ class Details_Text {
 	 * patterns are kept to text that contains no tags of its own. Anything
 	 * they miss ends up as its plain text, unlabelled.
 	 *
-	 * @param string $html Details HTML.
+	 * @param string $html              Details HTML.
+	 * @param bool   $one_line_per_pair Keep each key-value pair on one line.
 	 * @return string Text with one entry per line.
 	 */
-	public static function convert_with_regex( $html ) {
+	public static function convert_with_regex( $html, $one_line_per_pair = false ) {
 		$html = (string) $html;
 
 		// Screen-reader-only text.
@@ -404,37 +466,60 @@ class Details_Text {
 		// Unchanged diff context rows add noise in plain text.
 		$html = (string) preg_replace( '/<tr[^>]*>\s*<td[^>]*class=[\'"][^"\']*diff-context[^"\']*[\'"][^>]*>[^<]*<\/td>\s*<td[^>]*>[^<]*<\/td>\s*<td[^>]*>[^<]*<\/td>\s*<\/tr>/i', '', $html );
 
+		// Unchanged lines in the side-by-side diff of post content.
+		$html = (string) preg_replace( '/<tbody[^>]*class=[\'"][^"\']*change-eq[^"\']*[\'"][^>]*>.*?<\/tbody>/is', '', $html );
+
+		$diff_row_to_line = function ( $matches ) use ( $one_line_per_pair ) {
+			$deleted = trim( wp_strip_all_tags( $matches[1] ) );
+			$added   = trim( wp_strip_all_tags( $matches[2] ) );
+
+			if ( $deleted === '' && $added === '' ) {
+				return '';
+			}
+
+			return self::change_to_text( $deleted, $added, $one_line_per_pair ) . "\n";
+		};
+
 		// Diff rows: deleted side and added side become "old → new".
+		// The split view has an empty cell between the two sides.
 		$html = (string) preg_replace_callback(
-			'/<tr[^>]*>\s*<td[^>]*class=[\'"][^"\']*diff-deletedline[^"\']*[\'"][^>]*>(.*?)<\/td>\s*<td[^>]*>\s*<\/td>\s*<td[^>]*class=[\'"][^"\']*diff-addedline[^"\']*[\'"][^>]*>(.*?)<\/td>\s*<\/tr>/is',
-			function ( $matches ) {
-				$deleted = trim( wp_strip_all_tags( $matches[1] ) );
-				$added   = trim( wp_strip_all_tags( $matches[2] ) );
-
-				if ( $deleted === '' && $added === '' ) {
-					return '';
-				}
-
-				return trim( $deleted . ' → ' . $added ) . "\n";
-			},
+			'/<tr[^>]*>\s*<td[^>]*class=[\'"][^"\']*diff-deletedline[^"\']*[\'"][^>]*>(.*?)<\/td>(?:\s*<td[^>]*>\s*<\/td>)?\s*<td[^>]*class=[\'"][^"\']*diff-addedline[^"\']*[\'"][^>]*>(.*?)<\/td>\s*<\/tr>/is',
+			$diff_row_to_line,
 			$html
 		);
+
+		// Rows of the side-by-side diff of post content. Its cells use the
+		// generic classes "old" and "new", so only look for them when the
+		// side-by-side table is there.
+		if ( stripos( $html, 'diff-side-by-side' ) !== false ) {
+			$html = (string) preg_replace_callback(
+				'/<tr[^>]*>\s*<td[^>]*class=[\'"](?:[^"\']*\s)?old(?:\s[^"\']*)?[\'"][^>]*>(.*?)<\/td>\s*<td[^>]*class=[\'"](?:[^"\']*\s)?new(?:\s[^"\']*)?[\'"][^>]*>(.*?)<\/td>\s*<\/tr>/is',
+				$diff_row_to_line,
+				$html
+			);
+		}
 
 		// <del>old</del><ins>new</ins> and <ins>new</ins><del>old</del>.
 		$html = (string) preg_replace_callback(
 			'/<del[^>]*>([^<]*)<\/del>\s*<ins[^>]*>([^<]*)<\/ins>/i',
-			fn( $matches ) => trim( trim( $matches[1] ) . ' → ' . trim( $matches[2] ) ),
+			fn( $matches ) => self::change_to_text( $matches[1], $matches[2], $one_line_per_pair ),
 			$html
 		);
 
 		$html = (string) preg_replace_callback(
 			'/<ins[^>]*>([^<]*)<\/ins>\s*<del[^>]*>([^<]*)<\/del>/i',
-			fn( $matches ) => trim( trim( $matches[2] ) . ' → ' . trim( $matches[1] ) ),
+			fn( $matches ) => self::change_to_text( $matches[2], $matches[1], $one_line_per_pair ),
 			$html
 		);
 
-		$pair_to_line = function ( $matches ) {
-			$line = self::format_pair( wp_strip_all_tags( $matches[1] ), wp_strip_all_tags( $matches[2] ) );
+		$pair_to_line = function ( $matches ) use ( $one_line_per_pair ) {
+			$value = wp_strip_all_tags( $matches[2] );
+
+			if ( $one_line_per_pair ) {
+				$value = self::join_lines( $value );
+			}
+
+			$line = self::format_pair( wp_strip_all_tags( $matches[1] ), $value );
 
 			return $line === '' ? '' : $line . "\n";
 		};
@@ -474,6 +559,19 @@ class Details_Text {
 		}
 
 		return $key . ': ' . $value;
+	}
+
+	/**
+	 * Join the lines of a value with "; ", leaving out blank lines.
+	 *
+	 * @param string $text Text with newlines.
+	 * @return string
+	 */
+	private static function join_lines( $text ) {
+		$lines = array_map( 'trim', explode( "\n", (string) $text ) );
+		$lines = array_filter( $lines, fn( $line ) => $line !== '' );
+
+		return implode( '; ', $lines );
 	}
 
 	/**

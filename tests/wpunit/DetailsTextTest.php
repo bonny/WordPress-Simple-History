@@ -45,6 +45,19 @@ class DetailsTextTest extends \Codeception\TestCase\WPTestCase {
 				'<dl><dt>Content</dt><dd>' . $diff . '</dd><dt>Status</dt><dd><ins>publish</ins> <del></del></dd></dl>',
 				"Content: Hello world → Hello world, again\n→ Third paragraph added\nStatus: → publish",
 			],
+			'word diff inside a diff table'                => [
+				'<dl><dt>Title</dt><dd><table class="diff SimpleHistory__diff"><tbody><tr><td class="diff-deletedline"><span class="screen-reader-text">Deleted: </span><del>Old</del> title' . "\n"
+				. '</td><td class="diff-addedline"><span class="screen-reader-text">Added: </span><ins>New</ins> title' . "\n" . '</td></tr></tbody></table></dd></dl>',
+				'Title: Old title → New title',
+			],
+			'side-by-side diff of the compact post content diff' => [
+				'<dl><dt>Content</dt><dd><table class="diff-wrapper diff diff-html diff-side-by-side">'
+				. '<tbody class="change change-eq"><tr><td class="old">&lt;!-- wp:paragraph --&gt;</td><td class="new">&lt;!-- wp:paragraph --&gt;</td></tr></tbody>'
+				. '<tbody class="change change-rep"><tr><td class="old">&lt;p&gt;Paragraph 7 with words.&lt;/p&gt;</td><td class="new">&lt;p&gt;Paragraph 7<ins>, now edited,</ins> with words.&lt;/p&gt;</td></tr></tbody>'
+				. '<tbody class="change change-eq"><tr><td class="old">&lt;!-- /wp:paragraph --&gt;</td><td class="new">&lt;!-- /wp:paragraph --&gt;</td></tr></tbody>'
+				. '</table></dd></dl>',
+				'Content: <p>Paragraph 7 with words.</p> → <p>Paragraph 7, now edited, with words.</p>',
+			],
 			'legacy table rows from a third-party logger'  => [
 				'<table class="SimpleHistoryLogitem__keyValueTable"><tbody><tr><td>Role added</td><td>editor</td></tr><tr><td>Website</td><td><a href="https://x.se">https://x.se</a></td></tr></tbody></table>',
 				"Role added: editor\nWebsite: https://x.se",
@@ -96,6 +109,51 @@ class DetailsTextTest extends \Codeception\TestCase\WPTestCase {
 	 */
 	public function test_regex_converter( $html, $expected ) {
 		$this->assertSame( $expected, $this->tidy( Details_Text::convert_with_regex( $html ) ) );
+	}
+
+	/**
+	 * One-line mode, as used by the log file and other line-based channels.
+	 *
+	 * @return array<string, array{string, string}>
+	 */
+	public function one_line_fixtures() {
+		return [
+			'a line removed from the side-by-side content diff has no dangling arrow' => [
+				'<dl><dt>Content</dt><dd><table class="diff-wrapper diff diff-html diff-side-by-side">'
+				. '<tbody class="change change-del"><tr><td class="old"><del>&lt;p&gt;Removed paragraph&lt;/p&gt;</del></td><td class="new none"></td></tr></tbody>'
+				. '</table></dd></dl>',
+				'Content: <p>Removed paragraph</p>',
+			],
+			'a change to nothing shows the old value'        => [
+				'<dl><dt>Bio</dt><dd><del>Old bio</del> <ins></ins></dd></dl>',
+				'Bio: Old bio',
+			],
+			'cells classed "new" outside the side-by-side diff are not a diff side' => [
+				'<dl><dt>Status</dt><dd><table class="diff"><tbody>'
+				. '<tr><td class="diff-deletedline">draft</td><td class="diff-addedline">publish</td></tr>'
+				. '<tr><td class="new">Badge</td></tr>'
+				. '</tbody></table></dd></dl>',
+				'Status: draft → publish; Badge',
+			],
+		];
+	}
+
+	/**
+	 * @dataProvider one_line_fixtures
+	 */
+	public function test_one_line_html_api_converter( $html, $expected ) {
+		if ( ! class_exists( 'WP_HTML_Processor' ) ) {
+			$this->markTestSkipped( 'WP_HTML_Processor not available in this WordPress.' );
+		}
+
+		$this->assertSame( $expected, $this->tidy( Details_Text::convert_with_html_api( $html, true ) ) );
+	}
+
+	/**
+	 * @dataProvider one_line_fixtures
+	 */
+	public function test_one_line_regex_converter( $html, $expected ) {
+		$this->assertSame( $expected, $this->tidy( Details_Text::convert_with_regex( $html, true ) ) );
 	}
 
 	public function test_event_get_details_text_uses_logger_details() {
