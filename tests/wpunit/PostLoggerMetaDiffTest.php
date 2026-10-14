@@ -505,4 +505,58 @@ class PostLoggerMetaDiffTest extends \Codeception\TestCase\WPTestCase {
 			$this->call_protected( 'get_custom_fields_summary', [ 'Removed', 3, '' ] )
 		);
 	}
+
+	/**
+	 * A page that never had a template has no _wp_page_template meta at all.
+	 * Picking a template for the first time must still be logged.
+	 */
+	public function test_first_page_template_is_logged_when_old_meta_is_missing() {
+		$context = $this->logger->add_post_data_diff_to_context(
+			[],
+			$this->snapshot( [] ),
+			$this->snapshot( [ '_wp_page_template' => 'page-wide' ] )
+		);
+
+		$this->assertSame( 'default', $context['post_prev_page_template'] ?? null );
+		$this->assertSame( 'page-wide', $context['post_new_page_template'] ?? null );
+	}
+
+	/**
+	 * The block editor saves the default template as an empty string, the
+	 * classic editor as "default". Both mean the same thing.
+	 */
+	public function test_empty_and_default_page_template_are_the_same() {
+		$context = $this->logger->add_post_data_diff_to_context(
+			[],
+			$this->snapshot( [] ),
+			$this->snapshot( [ '_wp_page_template' => '' ] )
+		);
+
+		$this->assertArrayNotHasKey( 'post_prev_page_template', $context );
+
+		$context = $this->logger->add_post_data_diff_to_context(
+			[],
+			$this->snapshot( [ '_wp_page_template' => 'page-wide' ] ),
+			$this->snapshot( [ '_wp_page_template' => '' ] )
+		);
+
+		$this->assertSame( 'default', $context['post_new_page_template'] ?? null );
+	}
+
+	/**
+	 * Without a snapshot of the old meta there is nothing to compare with,
+	 * so no template change may be guessed.
+	 */
+	public function test_no_page_template_change_without_old_meta() {
+		$old              = $this->snapshot( [] );
+		$old['post_meta'] = null;
+
+		$context = $this->logger->add_post_data_diff_to_context(
+			[],
+			$old,
+			$this->snapshot( [ '_wp_page_template' => 'page-wide' ] )
+		);
+
+		$this->assertArrayNotHasKey( 'post_prev_page_template', $context );
+	}
 }
