@@ -286,7 +286,7 @@ For more information, see our support page [GDPR and Privacy: How Your Data is S
 **Fixed**
 
 -   Similar events didn't load on sites that use SQLite instead of MySQL with version 2.x of the [SQLite Database Integration](https://wordpress.org/plugins/sqlite-database-integration/) plugin.
--   Log files written by Log Forwarding → Local Files now include what changed in each event, like the roles added and removed on a profile edit, not only the event message.
+-   Log files written by [Log Forwarding](https://simple-history.com/features/log-forwarding/?utm_source=wordpress_org&utm_medium=plugin_directory&utm_campaign=documentation&utm_content=readme_changelog_log_forwarding) → Local Files now include what changed in each event, like the roles added and removed on a profile edit, not only the event message.
 -   The one-click [weekly email](https://simple-history.com/features/weekly-email-report/?utm_source=wordpress_org&utm_medium=plugin_directory&utm_campaign=documentation&utm_content=readme_changelog_weekly_email) offer and its confirmation now name everyone who will get the email, like the site admin, not only you.
 -   Page template changes: the first template picked for a page wasn't logged, block themes showed the template slug instead of its name, and an extra row labelled "page_template_name" showed next to the Template row.
 -   "Check again" on Dashboard → Updates now checks for new versions of Premium and other add-ons right away, instead of up to an hour later.
