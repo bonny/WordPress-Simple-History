@@ -1653,12 +1653,18 @@ class Post_Logger extends Logger {
 		$context = $this->add_post_thumb_diff( $context, $old_meta, $new_meta );
 
 		// Detect page template changes.
-		// Page template is stored in _wp_page_template.
-		if ( isset( $old_meta['_wp_page_template'][0] ) && isset( $new_meta['_wp_page_template'][0] ) && $old_meta['_wp_page_template'][0] !== $new_meta['_wp_page_template'][0] ) {
+		// Page template is stored in _wp_page_template. A post that never had
+		// a template has no such meta, and the block editor saves the default
+		// template as an empty string, so both count as "default".
+		// Skip when the old meta was not captured, there is nothing to compare with.
+		$old_page_template = isset( $old_post_data['post_meta'] ) ? $this->normalize_page_template( $old_meta['_wp_page_template'][0] ?? '' ) : null;
+		$new_page_template = $this->normalize_page_template( $new_meta['_wp_page_template'][0] ?? '' );
+
+		if ( $old_page_template !== null && $old_page_template !== $new_page_template ) {
 			// Prev page template is different from new page template,
-			// store template php file name.
-			$context['post_prev_page_template'] = $old_meta['_wp_page_template'][0];
-			$context['post_new_page_template']  = $new_meta['_wp_page_template'][0];
+			// store template file name or block template slug.
+			$context['post_prev_page_template'] = $old_page_template;
+			$context['post_new_page_template']  = $new_page_template;
 			$theme_templates                    = (array) $this->get_theme_templates();
 
 			if ( isset( $theme_templates[ $context['post_prev_page_template'] ] ) ) {
@@ -1931,7 +1937,27 @@ class Post_Logger extends Logger {
 			$page_templates[ $file ] = _cleanup_header_comment( $header[1] );
 		}
 
+		// Block themes have no PHP templates. Their custom templates, like
+		// "page-wide", are listed per post type by the theme.
+		foreach ( (array) $theme->get_post_templates() as $post_type_templates ) {
+			$page_templates += (array) $post_type_templates;
+		}
+
 		return $page_templates;
+	}
+
+	/**
+	 * Get the stored page template, with a missing or empty value as "default".
+	 *
+	 * @param mixed $page_template Value of the _wp_page_template meta.
+	 * @return string
+	 */
+	protected function normalize_page_template( $page_template ) {
+		if ( ! is_string( $page_template ) || $page_template === '' ) {
+			return 'default';
+		}
+
+		return $page_template;
 	}
 
 	/**
