@@ -219,7 +219,7 @@ class PostLoggerChannelDetailsTest extends \Codeception\TestCase\WPTestCase {
 			'Got: ' . wp_json_encode( $details['items'] )
 		);
 
-		$this->assertContains( [ 'label' => 'Content' ] + $change, $details['list'] );
+		$this->assertContains( [ 'label' => 'Content' ] + $change + [ 'key' => 'post_content_diff' ], $details['list'] );
 	}
 
 	public function test_channel_list_has_a_label_for_every_entry() {
@@ -307,6 +307,33 @@ class PostLoggerChannelDetailsTest extends \Codeception\TestCase\WPTestCase {
 		);
 
 		$this->assertSame( [], \Simple_History\Helpers::get_json_diff_changes( 'not json' ) );
+
+		// Two lines replaced by two lines: one change per line.
+		$replace = wp_json_encode(
+			[
+				[
+					[
+						'tag' => 'rep',
+						'old' => [ 'offset' => 0, 'lines' => [ 'A', 'B' ] ],
+						'new' => [ 'offset' => 0, 'lines' => [ 'X', 'Y' ] ],
+					],
+					[
+						'tag' => 'rep',
+						'old' => [ 'offset' => 2, 'lines' => [ 'C' ] ],
+						'new' => [ 'offset' => 2, 'lines' => [ 'Z1', 'Z2' ] ],
+					],
+				],
+			]
+		);
+
+		$this->assertSame(
+			[
+				[ 'prev_value' => 'A', 'new_value' => 'X' ],
+				[ 'prev_value' => 'B', 'new_value' => 'Y' ],
+				[ 'prev_value' => 'C', 'new_value' => "Z1\nZ2" ],
+			],
+			\Simple_History\Helpers::get_json_diff_changes( $replace )
+		);
 	}
 
 	public function test_change_from_zero_to_empty_is_kept() {
