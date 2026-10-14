@@ -43,7 +43,27 @@ class DetailsTextTest extends \Codeception\TestCase\WPTestCase {
 			],
 			'diff table inside a value'                    => [
 				'<dl><dt>Content</dt><dd>' . $diff . '</dd><dt>Status</dt><dd><ins>publish</ins> <del></del></dd></dl>',
-				"Content: Hello world → Hello world, again\n→ Third paragraph added\nStatus: → publish",
+				"Content: Hello world → Hello world, again\nThird paragraph added\nStatus: publish",
+			],
+			'word diff inside a diff table'                => [
+				'<dl><dt>Title</dt><dd><table class="diff SimpleHistory__diff"><tbody><tr><td class="diff-deletedline"><span class="screen-reader-text">Deleted: </span><del>Old</del> title' . "\n"
+				. '</td><td class="diff-addedline"><span class="screen-reader-text">Added: </span><ins>New</ins> title' . "\n" . '</td></tr></tbody></table></dd></dl>',
+				'Title: Old title → New title',
+			],
+			'a line removed from the side-by-side diff says it was removed' => [
+				'<dl><dt>Content</dt><dd><table class="diff-wrapper diff diff-html diff-side-by-side">'
+				. '<tbody class="change change-del"><tr><td class="old"><del>Removed paragraph</del></td><td class="new none"></td></tr></tbody>'
+				. '<tbody class="change change-ins"><tr><td class="old none"></td><td class="new"><ins>Added paragraph</ins></td></tr></tbody>'
+				. '</table></dd></dl>',
+				"Content: Removed paragraph → (removed)\nAdded paragraph",
+			],
+			'side-by-side diff of the compact post content diff' => [
+				'<dl><dt>Content</dt><dd><table class="diff-wrapper diff diff-html diff-side-by-side">'
+				. '<tbody class="change change-eq"><tr><td class="old">&lt;!-- wp:paragraph --&gt;</td><td class="new">&lt;!-- wp:paragraph --&gt;</td></tr></tbody>'
+				. '<tbody class="change change-rep"><tr><td class="old">&lt;p&gt;Paragraph 7 with words.&lt;/p&gt;</td><td class="new">&lt;p&gt;Paragraph 7<ins>, now edited,</ins> with words.&lt;/p&gt;</td></tr></tbody>'
+				. '<tbody class="change change-eq"><tr><td class="old">&lt;!-- /wp:paragraph --&gt;</td><td class="new">&lt;!-- /wp:paragraph --&gt;</td></tr></tbody>'
+				. '</table></dd></dl>',
+				'Content: <p>Paragraph 7 with words.</p> → <p>Paragraph 7, now edited, with words.</p>',
 			],
 			'legacy table rows from a third-party logger'  => [
 				'<table class="SimpleHistoryLogitem__keyValueTable"><tbody><tr><td>Role added</td><td>editor</td></tr><tr><td>Website</td><td><a href="https://x.se">https://x.se</a></td></tr></tbody></table>',
@@ -96,6 +116,124 @@ class DetailsTextTest extends \Codeception\TestCase\WPTestCase {
 	 */
 	public function test_regex_converter( $html, $expected ) {
 		$this->assertSame( $expected, $this->tidy( Details_Text::convert_with_regex( $html ) ) );
+	}
+
+	/**
+	 * One-line mode, as used by the log file and other line-based channels.
+	 *
+	 * @return array<string, array{string, string}>
+	 */
+	public function one_line_fixtures() {
+		return [
+			'a line removed from the side-by-side content diff says it was removed' => [
+				'<dl><dt>Content</dt><dd><table class="diff-wrapper diff diff-html diff-side-by-side">'
+				. '<tbody class="change change-del"><tr><td class="old"><del>&lt;p&gt;Removed paragraph&lt;/p&gt;</del></td><td class="new none"></td></tr></tbody>'
+				. '</table></dd></dl>',
+				'Content: <p>Removed paragraph</p> → (removed)',
+			],
+			'a change to nothing says it was removed'        => [
+				'<dl><dt>Bio</dt><dd><del>Old bio</del> <ins></ins></dd></dl>',
+				'Bio: Old bio → (removed)',
+			],
+			'a line removed in a WordPress text diff says it was removed' => [
+				'<dl><dt>Content</dt><dd><table class="diff SimpleHistory__diff"><tbody>'
+				. '<tr><td class="diff-deletedline"><span class="screen-reader-text">Deleted: </span>First line</td><td>&nbsp;</td></tr>'
+				. '<tr><td class="diff-context">Same</td><td></td><td class="diff-context">Same</td></tr>'
+				. '<tr><td class="diff-deletedline">Old</td><td></td><td class="diff-addedline">New</td></tr>'
+				. '</tbody></table></dd></dl>',
+				'Content: First line → (removed); Old → New',
+			],
+			'deleted-only rows followed by added-only rows are replacements' => [
+				'<dl><dt>Excerpt</dt><dd><table class="diff"><tbody>'
+				. '<tr><td class="diff-deletedline">Old one</td><td>&nbsp;</td></tr>'
+				. '<tr><td class="diff-deletedline">Old two</td><td>&nbsp;</td></tr>'
+				. '<tr><td class="diff-deletedline">Old three</td><td>&nbsp;</td></tr>'
+				. '<tr><td>&nbsp;</td><td class="diff-addedline">New one</td></tr>'
+				. '<tr><td>&nbsp;</td><td class="diff-addedline">New two</td></tr>'
+				. '</tbody></table></dd></dl>',
+				'Excerpt: Old one → New one; Old two → New two; Old three → (removed)',
+			],
+			'a deleted line is not paired with an added line after unchanged lines' => [
+				'<dl><dt>Excerpt</dt><dd><table class="diff"><tbody>'
+				. '<tr><td class="diff-deletedline">A</td><td>&nbsp;</td></tr>'
+				. '<tr><td class="diff-context">C</td><td></td><td class="diff-context">C</td></tr>'
+				. '<tr><td>&nbsp;</td><td class="diff-addedline">E</td></tr>'
+				. '</tbody></table></dd></dl>',
+				'Excerpt: A → (removed); E',
+			],
+			'cells classed "new" outside the side-by-side diff are not a diff side' => [
+				'<dl><dt>Status</dt><dd><table class="diff"><tbody>'
+				. '<tr><td class="diff-deletedline">draft</td><td class="diff-addedline">publish</td></tr>'
+				. '<tr><td class="new">Badge</td></tr>'
+				. '</tbody></table></dd></dl>',
+				'Status: draft → publish; Badge',
+			],
+		];
+	}
+
+	/**
+	 * @dataProvider one_line_fixtures
+	 */
+	public function test_one_line_html_api_converter( $html, $expected ) {
+		if ( ! class_exists( 'WP_HTML_Processor' ) ) {
+			$this->markTestSkipped( 'WP_HTML_Processor not available in this WordPress.' );
+		}
+
+		$this->assertSame( $expected, $this->tidy( Details_Text::convert_with_html_api( $html, true ) ) );
+	}
+
+	/**
+	 * @dataProvider one_line_fixtures
+	 */
+	public function test_one_line_regex_converter( $html, $expected ) {
+		$this->assertSame( $expected, $this->tidy( Details_Text::convert_with_regex( $html, true ) ) );
+	}
+
+	public function test_regex_converter_handles_a_very_long_diff_cell() {
+		$long = str_repeat( 'a', 100000 );
+		$html = '<dl><dt>Content</dt><dd><table class="diff"><tbody>'
+			. '<tr><td class="diff-deletedline">' . $long . '</td><td></td><td class="diff-addedline">' . $long . 'b</td></tr>'
+			. '</tbody></table></dd></dl>';
+
+		$this->assertSame( 'Content: ' . $long . ' → ' . $long . 'b', $this->tidy( Details_Text::convert_with_regex( $html, true ) ) );
+	}
+
+	public function test_regex_converter_keeps_the_text_when_an_expression_fails() {
+		$html = '<dl><dt>Title</dt><dd>Some title</dd></dl>';
+
+		$jit       = ini_get( 'pcre.jit' );
+		$backtrack = ini_get( 'pcre.backtrack_limit' );
+
+		// Without the JIT, a backtrack limit of 1 makes every expression fail.
+		ini_set( 'pcre.jit', '0' );
+		ini_set( 'pcre.backtrack_limit', '1' );
+
+		try {
+			$text = Details_Text::convert_with_regex( $html, true );
+		} finally {
+			ini_set( 'pcre.jit', $jit );
+			ini_set( 'pcre.backtrack_limit', $backtrack );
+		}
+
+		$this->assertStringContainsString( 'Some title', $text );
+	}
+
+	public function test_pairs_keeps_keys_apart_from_values_with_colons() {
+		$html = '<dl><dt>Status</dt><dd><ins>publish</ins> <del>draft</del></dd></dl>'
+			. '<table class="diff"><tbody><tr><td class="diff-deletedline">Note: fixed typo</td><td></td><td class="diff-addedline">Note: fixed</td></tr></tbody></table>';
+
+		$expected = [
+			[
+				'key'   => 'Status',
+				'value' => 'draft → publish',
+			],
+			[
+				'key'   => '',
+				'value' => 'Note: fixed typo → Note: fixed',
+			],
+		];
+
+		$this->assertSame( $expected, Details_Text::pairs( $html ) );
 	}
 
 	public function test_event_get_details_text_uses_logger_details() {

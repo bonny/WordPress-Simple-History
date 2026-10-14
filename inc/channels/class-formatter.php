@@ -176,11 +176,13 @@ abstract class Formatter implements Formatter_Interface {
 	/**
 	 * Get the event details as structured data, keyed by context key.
 	 *
-	 * Each item has "new" and/or "prev", plus the translated "label".
+	 * Each item has "new" and/or "prev", plus the translated "label". An item
+	 * with a list of changes, like the changed lines of post content, has
+	 * "changes" instead: a list of "new"/"prev" pairs.
 	 * Values are raw, so escape them for the output format.
 	 *
 	 * @param array $event_data The event data array.
-	 * @return array<string, array<string, string>>
+	 * @return array<string, array<string, string|array<int, array<string, string|bool>>>>
 	 */
 	protected function get_details_items( array $event_data ): array {
 		$details = $event_data['details'] ?? [];

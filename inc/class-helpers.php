@@ -2084,6 +2084,89 @@ class Helpers {
 	}
 
 	/**
+	 * Get the changed parts of a stored JSON diff (from jfcherng/php-diff JsonHtml renderer).
+	 *
+	 * The diff only has the changed lines, not the whole texts, so this is
+	 * what can be said about the change as data: one entry per run of changed
+	 * lines, or per line when as many lines replace them, with the old and new
+	 * lines as plain text. Unchanged context lines are left out. An added run
+	 * has no prev_value, a removed run no new_value.
+	 *
+	 * There is no line number: the diff is made from the texts with blank
+	 * lines removed (normalize_whitespace()), so its offsets don't match the
+	 * lines of the post.
+	 *
+	 * @param string $json_diff_string JSON-encoded diff array.
+	 *
+	 * @return array<int, array{prev_value?: string, new_value?: string}>
+	 */
+	public static function get_json_diff_changes( $json_diff_string ) {
+		$hunks = json_decode( (string) $json_diff_string, true );
+
+		if ( ! is_array( $hunks ) ) {
+			return [];
+		}
+
+		// The renderer marks changed words with <ins>/<del> and escapes the text itself,
+		// so tags are markup and entities are text.
+		$to_text = function ( $lines ) {
+			if ( ! is_array( $lines ) || $lines === [] ) {
+				return '';
+			}
+
+			$text = implode( "\n", array_map( 'strval', $lines ) );
+
+			return html_entity_decode( wp_strip_all_tags( $text ), ENT_QUOTES | ENT_HTML5, 'UTF-8' );
+		};
+
+		$changes = [];
+
+		foreach ( $hunks as $hunk ) {
+			if ( ! is_array( $hunk ) ) {
+				continue;
+			}
+
+			foreach ( $hunk as $block ) {
+				if ( ! is_array( $block ) || ( $block['tag'] ?? 'eq' ) === 'eq' ) {
+					continue;
+				}
+
+				$old_lines = is_array( $block['old']['lines'] ?? null ) ? array_values( $block['old']['lines'] ) : [];
+				$new_lines = is_array( $block['new']['lines'] ?? null ) ? array_values( $block['new']['lines'] ) : [];
+
+				// As many new lines as old: line by line, so each old line
+				// is shown next to the line that replaced it.
+				$pairs = count( $old_lines ) === count( $new_lines )
+					? array_map( null, array_chunk( $old_lines, 1 ), array_chunk( $new_lines, 1 ) )
+					: [ [ $old_lines, $new_lines ] ];
+
+				foreach ( $pairs as list( $old_part, $new_part ) ) {
+					$prev = $to_text( $old_part );
+					$new  = $to_text( $new_part );
+
+					if ( $prev === '' && $new === '' ) {
+						continue;
+					}
+
+					$change = [];
+
+					if ( $prev !== '' ) {
+						$change['prev_value'] = $prev;
+					}
+
+					if ( $new !== '' ) {
+						$change['new_value'] = $new;
+					}
+
+					$changes[] = $change;
+				}
+			}
+		}
+
+		return $changes;
+	}
+
+	/**
 	 * Get number of events the last n days.
 	 *
 	 * Respects user permissions - only counts events from loggers the current user can view.

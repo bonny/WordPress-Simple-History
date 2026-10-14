@@ -154,6 +154,70 @@ class PostLoggerEventDetailsTest extends \Codeception\TestCase\WPTestCase {
 	}
 
 	/**
+	 * The template names only make up the Template row. They must not also
+	 * show up as a row of their own, labelled with the raw context key.
+	 */
+	public function test_page_template_names_do_not_get_a_row_of_their_own() {
+		$row = $this->make_row( array(
+			'_message_key'                 => 'post_updated',
+			'post_prev_page_template'      => 'templates/narrow.php',
+			'post_new_page_template'       => 'templates/full-width.php',
+			'post_prev_page_template_name' => 'Narrow',
+			'post_new_page_template_name'  => 'Full Width',
+		) );
+
+		$names = array_column( $this->to_json_items( $row ), 'name' );
+
+		$this->assertSame( array( 'Template' ), $names );
+	}
+
+	/**
+	 * Every label goes through the label_for_key filter, also the ones shown
+	 * inline like the status.
+	 */
+	public function test_label_filter_renames_inline_labels() {
+		$callback = function ( $label, $key ) {
+			return $key === 'post_status' ? 'Visibility state' : $label;
+		};
+
+		add_filter( 'simple_history/post_logger/label_for_key', $callback, 10, 2 );
+
+		try {
+			$row = $this->make_row( array(
+				'_message_key'          => 'post_updated',
+				'post_prev_post_status' => 'draft',
+				'post_new_post_status'  => 'publish',
+			) );
+
+			$names = array_column( $this->to_json_items( $row ), 'name' );
+		} finally {
+			remove_filter( 'simple_history/post_logger/label_for_key', $callback, 10 );
+		}
+
+		$this->assertSame( array( 'Visibility state' ), $names );
+	}
+
+	/**
+	 * A content change in whitespace only gives no diff, so no Content row.
+	 * The same for the other diffed fields.
+	 */
+	public function test_whitespace_only_content_change_has_no_content_row() {
+		$row = $this->make_row( array(
+			'_message_key'           => 'post_updated',
+			'post_prev_post_content' => "First paragraph.\n",
+			'post_new_post_content'  => "First paragraph.\n\n",
+			'post_prev_post_excerpt' => "Short text\n",
+			'post_new_post_excerpt'  => 'Short text',
+			'post_prev_post_status'  => 'draft',
+			'post_new_post_status'   => 'publish',
+		) );
+
+		$names = array_column( $this->to_json_items( $row ), 'name' );
+
+		$this->assertSame( array( 'Status' ), $names );
+	}
+
+	/**
 	 * Title text_diff renders inside the legacy SimpleHistoryLogitem__keyValueTable.
 	 * Word-level visual diffs aren't a clean value-pair fit for Event_Details_Items,
 	 * so they stay in the HTML table.
@@ -206,6 +270,19 @@ class PostLoggerEventDetailsTest extends \Codeception\TestCase\WPTestCase {
 		$this->assertSame( 'string', $captured['first_arg_type'], 'diff_table_output filter must still receive a string as first arg' );
 	}
 
+	public function test_inline_change_between_empty_values_is_a_pair_in_the_list() {
+		$row = $this->make_row( array(
+			'_message_key'             => 'post_updated',
+			'post_prev_comment_status' => '0',
+			'post_new_comment_status'  => '',
+		) );
+
+		$html = (string) $this->sh->get_log_row_details_output( $row );
+
+		$this->assertMatchesRegularExpression( '#<dl class="SimpleHistoryLogitem__keyValueTable">\s*<dt>Comment status</dt>#', $html );
+		$this->assertStringNotContainsString( 'SimpleHistoryLogitem__inlineDivided', $html );
+	}
+
 	public function test_post_updated_details_are_a_definition_list() {
 		$row = $this->make_row( array(
 			'_message_key'         => 'post_updated',
@@ -223,8 +300,9 @@ class PostLoggerEventDetailsTest extends \Codeception\TestCase\WPTestCase {
 
 	/**
 	 * A callback written against the pre-5.33 contract appends <tr> rows.
-	 * Browsers drop tr/td inside a <dl>, so the whole list must fall back to a
-	 * table, with our own pairs translated so nothing is lost.
+	 * Browsers drop tr/td inside a <dl>, so the filtered output must fall
+	 * back to a table. Since 5.36.0 the title is a keyed item in its own
+	 * list, so it stays a <dt>/<dd> pair next to the table.
 	 */
 	public function test_legacy_table_rows_from_filter_render_as_table() {
 		$callback = function ( $diff_html, $context ) {
@@ -246,11 +324,10 @@ class PostLoggerEventDetailsTest extends \Codeception\TestCase\WPTestCase {
 		}
 
 		$this->assertStringContainsString( '<table class="SimpleHistoryLogitem__keyValueTable">', $html );
-		$this->assertStringContainsString( '<tr><td>Title</td>', $html, 'Our own pair is converted to a table row' );
 		$this->assertStringContainsString( '<tr><td>SEO title</td><td>New title</td></tr>', $html, 'The appended legacy row is kept as is' );
-		$this->assertStringNotContainsString( '<dt>', $html );
-		$this->assertStringNotContainsString( '<dl', $html );
-		$this->assertSame( 2, substr_count( $html, '<tr><td>' ), 'Exactly two key-value rows' );
+		$this->assertSame( 1, substr_count( $html, '<tr><td>' ), 'Only the appended row is a table row' );
+		$this->assertStringContainsString( '<dt>Title</dt>', $html, 'The title is a pair in its own list' );
+		$this->assertLessThan( strpos( $html, '<table class="SimpleHistoryLogitem__keyValueTable">' ), strpos( $html, '<dt>Title</dt>' ), 'The title comes before the appended rows' );
 	}
 
 	/**

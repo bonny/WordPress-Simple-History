@@ -254,6 +254,43 @@ class ChannelEventDetailsTest extends \Codeception\TestCase\WPTestCase {
 		$this->assertArrayNotHasKey( 'prev', $details['list'][0] );
 	}
 
+	public function test_list_keeps_prev_and_new_of_a_raw_item_without_label() {
+		$filter = function () {
+			$item = ( new \Simple_History\Event_Details\Event_Details_Item( null, '' ) )->set_formatter(
+				( new \Simple_History\Event_Details\Event_Details_Item_RAW_Formatter() )
+					->set_html_output( '<p>Old → New</p>' )
+					->set_json_output(
+						[
+							'new_value'  => 'New',
+							'prev_value' => 'Old',
+						]
+					)
+			);
+
+			return ( new \Simple_History\Event_Details\Event_Details_Group() )->add_item( $item );
+		};
+
+		add_filter( 'simple_history/row_details_output', $filter );
+
+		SimpleLogger()->info( 'Raw item with values' );
+
+		$event   = end( $this->inserted );
+		$details = Channel_Event_Details::get( $event['context'], $event['data'] );
+
+		remove_filter( 'simple_history/row_details_output', $filter );
+
+		$this->assertSame(
+			[
+				[
+					'label' => '',
+					'new'   => 'New',
+					'prev'  => 'Old',
+				],
+			],
+			$details['list']
+		);
+	}
+
 	public function test_event_without_details_has_an_empty_list() {
 		SimpleLogger()->info( 'A plain message without details' );
 

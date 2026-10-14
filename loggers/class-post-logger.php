@@ -6,7 +6,10 @@ use Simple_History\Event_Details\Event_Details_Container;
 use Simple_History\Event_Details\Event_Details_Group;
 use Simple_History\Event_Details\Event_Details_Group_Diff_Table_Formatter;
 use Simple_History\Event_Details\Event_Details_Item;
+use Simple_History\Event_Details\Event_Details_Item_Table_Row_Formatter;
+use Simple_History\Event_Details\Event_Details_Item_Diff_Table_Row_Formatter;
 use Simple_History\Event_Details\Event_Details_Item_Image_Diff_Table_Row_Formatter;
+use Simple_History\Event_Details\Event_Details_Item_RAW_Formatter;
 use Simple_History\Event_Details\Event_Details_Item_Table_Row_RAW_Formatter;
 use Simple_History\Helpers;
 use Simple_History\Vendor\Jfcherng\Diff\DiffHelper;
@@ -2368,25 +2371,30 @@ class Post_Logger extends Logger {
 		if ( $message_key === 'post_updated' ) {
 			// Check for keys like "post_prev_post_title" and "post_new_post_title".
 			$diff_table_output = '';
-			$has_diff_values   = false;
 
+			// Short values, shown as the new value next to the old one struck through.
 			$inline_group = new Event_Details_Group();
 
+			// Changes shown as a word diff. Keyed items rather than rows in the
+			// raw HTML below, so the change also reaches details_data (REST, CLI,
+			// abilities) and the structured details of log channels.
+			$diff_group = new Event_Details_Group();
+			$diff_group->set_formatter( new Event_Details_Group_Diff_Table_Formatter() );
+
+			$inline_keys = [ 'post_status', 'post_date', 'comment_status', 'post_author', 'page_template' ];
+
+			// Parts of the author, template and featured image changes, which
+			// are shown in their own rows or groups instead.
+			$keys_to_skip = [
+				'post_author/user_login',
+				'post_author/user_email',
+				'post_author/display_name',
+				'page_template_name',
+				'thumb_id',
+				'thumb_title',
+			];
+
 			foreach ( $context as $key => $val ) {
-
-				// Skip some context keys.
-				$keys_to_skip = [];
-
-				// Skip post author and featured image keys because we output
-				// those changes manually further down.
-				$keys_to_skip = [
-					'post_author/user_login',
-					'post_author/user_email',
-					'post_author/display_name',
-					'thumb_id',
-					'thumb_title',
-				];
-
 				if ( strpos( $key, 'post_prev_' ) === false ) {
 					continue;
 				}
@@ -2396,7 +2404,6 @@ class Post_Logger extends Logger {
 
 				$key_for_new_val = "post_new_{$key_to_diff}";
 
-				// Skip some keys.
 				if ( in_array( $key_to_diff, $keys_to_skip, true ) ) {
 					continue;
 				}
@@ -2412,134 +2419,63 @@ class Post_Logger extends Logger {
 					continue;
 				}
 
-				// Different diffs for different keys.
-				if ( $key_to_diff === 'post_title' ) {
-					$has_diff_values = true;
-					$label           = __( 'Title', 'simple-history' );
-
-					$diff_table_output .= sprintf(
-						'<dt>%1$s</dt><dd>%2$s</dd>',
-						$this->label_for( $key_to_diff, $label, $context ),
-						helpers::text_diff( $post_old_value, $post_new_value )
-					);
-				} elseif ( $key_to_diff === 'post_content' ) {
-					// Skip if compact JSON diff exists — it's rendered separately below.
-					if ( isset( $context['post_content_diff'] ) ) {
-						continue;
-					}
-
-					$has_diff_values = true;
-					$label           = __( 'Content', 'simple-history' );
-					$key_text_diff   = helpers::text_diff( $post_old_value, $post_new_value );
-
-					if ( $key_text_diff ) {
-						$diff_table_output .= sprintf(
-							'<dt>%1$s</dt><dd>%2$s</dd>',
-							$this->label_for( $key_to_diff, $label, $context ),
-							$key_text_diff
-						);
-					}
-				} elseif ( $key_to_diff === 'post_status' ) {
-					$inline_group->add_item(
-						( new Event_Details_Item( null, __( 'Status', 'simple-history' ) ) )
-							->set_values( $post_new_value, $post_old_value )
-					);
-				} elseif ( $key_to_diff === 'post_date' ) {
-					$inline_group->add_item(
-						( new Event_Details_Item( null, __( 'Publish date', 'simple-history' ) ) )
-							->set_values( $post_new_value, $post_old_value )
-					);
-				} elseif ( $key_to_diff === 'post_name' ) {
-					$has_diff_values = true;
-					$label           = __( 'Permalink', 'simple-history' );
-
-					$diff_table_output .= sprintf(
-						'<dt>%1$s</dt>
-							<dd>%2$s</dd>',
-						$this->label_for( $key_to_diff, $label, $context ),
-						helpers::text_diff( $post_old_value, $post_new_value )
-					);
-				} elseif ( $key_to_diff === 'comment_status' ) {
-					$inline_group->add_item(
-						( new Event_Details_Item( null, __( 'Comment status', 'simple-history' ) ) )
-							->set_values( $post_new_value, $post_old_value )
-					);
-				} elseif ( $key_to_diff === 'post_author' ) {
-					// wp post edit screen uses display_name so we should use it too.
-					if (
-						isset( $context['post_prev_post_author/display_name'] ) &&
-						isset( $context['post_new_post_author/display_name'] )
-					) {
-						$prev_display = sprintf(
-							'%1$s (%2$s)',
-							$context['post_prev_post_author/display_name'],
-							$context['post_prev_post_author/user_email'] ?? ''
-						);
-						$new_display  = sprintf(
-							'%1$s (%2$s)',
-							$context['post_new_post_author/display_name'],
-							$context['post_new_post_author/user_email'] ?? ''
-						);
-
-						$inline_group->add_item(
-							( new Event_Details_Item( null, __( 'Author', 'simple-history' ) ) )
-								->set_values( $new_display, $prev_display )
-						);
-					}
-				} elseif ( $key_to_diff === 'page_template' ) {
-					// page template filename.
-					$prev_page_template = $context['post_prev_page_template'];
-					$new_page_template  = $context['post_new_page_template'];
-
-					// page template name, should exist, but I guess someone could have deleted a template
-					// and after that change the template for a post.
-					$prev_page_template_name = $context['post_prev_page_template_name'] ?? '';
-					$new_page_template_name  = $context['post_new_page_template_name'] ?? '';
-
-					// If prev or new template is "default" then use that as name.
-					if ( $prev_page_template === 'default' && ! $prev_page_template_name ) {
-						$prev_page_template_name = $prev_page_template;
-					} elseif ( $new_page_template === 'default' && ! $new_page_template_name ) {
-						$new_page_template_name = $new_page_template;
-					}
-
-					$prev_display = $prev_page_template_name
-						? sprintf( '%1$s (%2$s)', $prev_page_template_name, $prev_page_template )
-						: $prev_page_template;
-					$new_display  = $new_page_template_name
-						? sprintf( '%1$s (%2$s)', $new_page_template_name, $new_page_template )
-						: $new_page_template;
-
-					$inline_group->add_item(
-						( new Event_Details_Item( null, __( 'Template', 'simple-history' ) ) )
-							->set_values( $new_display, $prev_display )
-					);
-				} else {
-					$has_diff_values = true;
-
-					$diff_table_output .= $this->extra_diff_record(
-						$this->label_for( $key_to_diff, $this->get_human_label_for_diff_key( $key_to_diff ), $context ),
-						$post_old_value,
-						$post_new_value
-					);
+				// The compact JSON diff of the content is rendered below.
+				if ( $key_to_diff === 'post_content' && isset( $context['post_content_diff'] ) ) {
+					continue;
 				}
+
+				// Changes in whitespace only give an empty word diff.
+				if ( is_string( $post_old_value ) && is_string( $post_new_value ) && normalize_whitespace( $post_old_value ) === normalize_whitespace( $post_new_value ) ) {
+					continue;
+				}
+
+				$values = $this->get_diff_display_values( $key_to_diff, $post_old_value, $post_new_value, $context );
+
+				if ( $values === null ) {
+					continue;
+				}
+
+				$group = in_array( $key_to_diff, $inline_keys, true ) ? $inline_group : $diff_group;
+
+				$item = ( new Event_Details_Item(
+					[ $key_for_new_val, $key ],
+					$this->label_for( $key_to_diff, $this->get_human_label_for_diff_key( $key_to_diff ), $context )
+				) )->set_values( $values['new'], $values['prev'] );
+
+				// The container removes items where both values are empty(),
+				// which would hide a change like "0" to "". An item with its
+				// own formatter is kept.
+				if ( empty( $values['new'] ) && empty( $values['prev'] ) ) {
+					$item->set_formatter( $group === $diff_group ? new Event_Details_Item_Diff_Table_Row_Formatter() : new Event_Details_Item_Table_Row_Formatter() );
+				}
+
+				$group->add_item( $item );
 			}
 
-			// Render compact JSON diff for post_content if available.
+			// The compact JSON diff of the content has only the changed lines,
+			// not the whole texts: the GUI gets the side-by-side diff, and JSON
+			// gets the changed lines as a list of changes.
 			if ( isset( $context['post_content_diff'] ) ) {
 				$json_diff_html = Helpers::render_json_diff_to_html( $context['post_content_diff'] );
 
 				if ( $json_diff_html !== '' ) {
-					$has_diff_values    = true;
-					$diff_table_output .= sprintf(
-						'<dt>%1$s</dt><dd>%2$s</dd>',
-						esc_html( __( 'Content', 'simple-history' ) ),
-						$json_diff_html
+					$content_label = $this->label_for( 'post_content', $this->get_human_label_for_diff_key( 'post_content' ), $context );
+
+					$diff_group->add_item(
+						( new Event_Details_Item( null, $content_label ) )->set_formatter(
+							( new Event_Details_Item_RAW_Formatter() )
+								->set_html_output( sprintf( '<dt>%1$s</dt><dd>%2$s</dd>', esc_html( $content_label ), $json_diff_html ) )
+								->set_json_output(
+									[
+										'name'     => $content_label,
+										'slug_new' => 'post_content_diff',
+										'changes'  => Helpers::get_json_diff_changes( $context['post_content_diff'] ),
+									]
+								)
+						)
 					);
 				}
 			}
-
-			$rows_before_filter = substr_count( strtolower( $diff_table_output ), '<tr' );
 
 			/**
 			 * Modify the formatted diff output of a saved/modified post.
@@ -2556,6 +2492,11 @@ class Post_Logger extends Logger {
 			 * get_details_group_for_post_meta_and_terms()) so REST, CLI, and
 			 * abilities consumers get structured data for them instead of HTML.
 			 *
+			 * Since 5.36.0, the title, content, permalink and other word-diffed
+			 * fields, and the side-by-side diff of the content, are no longer
+			 * part of this string either. They are items in their own group for
+			 * the same reason. What is left is the rows that callbacks add.
+			 *
 			 * @param string $diff_table_output
 			 * @param array $context
 			 * @return string
@@ -2566,16 +2507,16 @@ class Post_Logger extends Logger {
 				$context
 			);
 
-			if ( $has_diff_values || $diff_table_output ) {
-				$legacy_rows_added = substr_count( strtolower( $diff_table_output ), '<tr' ) > $rows_before_filter;
+			if ( $diff_table_output !== '' ) {
+				// The string only has what callbacks added.
+				$legacy_rows_added = stripos( $diff_table_output, '<tr' ) !== false;
 
 				if ( $legacy_rows_added ) {
 					// Browsers drop <tr>/<td> tags inside a <dl>, so the rows a
 					// pre-5.33 callback appended would turn into loose text and
 					// shift every pair after them. Fall back to the table form,
-					// which the stylesheet lays out identically. Our own pairs
-					// translate with plain replacement: <dt>/<dd> never nest
-					// and never occur inside a value.
+					// which the stylesheet lays out identically. Pairs that other
+					// callbacks added translate with plain replacement.
 					$diff_table_output = str_replace(
 						[ '<dt>', '</dt>', '<dd>', '</dd>' ],
 						[ '<tr><td>', '</td>', '<td>', '</td></tr>' ],
@@ -2619,6 +2560,10 @@ class Post_Logger extends Logger {
 
 			if ( ! empty( $inline_group->items ) ) {
 				$groups[] = $inline_group;
+			}
+
+			if ( ! empty( $diff_group->items ) ) {
+				$groups[] = $diff_group;
 			}
 
 			if ( $diff_table_output !== '' ) {
@@ -2799,9 +2744,8 @@ class Post_Logger extends Logger {
 	/**
 	 * Get a human readable label for a diffed post field.
 	 *
-	 * Fields with their own branch in the diff loop get their label there. This
-	 * covers the rest, so a row does not show the raw database column name, for
-	 * example "post_excerpt" instead of "Excerpt".
+	 * So a row does not show the raw database column name, for example
+	 * "post_excerpt" instead of "Excerpt".
 	 *
 	 * Unknown keys, like the ones added through the
 	 * `simple_history/post_logger/keys_to_diff` filter, keep the key as label.
@@ -2811,13 +2755,71 @@ class Post_Logger extends Logger {
 	 */
 	protected function get_human_label_for_diff_key( $key ) {
 		$labels = [
-			'post_excerpt' => __( 'Excerpt', 'simple-history' ),
-			'menu_order'   => __( 'Menu order', 'simple-history' ),
-			'ping_status'  => __( 'Ping status', 'simple-history' ),
-			'post_parent'  => __( 'Parent', 'simple-history' ),
+			'post_title'     => __( 'Title', 'simple-history' ),
+			'post_content'   => __( 'Content', 'simple-history' ),
+			'post_name'      => __( 'Permalink', 'simple-history' ),
+			'post_status'    => __( 'Status', 'simple-history' ),
+			'post_date'      => __( 'Publish date', 'simple-history' ),
+			'comment_status' => __( 'Comment status', 'simple-history' ),
+			'post_author'    => __( 'Author', 'simple-history' ),
+			'page_template'  => __( 'Template', 'simple-history' ),
+			'post_excerpt'   => __( 'Excerpt', 'simple-history' ),
+			'menu_order'     => __( 'Menu order', 'simple-history' ),
+			'ping_status'    => __( 'Ping status', 'simple-history' ),
+			'post_parent'    => __( 'Parent', 'simple-history' ),
 		];
 
 		return $labels[ $key ] ?? $key;
+	}
+
+	/**
+	 * Get the new and previous value of a diffed post field as they are shown.
+	 *
+	 * Most fields show the stored value. The author is shown as display name
+	 * and email, and the template as name and file.
+	 *
+	 * @param string $key       Key that is diffed, without the "post_prev_" prefix.
+	 * @param string $old_value Stored previous value.
+	 * @param string $new_value Stored new value.
+	 * @param array  $context   Event context.
+	 * @return array{new: string, prev: string}|null Values to show, or null to leave the field out.
+	 */
+	protected function get_diff_display_values( $key, $old_value, $new_value, $context ) {
+		if ( $key === 'post_author' ) {
+			// The post edit screen shows the display name, so we do too.
+			if ( ! isset( $context['post_prev_post_author/display_name'], $context['post_new_post_author/display_name'] ) ) {
+				return null;
+			}
+
+			return [
+				'new'  => sprintf( '%1$s (%2$s)', $context['post_new_post_author/display_name'], $context['post_new_post_author/user_email'] ?? '' ),
+				'prev' => sprintf( '%1$s (%2$s)', $context['post_prev_post_author/display_name'], $context['post_prev_post_author/user_email'] ?? '' ),
+			];
+		}
+
+		if ( $key === 'page_template' ) {
+			// The template name should exist, but a template can be deleted
+			// before the template of a post is changed.
+			$prev_name = $context['post_prev_page_template_name'] ?? '';
+			$new_name  = $context['post_new_page_template_name'] ?? '';
+
+			// Use "default" as the name of the default template.
+			if ( $old_value === 'default' && ! $prev_name ) {
+				$prev_name = $old_value;
+			} elseif ( $new_value === 'default' && ! $new_name ) {
+				$new_name = $new_value;
+			}
+
+			return [
+				'new'  => $new_name ? sprintf( '%1$s (%2$s)', $new_name, $new_value ) : $new_value,
+				'prev' => $prev_name ? sprintf( '%1$s (%2$s)', $prev_name, $old_value ) : $old_value,
+			];
+		}
+
+		return [
+			'new'  => $new_value,
+			'prev' => $old_value,
+		];
 	}
 
 	/**
@@ -2843,12 +2845,19 @@ class Post_Logger extends Logger {
 	/**
 	 * Get extra diff record.
 	 *
+	 * Not used by the logger since 5.36.0, where these fields became keyed
+	 * event details items, so overriding it has no effect. Kept for code
+	 * that calls it.
+	 *
+	 * @deprecated 5.36.0
 	 * @param string $key Key.
 	 * @param string $old_value Old value.
 	 * @param string $new_value New value.
 	 * @return string
 	 */
 	public function extra_diff_record( $key, $old_value, $new_value ) {
+		_deprecated_function( __METHOD__, '5.36.0' );
+
 		return sprintf( '<dt>%1$s</dt><dd>%2$s</dd>', $key, helpers::text_diff( $old_value, $new_value ) );
 	}
 
