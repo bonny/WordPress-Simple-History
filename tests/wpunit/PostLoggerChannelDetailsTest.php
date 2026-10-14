@@ -203,6 +203,25 @@ class PostLoggerChannelDetailsTest extends \Codeception\TestCase\WPTestCase {
 		}
 	}
 
+	public function test_channel_items_and_list_have_changed_lines_of_long_content() {
+		$details = $this->get_channel_details( $this->update_post_with_many_changes() );
+		$change  = [
+			'new'  => '<p>Paragraph number 7, now edited, with some words in it.</p>',
+			'prev' => '<p>Paragraph number 7 with some words in it.</p>',
+		];
+
+		$this->assertSame(
+			[
+				'label'   => 'Content',
+				'changes' => [ $change ],
+			],
+			$details['items']['post_content_diff'] ?? null,
+			'Got: ' . wp_json_encode( $details['items'] )
+		);
+
+		$this->assertContains( [ 'label' => 'Content' ] + $change, $details['list'] );
+	}
+
 	public function test_channel_list_has_a_label_for_every_entry() {
 		$list = $this->get_channel_details( $this->update_post_with_many_changes() )['list'];
 

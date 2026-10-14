@@ -139,16 +139,37 @@ class Channel_Event_Details {
 	 * Collect changed values from the details, keyed by context key.
 	 *
 	 * Items without a context key, or without a text value (like image
-	 * diffs), are left out. They are still part of the text details.
+	 * diffs), are left out. They are still part of the text details. An item
+	 * with a list of changes, like the changed lines of post content, gets
+	 * "changes" with a new/prev entry per change instead of new and prev.
 	 *
 	 * @param Event_Details_Container $details Details from the logger.
-	 * @return array<string, array<string, string>>
+	 * @return array<string, array<string, mixed>>
 	 */
 	private static function build_items( Event_Details_Container $details ): array {
 		$items = [];
 
 		foreach ( $details->groups as $group ) {
 			foreach ( $group->items as $item ) {
+				$json    = $item->get_formatter()->to_json();
+				$changes = self::get_changes( $json );
+
+				// A list of changes, like the changed lines of post content.
+				if ( $changes !== [] && is_string( $json['slug_new'] ?? null ) ) {
+					$items[ $json['slug_new'] ] = array_filter(
+						[
+							'label'   => $item->name,
+							'changes' => $changes,
+						]
+					);
+
+					if ( count( $items ) >= self::MAX_ITEMS ) {
+						return $items;
+					}
+
+					continue;
+				}
+
 				$key = $item->slug_new ?? $item->slug_prev ?? null;
 
 				if ( $key === null || ( $item->new_value === null && $item->prev_value === null ) ) {
@@ -204,6 +225,22 @@ class Channel_Event_Details {
 
 				$new  = is_scalar( $new ) && (string) $new !== '' ? (string) $new : null;
 				$prev = is_scalar( $prev ) && (string) $prev !== '' ? (string) $prev : null;
+
+				// A list of changes, like the changed lines of post content:
+				// one entry per change.
+				$changes = self::get_changes( $json );
+
+				if ( $changes !== [] ) {
+					foreach ( $changes as $change ) {
+						$list[] = [ 'label' => is_string( $label ) ? $label : '' ] + $change;
+
+						if ( count( $list ) >= self::MAX_ITEMS ) {
+							return $list;
+						}
+					}
+
+					continue;
+				}
 
 				// Raw HTML without a label and value of its own, like the post
 				// logger's content diff, rows that third-party code adds, or
@@ -263,6 +300,40 @@ class Channel_Event_Details {
 		}
 
 		return $list;
+	}
+
+	/**
+	 * Get the "changes" list of an item's JSON as new/prev entries.
+	 *
+	 * @param array $json JSON output of an item's formatter.
+	 * @return array<int, array<string, string>> Empty when the item has no changes list.
+	 */
+	private static function get_changes( array $json ): array {
+		if ( ! is_array( $json['changes'] ?? null ) ) {
+			return [];
+		}
+
+		$changes = [];
+
+		foreach ( $json['changes'] as $change ) {
+			$entry = [];
+
+			if ( is_scalar( $change['new_value'] ?? null ) && (string) $change['new_value'] !== '' ) {
+				$entry['new'] = self::truncate( (string) $change['new_value'] );
+			}
+
+			if ( is_scalar( $change['prev_value'] ?? null ) && (string) $change['prev_value'] !== '' ) {
+				$entry['prev'] = self::truncate( (string) $change['prev_value'] );
+			}
+
+			if ( $entry === [] ) {
+				continue;
+			}
+
+			$changes[] = $entry;
+		}
+
+		return $changes;
 	}
 
 	/**
