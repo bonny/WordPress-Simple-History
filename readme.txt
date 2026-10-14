@@ -288,18 +288,18 @@ For more information, see our support page [GDPR and Privacy: How Your Data is S
 -   Similar events didn't load on sites that use SQLite instead of MySQL with version 2.x of the [SQLite Database Integration](https://wordpress.org/plugins/sqlite-database-integration/) plugin.
 -   Log files written by Log Forwarding → Local Files now include what changed in each event, like the roles added and removed on a profile edit, not only the event message.
 -   The one-click [weekly email](https://simple-history.com/features/weekly-email-report/?utm_source=wordpress_org&utm_medium=plugin_directory&utm_campaign=documentation&utm_content=readme_changelog_weekly_email) offer and its confirmation now name everyone who will get the email, like the site admin, not only you.
--   A page template change showed an extra row labelled "page_template_name" next to the Template row.
+-   Page template changes: the first template picked for a page wasn't logged, block themes showed the template slug instead of its name, and an extra row labelled "page_template_name" showed next to the Template row.
 -   "Check again" on Dashboard → Updates now checks for new versions of Premium and other add-ons right away, instead of up to an hour later.
 
 **Security**
 
--   Editors could see events from loggers they don't have access to, such as failed logins, by opening an event's similar events.
--   A single request with a long forwarded-IP header, username or user agent could write thousands of rows or very large values to the log. These values are capped now.
--   Limit Login Attempts events showed the full IP address to every user who could see them. The address is now anonymized and hidden from users who can't view IP addresses.
--   A forged plugin or theme file edit that WordPress rejected could still be logged as an edit.
--   Stealth Mode hid the log screens, but users outside the allowlist could still read events through the REST API and Abilities API, and still saw history links, notices and the command palette. These are now hidden too.
+-   Similar events now follow the same access rules as the log, so editors no longer see events like failed logins there.
+-   Forwarded IP addresses, usernames and user agents are now capped in length, so a single crafted request can't fill the log.
+-   IP addresses in Limit Login Attempts events are now anonymized and hidden from users who can't view IP addresses.
+-   Plugin and theme file edits are logged only when WordPress accepts the edit.
+-   Stealth Mode now also hides events in the REST API and Abilities API, and history links, notices and the command palette, from users outside the allowlist.
 -   Hardened database queries and output escaping in the plugin stats and the category and settings events.
--   Line breaks and terminal control characters in event text could start forged lines in the log file, or rewrite earlier lines for someone watching it in a terminal.
+-   Line breaks and control characters in event text are escaped in the log file, so they can't add fake lines or change what a terminal shows.
 
 ### 5.35.0 (October 2026)
 
