@@ -50,8 +50,11 @@ class PluginUpdaterBackgroundCheckTest extends \Codeception\TestCase\WPTestCase 
 		remove_filter( 'site_transient_update_plugins', [ $this->updater, 'site_transient_update_plugins_update' ] );
 		remove_filter( 'pre_set_site_transient_update_plugins', [ $this->updater, 'on_pre_set_update_plugins' ] );
 		remove_filter( 'plugins_api', [ $this->updater, 'on_plugins_api_handle_plugin_info' ], 20 );
+		remove_action( 'load-update-core.php', [ $this->updater, 'on_force_check' ], 9 );
 		remove_filter( 'pre_http_request', [ $this, 'fake_http' ] );
 		remove_filter( 'simple_history/experimental_features_enabled', '__return_true' );
+
+		unset( $_GET['force-check'] );
 
 		delete_option( self::OPTION );
 		delete_option( 'simple_history_plusplugin_new_features_' . self::SLUG );
@@ -169,5 +172,37 @@ class PluginUpdaterBackgroundCheckTest extends \Codeception\TestCase\WPTestCase 
 		$this->updater->request();
 
 		$this->assertSame( [], $addon->get_new_features( '1.0.0' ) );
+	}
+
+	public function test_check_again_on_the_updates_screen_asks_past_the_cache() {
+		wp_set_current_user( self::factory()->user->create( [ 'role' => 'administrator' ] ) );
+
+		$this->updater->request();
+		$this->assertCount( 1, $this->requests );
+
+		$this->reply_body = '{"success":true,"update":{"version":"3.0.0","download_link":"https://example.test/addon.zip"}}';
+
+		// Opening the screen without "Check again" uses the cached answer.
+		$this->updater->on_force_check();
+		$this->assertCount( 1, $this->requests );
+
+		$_GET['force-check'] = '1';
+		$this->updater->on_force_check();
+
+		$this->assertCount( 2, $this->requests );
+
+		$read = $this->updater->site_transient_update_plugins_update( $this->update_data() );
+		$this->assertSame( '3.0.0', $read->response[ self::ID ]->new_version );
+	}
+
+	public function test_check_again_is_ignored_for_users_who_cannot_update_plugins() {
+		wp_set_current_user( self::factory()->user->create( [ 'role' => 'subscriber' ] ) );
+
+		$this->updater->request();
+
+		$_GET['force-check'] = '1';
+		$this->updater->on_force_check();
+
+		$this->assertCount( 1, $this->requests );
 	}
 }
