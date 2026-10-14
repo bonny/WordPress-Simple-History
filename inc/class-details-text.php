@@ -716,10 +716,7 @@ class Details_Text {
 	 * @return string
 	 */
 	private static function join_lines( $text ) {
-		$lines = array_map( 'trim', explode( "\n", (string) $text ) );
-		$lines = array_filter( $lines, fn( $line ) => $line !== '' );
-
-		return implode( '; ', $lines );
+		return implode( '; ', explode( "\n", self::tidy( (string) $text ) ) );
 	}
 
 	/**

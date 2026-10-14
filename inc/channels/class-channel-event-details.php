@@ -233,8 +233,10 @@ class Channel_Event_Details {
 				$changes = self::get_changes( $json );
 
 				if ( $changes !== [] ) {
+					$key = is_string( $json['slug_new'] ?? null ) ? [ 'key' => $json['slug_new'] ] : [];
+
 					foreach ( $changes as $change ) {
-						$list[] = [ 'label' => is_string( $label ) ? $label : '' ] + $change;
+						$list[] = [ 'label' => is_string( $label ) ? $label : '' ] + $change + $key;
 
 						if ( count( $list ) >= self::MAX_ITEMS ) {
 							return $list;

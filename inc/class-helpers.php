@@ -2088,8 +2088,9 @@ class Helpers {
 	 *
 	 * The diff only has the changed lines, not the whole texts, so this is
 	 * what can be said about the change as data: one entry per run of changed
-	 * lines, with the old and new lines as plain text. Unchanged context lines
-	 * are left out. An added run has no prev_value, a removed run no new_value.
+	 * lines, or per line when as many lines replace them, with the old and new
+	 * lines as plain text. Unchanged context lines are left out. An added run
+	 * has no prev_value, a removed run no new_value.
 	 *
 	 * There is no line number: the diff is made from the texts with blank
 	 * lines removed (normalize_whitespace()), so its offsets don't match the
@@ -2130,24 +2131,35 @@ class Helpers {
 					continue;
 				}
 
-				$prev = $to_text( $block['old']['lines'] ?? [] );
-				$new  = $to_text( $block['new']['lines'] ?? [] );
+				$old_lines = is_array( $block['old']['lines'] ?? null ) ? array_values( $block['old']['lines'] ) : [];
+				$new_lines = is_array( $block['new']['lines'] ?? null ) ? array_values( $block['new']['lines'] ) : [];
 
-				if ( $prev === '' && $new === '' ) {
-					continue;
+				// As many new lines as old: line by line, so each old line
+				// is shown next to the line that replaced it.
+				$pairs = count( $old_lines ) === count( $new_lines )
+					? array_map( null, array_chunk( $old_lines, 1 ), array_chunk( $new_lines, 1 ) )
+					: [ [ $old_lines, $new_lines ] ];
+
+				foreach ( $pairs as list( $old_part, $new_part ) ) {
+					$prev = $to_text( $old_part );
+					$new  = $to_text( $new_part );
+
+					if ( $prev === '' && $new === '' ) {
+						continue;
+					}
+
+					$change = [];
+
+					if ( $prev !== '' ) {
+						$change['prev_value'] = $prev;
+					}
+
+					if ( $new !== '' ) {
+						$change['new_value'] = $new;
+					}
+
+					$changes[] = $change;
 				}
-
-				$change = [];
-
-				if ( $prev !== '' ) {
-					$change['prev_value'] = $prev;
-				}
-
-				if ( $new !== '' ) {
-					$change['new_value'] = $new;
-				}
-
-				$changes[] = $change;
 			}
 		}
 
