@@ -13,7 +13,8 @@ Add entries to the Simple History plugin's `readme.txt` changelog.
 1. Ask user for the change description (if not provided)
 2. Determine category: Added, Changed, Fixed, Deprecated, Removed, Security
 3. Add entry under `## Changelog` → `### Unreleased`
-4. Confirm with user
+4. If the entry names a feature not yet linked in this release, link it (see "Link features the first time they appear")
+5. Confirm with user
 
 ## Format
 
@@ -168,6 +169,28 @@ Start the one to three most important **Added** entries of a release with a shor
 ```
 
 The "What's new" card shown to lapsed Premium customers (issue 15) uses these names as its bullet labels, and only entries with a bold name count as highlights. Leave small additions and `Experimental —` entries without one. The bold renders fine on wordpress.org.
+
+## Link features the first time they appear
+
+Many readers only see the latest release, often in WordPress's "View version details" popup during an update. When an entry names a feature that has its own page on simple-history.com (Premium, weekly email, table view, log forwarding, …), link the first mention of it in that release so curious readers can find out more. This is for readers, not SEO: wordpress.org makes readme links `nofollow`.
+
+-   Link once per release: the first mention in that version's section, not again in later entries.
+-   Link to the page about the feature (`/features/…`, `/support/…`), not the pricing page. Use `/add-ons/premium/` only when the entry is about Premium in general.
+-   Only link pages that really cover the feature. Check the URL resolves (`curl -sIL`) and use the final URL after redirects.
+-   One or two links per release. More starts to read like an ad, and wordpress.org reviewers dislike promotional readmes.
+-   No links in Security or `Experimental —` entries. Experimental entries stay low-key, and most sites never see the feature.
+-   Never link inside a bold feature name. `Changelog_Parser` reads a bold name only if it is plain text of at most 60 characters, so `**[Table view](…)**` drops the feature from the lapsed card's highlights. Link a later word in the entry instead.
+-   Add UTM parameters so clicks show up in GA4:
+
+```
+?utm_source=wordpress_org&utm_medium=plugin_directory&utm_campaign=documentation&utm_content=readme_changelog_<feature>
+```
+
+```
+-   The one-click [weekly email](https://simple-history.com/features/weekly-email-report/?utm_source=wordpress_org&utm_medium=plugin_directory&utm_campaign=documentation&utm_content=readme_changelog_weekly_email) offer and its confirmation now name everyone who will get the email.
+```
+
+These links don't affect the "What's new" box, which takes the first simple-history.com link whose slug ends in `-released` as the release post (see below). So never link a feature or support page whose URL ends in `-released`.
 
 ## Release summary paragraph
 
