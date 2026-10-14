@@ -2107,16 +2107,16 @@ class Helpers {
 			return [];
 		}
 
-		// The renderer marks changed words with <ins>/<del> and escapes the text itself.
+		// The renderer marks changed words with <ins>/<del> and escapes the text itself,
+		// so tags are markup and entities are text.
 		$to_text = function ( $lines ) {
 			if ( ! is_array( $lines ) || $lines === [] ) {
 				return '';
 			}
 
 			$text = implode( "\n", array_map( 'strval', $lines ) );
-			$text = (string) preg_replace( '#</?(ins|del)\b[^>]*>#i', '', $text );
 
-			return html_entity_decode( $text, ENT_QUOTES | ENT_HTML5, 'UTF-8' );
+			return html_entity_decode( wp_strip_all_tags( $text ), ENT_QUOTES | ENT_HTML5, 'UTF-8' );
 		};
 
 		$changes = [];

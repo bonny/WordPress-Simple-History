@@ -198,6 +198,26 @@ class DetailsTextTest extends \Codeception\TestCase\WPTestCase {
 		$this->assertSame( 'Content: ' . $long . ' → ' . $long . 'b', $this->tidy( Details_Text::convert_with_regex( $html, true ) ) );
 	}
 
+	public function test_regex_converter_keeps_the_text_when_an_expression_fails() {
+		$html = '<dl><dt>Title</dt><dd>Some title</dd></dl>';
+
+		$jit       = ini_get( 'pcre.jit' );
+		$backtrack = ini_get( 'pcre.backtrack_limit' );
+
+		// Without the JIT, a backtrack limit of 1 makes every expression fail.
+		ini_set( 'pcre.jit', '0' );
+		ini_set( 'pcre.backtrack_limit', '1' );
+
+		try {
+			$text = Details_Text::convert_with_regex( $html, true );
+		} finally {
+			ini_set( 'pcre.jit', $jit );
+			ini_set( 'pcre.backtrack_limit', $backtrack );
+		}
+
+		$this->assertStringContainsString( 'Some title', $text );
+	}
+
 	public function test_pairs_keeps_keys_apart_from_values_with_colons() {
 		$html = '<dl><dt>Status</dt><dd><ins>publish</ins> <del>draft</del></dd></dl>'
 			. '<table class="diff"><tbody><tr><td class="diff-deletedline">Note: fixed typo</td><td></td><td class="diff-addedline">Note: fixed</td></tr></tbody></table>';

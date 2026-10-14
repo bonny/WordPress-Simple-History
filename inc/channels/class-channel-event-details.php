@@ -54,7 +54,7 @@ class Channel_Event_Details {
 	 *
 	 * @param array $context Context of the event, as passed to the inserted hook.
 	 * @param array $data    Event row data, as passed to the inserted hook.
-	 * @return array{text: string, items: array<string, array<string, string|array<int, array<string, string>>>>, list: array<int, array<string, string|bool>>}
+	 * @return array{text: string, items: array<string, array<string, string|array<int, array<string, string|bool>>>>, list: array<int, array<string, string|bool>>}
 	 */
 	public static function get( array $context, array $data ): array {
 		$empty = [
@@ -146,7 +146,7 @@ class Channel_Event_Details {
 	 * "changes" with a new/prev entry per change instead of new and prev.
 	 *
 	 * @param Event_Details_Container $details Details from the logger.
-	 * @return array<string, array<string, string|array<int, array<string, string>>>>
+	 * @return array<string, array<string, string|array<int, array<string, string|bool>>>>
 	 */
 	private static function build_items( Event_Details_Container $details ): array {
 		$items = [];
@@ -309,8 +309,11 @@ class Channel_Event_Details {
 	/**
 	 * Get the "changes" list of an item's JSON as new/prev entries.
 	 *
+	 * Like other values, a change between two values too long to show has
+	 * changed = true instead of the values.
+	 *
 	 * @param array $json JSON output of an item's formatter.
-	 * @return array<int, array<string, string>> Empty when the item has no changes list.
+	 * @return array<int, array<string, string|bool>> Empty when the item has no changes list.
 	 */
 	private static function get_changes( array $json ): array {
 		if ( ! is_array( $json['changes'] ?? null ) ) {
@@ -320,14 +323,25 @@ class Channel_Event_Details {
 		$changes = [];
 
 		foreach ( $json['changes'] as $change ) {
-			$entry = [];
+			$new  = is_scalar( $change['new_value'] ?? null ) && (string) $change['new_value'] !== '' ? (string) $change['new_value'] : null;
+			$prev = is_scalar( $change['prev_value'] ?? null ) && (string) $change['prev_value'] !== '' ? (string) $change['prev_value'] : null;
 
-			if ( is_scalar( $change['new_value'] ?? null ) && (string) $change['new_value'] !== '' ) {
-				$entry['new'] = self::truncate( (string) $change['new_value'] );
+			$is_long = self::truncate( (string) $new ) !== (string) $new || self::truncate( (string) $prev ) !== (string) $prev;
+
+			if ( $new !== null && $prev !== null && $is_long ) {
+				$changes[] = [ 'changed' => true ];
+
+				continue;
 			}
 
-			if ( is_scalar( $change['prev_value'] ?? null ) && (string) $change['prev_value'] !== '' ) {
-				$entry['prev'] = self::truncate( (string) $change['prev_value'] );
+			$entry = [];
+
+			if ( $new !== null ) {
+				$entry['new'] = self::truncate( $new );
+			}
+
+			if ( $prev !== null ) {
+				$entry['prev'] = self::truncate( $prev );
 			}
 
 			if ( $entry === [] ) {

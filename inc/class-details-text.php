@@ -564,15 +564,15 @@ class Details_Text {
 		$html = (string) $html;
 
 		// Screen-reader-only text.
-		$html = (string) preg_replace( '/<(span|h[1-6])[^>]*class=[\'"][^"\']*screen-reader-text[^"\']*[\'"][^>]*>[^<]*<\/\1>/i', '', $html );
+		$html = self::regex_replace( '/<(span|h[1-6])[^>]*class=[\'"][^"\']*screen-reader-text[^"\']*[\'"][^>]*>[^<]*<\/\1>/i', '', $html );
 
 		// Unchanged diff context rows add noise in plain text. The empty
 		// span keeps a deleted row before them from looking adjacent to an
 		// added row after them.
-		$html = (string) preg_replace( '/<tr[^>]*>\s*<td[^>]*class=[\'"][^"\']*diff-context[^"\']*[\'"][^>]*>[^<]*<\/td>\s*<td[^>]*>[^<]*<\/td>\s*<td[^>]*>[^<]*<\/td>\s*<\/tr>/i', '<span></span>', $html );
+		$html = self::regex_replace( '/<tr[^>]*>\s*<td[^>]*class=[\'"][^"\']*diff-context[^"\']*[\'"][^>]*>[^<]*<\/td>\s*<td[^>]*>[^<]*<\/td>\s*<td[^>]*>[^<]*<\/td>\s*<\/tr>/i', '<span></span>', $html );
 
 		// Unchanged lines in the side-by-side diff of post content.
-		$html = (string) preg_replace( '/<tbody[^>]*class=[\'"][^"\']*change-eq[^"\']*[\'"][^>]*>.*?<\/tbody>/is', '', $html );
+		$html = self::regex_replace( '/<tbody[^>]*class=[\'"][^"\']*change-eq[^"\']*[\'"][^>]*>.*?<\/tbody>/is', '', $html );
 
 		$diff_row_to_line = function ( $matches ) {
 			$deleted = trim( wp_strip_all_tags( $matches[1] ) );
@@ -587,7 +587,7 @@ class Details_Text {
 
 		// Diff rows: deleted side and added side become "old → new".
 		// The split view has an empty cell between the two sides.
-		$html = (string) preg_replace_callback(
+		$html = self::regex_replace(
 			'/<tr[^>]*>\s*<td[^>]*class=[\'"][^"\']*diff-deletedline[^"\']*[\'"][^>]*>([^<]*+(?:<(?!\/td>)[^<]*+)*+)<\/td>(?:\s*<td[^>]*>\s*<\/td>)?\s*<td[^>]*class=[\'"][^"\']*diff-addedline[^"\']*[\'"][^>]*>([^<]*+(?:<(?!\/td>)[^<]*+)*+)<\/td>\s*<\/tr>/is',
 			$diff_row_to_line,
 			$html
@@ -601,7 +601,7 @@ class Details_Text {
 		$added_row     = '<tr[^>]*>' . $empty_cells . '\s*<td[^>]*class=[\'"][^"\']*diff-addedline[^"\']*[\'"][^>]*>' . $cell . '<\/td>\s*<\/tr>';
 		$non_capturing = fn( $pattern ) => str_replace( $cell, '(?:' . substr( $cell, 1 ), $pattern );
 
-		$html = (string) preg_replace_callback(
+		$html = self::regex_replace(
 			'/((?:' . $non_capturing( $deleted_row ) . '\s*)+)((?:' . $non_capturing( $added_row ) . '\s*)+)/is',
 			function ( $matches ) use ( $deleted_row, $added_row ) {
 				preg_match_all( '/' . $deleted_row . '/is', $matches[1], $deleted );
@@ -622,14 +622,14 @@ class Details_Text {
 		);
 
 		// Diff rows with only an added side.
-		$html = (string) preg_replace_callback(
+		$html = self::regex_replace(
 			'/' . $added_row . '/is',
 			fn( $matches ) => self::tidy( wp_strip_all_tags( $matches[1] ) ) . "\n",
 			$html
 		);
 
 		// Diff rows with only a deleted side.
-		$html = (string) preg_replace_callback(
+		$html = self::regex_replace(
 			'/<tr[^>]*>\s*<td[^>]*class=[\'"][^"\']*diff-deletedline[^"\']*[\'"][^>]*>([^<]*+(?:<(?!\/td>)[^<]*+)*+)<\/td>(?:\s*<td[^>]*>(?:\s|&nbsp;)*<\/td>)*\s*<\/tr>/is',
 			fn( $matches ) => self::tidy( wp_strip_all_tags( $matches[1] ) ) === '' ? '' : self::change_to_text( wp_strip_all_tags( $matches[1] ), '' ) . "\n",
 			$html
@@ -639,7 +639,7 @@ class Details_Text {
 		// generic classes "old" and "new", so only look for them when the
 		// side-by-side table is there.
 		if ( stripos( $html, 'diff-side-by-side' ) !== false ) {
-			$html = (string) preg_replace_callback(
+			$html = self::regex_replace(
 				'/<tr[^>]*>\s*<td[^>]*class=[\'"](?:[^"\']*\s)?old(?:\s[^"\']*)?[\'"][^>]*>([^<]*+(?:<(?!\/td>)[^<]*+)*+)<\/td>\s*<td[^>]*class=[\'"](?:[^"\']*\s)?new(?:\s[^"\']*)?[\'"][^>]*>([^<]*+(?:<(?!\/td>)[^<]*+)*+)<\/td>\s*<\/tr>/is',
 				$diff_row_to_line,
 				$html
@@ -647,13 +647,13 @@ class Details_Text {
 		}
 
 		// <del>old</del><ins>new</ins> and <ins>new</ins><del>old</del>.
-		$html = (string) preg_replace_callback(
+		$html = self::regex_replace(
 			'/<del[^>]*>([^<]*)<\/del>\s*<ins[^>]*>([^<]*)<\/ins>/i',
 			fn( $matches ) => self::change_to_text( $matches[1], $matches[2] ),
 			$html
 		);
 
-		$html = (string) preg_replace_callback(
+		$html = self::regex_replace(
 			'/<ins[^>]*>([^<]*)<\/ins>\s*<del[^>]*>([^<]*)<\/del>/i',
 			fn( $matches ) => self::change_to_text( $matches[2], $matches[1] ),
 			$html
@@ -672,14 +672,14 @@ class Details_Text {
 		};
 
 		// Key-value pairs, current markup.
-		$html = (string) preg_replace_callback( '/<dt[^>]*>(.*?)<\/dt>\s*<dd[^>]*>(.*?)<\/dd>/is', $pair_to_line, $html );
+		$html = self::regex_replace( '/<dt[^>]*>(.*?)<\/dt>\s*<dd[^>]*>(.*?)<\/dd>/is', $pair_to_line, $html );
 
 		// Key-value pairs, pre-5.33 markup that third-party loggers may still emit.
-		$html = (string) preg_replace_callback( '/<tr[^>]*>\s*<td[^>]*>(.*?)<\/td>\s*<td[^>]*>(.*?)<\/td>\s*<\/tr>/is', $pair_to_line, $html );
+		$html = self::regex_replace( '/<tr[^>]*>\s*<td[^>]*>(.*?)<\/td>\s*<td[^>]*>(.*?)<\/td>\s*<\/tr>/is', $pair_to_line, $html );
 
 		// Line breaks and block elements end a line.
-		$html = (string) preg_replace( '/<br\s*\/?>/i', "\n", $html );
-		$html = (string) preg_replace( '/<\/(p|div|tr|dd|li|h[1-6])>/i', "\n", $html );
+		$html = self::regex_replace( '/<br\s*\/?>/i', "\n", $html );
+		$html = self::regex_replace( '/<\/(p|div|tr|dd|li|h[1-6])>/i', "\n", $html );
 
 		return html_entity_decode( wp_strip_all_tags( $html ), ENT_QUOTES, 'UTF-8' );
 	}
@@ -707,6 +707,25 @@ class Details_Text {
 		}
 
 		return $key . $separator . $value;
+	}
+
+	/**
+	 * Replace with a regular expression, keeping the text when the expression fails.
+	 *
+	 * A failure (backtrack or JIT stack limit on a large diff) returns null,
+	 * which would otherwise empty the whole text.
+	 *
+	 * @param string          $pattern     Regular expression.
+	 * @param string|callable $replacement Replacement string or callback.
+	 * @param string          $subject     Text to replace in.
+	 * @return string
+	 */
+	private static function regex_replace( $pattern, $replacement, $subject ) {
+		$result = is_callable( $replacement )
+			? preg_replace_callback( $pattern, $replacement, $subject )
+			: preg_replace( $pattern, $replacement, $subject );
+
+		return $result ?? $subject;
 	}
 
 	/**
