@@ -284,6 +284,7 @@ For more information, see our support page [GDPR and Privacy: How Your Data is S
 
 -   Similar events didn't load on sites that use SQLite instead of MySQL.
 -   The log file only had the event message, not what changed. It now includes the event details too, like the roles added and removed when a user profile is edited.
+-   The one-click weekly email offer, in the welcome notice and elsewhere, and its confirmation name everyone who will get the email, like the site admin, not only you.
 
 **Security**
 

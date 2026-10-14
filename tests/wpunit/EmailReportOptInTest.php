@@ -14,6 +14,9 @@ class EmailReportOptInTest extends \Codeception\TestCase\WPTestCase {
 	/** @var callable */
 	private $redirect_filter;
 
+	/** @var callable|null Filter added by set_site_admin_email(). */
+	private $admin_email_filter = null;
+
 	public function setUp(): void {
 		parent::setUp();
 
@@ -33,7 +36,10 @@ class EmailReportOptInTest extends \Codeception\TestCase\WPTestCase {
 	public function tearDown(): void {
 		remove_filter( 'wp_redirect', $this->redirect_filter );
 
-		unset( $_REQUEST['_wpnonce'], $_GET['_wpnonce'] );
+		unset( $_REQUEST['_wpnonce'], $_GET['_wpnonce'], $_GET['simple-history-email-report-opt-in'] );
+		if ( $this->admin_email_filter ) {
+			remove_filter( 'pre_option_admin_email', $this->admin_email_filter );
+		}
 
 		delete_option( 'simple_history_email_report_enabled' );
 		delete_option( 'simple_history_email_report_recipients' );
@@ -151,22 +157,158 @@ class EmailReportOptInTest extends \Codeception\TestCase\WPTestCase {
 		$this->login_as( 'administrator' );
 
 		// Make the logged-in user the site admin.
-		$admin_email = function () {
-			return 'Admin-OptIn@example.com';
-		};
-
-		add_filter( 'pre_option_admin_email', $admin_email );
+		$this->set_site_admin_email( 'Admin-OptIn@example.com' );
 
 		update_option( 'simple_history_email_report_recipients', 'someone@example.com' );
 
 		$this->run_opt_in_handler();
 
-		$included = Email_Report_Service::is_site_admin_included();
-
-		remove_filter( 'pre_option_admin_email', $admin_email );
-
-		$this->assertTrue( $included );
+		$this->assertTrue( Email_Report_Service::is_site_admin_included() );
 		$this->assertSame( 'someone@example.com', get_option( 'simple_history_email_report_recipients' ) );
+	}
+
+	/**
+	 * Use a site admin email that is valid and not the test user's, whatever
+	 * the test fixture has stored.
+	 *
+	 * @param string $email Site admin email.
+	 */
+	private function set_site_admin_email( $email = 'site-admin@example.com' ) {
+		$this->admin_email_filter = fn() => $email;
+
+		add_filter( 'pre_option_admin_email', $this->admin_email_filter );
+	}
+
+	/**
+	 * Get the confirmation notice shown after opting in.
+	 *
+	 * @return string Notice HTML.
+	 */
+	private function get_confirmation_notice() {
+		$_GET['simple-history-email-report-opt-in'] = 'enabled';
+
+		$service = Simple_History::get_instance()->get_service( Email_Report_Service::class );
+
+		ob_start();
+
+		try {
+			$service->show_opt_in_confirmation_notice();
+		} finally {
+			$notice = ob_get_clean();
+		}
+
+		return $notice;
+	}
+
+	/**
+	 * On a site that never saved the email settings, the site admin keeps getting
+	 * the email after someone else opts in, so the offer must say so.
+	 */
+	public function test_description_names_the_site_admin_on_a_site_that_never_saved_the_settings() {
+		$this->login_as( 'administrator' );
+		$this->set_site_admin_email();
+
+		$this->assertSame(
+			'A summary of the past week, sent to admin-optin@example.com and site-admin@example.com every Monday. You can turn it off in the Simple History settings.',
+			Email_Report_Service::get_opt_in_description()
+		);
+	}
+
+	/**
+	 * Turning the email on also turns it on for recipients already in the list.
+	 */
+	public function test_description_names_recipients_already_in_the_list() {
+		$this->login_as( 'administrator' );
+		$this->set_site_admin_email();
+
+		update_option( Email_Report_Service::OPTION_INCLUDE_ADMIN, 'yes' );
+		update_option( 'simple_history_email_report_recipients', 'boss@client.example' );
+
+		$this->assertSame(
+			'A summary of the past week, sent to admin-optin@example.com, site-admin@example.com, and boss@client.example every Monday. You can turn it off in the Simple History settings.',
+			Email_Report_Service::get_opt_in_description()
+		);
+	}
+
+	public function test_description_counts_recipients_beyond_four() {
+		$this->login_as( 'administrator' );
+		$this->set_site_admin_email();
+
+		update_option( Email_Report_Service::OPTION_INCLUDE_ADMIN, 'yes' );
+		update_option( 'simple_history_email_report_recipients', "a@example.com\nb@example.com\nc@example.com" );
+
+		$this->assertSame(
+			'A summary of the past week, sent to admin-optin@example.com and 4 other recipients every Monday. You can turn it off in the Simple History settings.',
+			Email_Report_Service::get_opt_in_description()
+		);
+	}
+
+	public function test_description_names_only_the_user_when_the_site_admin_is_not_a_recipient() {
+		$this->login_as( 'administrator' );
+		$this->set_site_admin_email();
+
+		update_option( Email_Report_Service::OPTION_INCLUDE_ADMIN, 'no' );
+
+		$this->assertSame(
+			'A summary of the past week, sent to admin-optin@example.com every Monday. You can turn it off in the Simple History settings.',
+			Email_Report_Service::get_opt_in_description()
+		);
+	}
+
+	public function test_description_names_the_site_admin_once_when_they_click() {
+		$this->login_as( 'administrator' );
+		$this->set_site_admin_email( 'Admin-OptIn@example.com' );
+
+		$this->assertSame(
+			'A summary of the past week, sent to admin-optin@example.com every Monday. You can turn it off in the Simple History settings.',
+			Email_Report_Service::get_opt_in_description()
+		);
+	}
+
+	/**
+	 * When the email is already on, the click only adds the user, so the others
+	 * who already get it are not news.
+	 */
+	public function test_description_names_only_the_user_when_the_email_is_already_on() {
+		$this->login_as( 'administrator' );
+		$this->set_site_admin_email();
+
+		update_option( 'simple_history_email_report_enabled', '1' );
+		update_option( Email_Report_Service::OPTION_INCLUDE_ADMIN, 'yes' );
+
+		$this->assertSame(
+			'A summary of the past week, sent to admin-optin@example.com every Monday. You can turn it off in the Simple History settings.',
+			Email_Report_Service::get_opt_in_description()
+		);
+	}
+
+	public function test_confirmation_names_everyone_who_gets_the_email() {
+		$this->login_as( 'administrator' );
+		$this->set_site_admin_email();
+
+		update_option( Email_Report_Service::OPTION_INCLUDE_ADMIN, 'yes' );
+		update_option( 'simple_history_email_report_recipients', 'boss@client.example' );
+
+		$this->run_opt_in_handler();
+
+		$this->assertStringContainsString(
+			'Done. Every Monday, <strong>admin-optin@example.com</strong>, <strong>site-admin@example.com</strong>, and <strong>boss@client.example</strong> will get a summary of the past week.',
+			$this->get_confirmation_notice()
+		);
+	}
+
+	public function test_confirmation_names_only_the_user_when_they_are_the_only_recipient() {
+		$this->login_as( 'administrator' );
+		$this->set_site_admin_email();
+
+		update_option( Email_Report_Service::OPTION_INCLUDE_ADMIN, 'no' );
+
+		$this->run_opt_in_handler();
+
+		$this->assertStringContainsString(
+			'Done. Every Monday, <strong>admin-optin@example.com</strong> will get a summary of the past week.',
+			$this->get_confirmation_notice()
+		);
 	}
 
 	public function test_opting_in_on_a_site_that_relied_on_the_admin_keeps_the_admin() {
