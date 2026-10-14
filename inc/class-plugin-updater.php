@@ -378,7 +378,12 @@ class Plugin_Updater {
 			$res->package     = $remote->update->download_link;
 
 			$transient->response[ $res->plugin ] = $res;
+			unset( $transient->no_update[ $res->plugin ] );
 		} else {
+			// The saved update data can still offer an update from an earlier
+			// answer, like before the license expired, until WordPress's next check.
+			unset( $transient->response[ $res->plugin ] );
+
 			// No update is available for plugin.
 			// Adding the "mock" item to the `no_update` property is required
 			// for the enable/disable auto-updates links to correctly appear in UI.
