@@ -279,9 +279,9 @@ For more information, see our support page [GDPR and Privacy: How Your Data is S
 **Changed**
 
 -   Post title, permalink, excerpt and content changes are separate fields with old and new values in the REST API, Copy as JSON and Copy as Markdown. For long posts, only the changed lines of the content are listed.
+-   Premium and other add-ons check for updates only when WordPress itself checks for updates, so admin pages no longer wait for simple-history.com.
 -   For developers: the `simple_history/post_logger/label_for_key` filter also gets the status, publish date, comment status, author and template labels of post changes. Labels are escaped, so return plain text.
 -   For developers: the `simple_history/post_logger/post_updated/diff_table_output` filter no longer gets the title, permalink, excerpt, content and other changed fields, only the rows that callbacks add. `Post_Logger::extra_diff_record()` is deprecated and no longer used.
--   Experimental — Update checks for Premium and other add-ons run only when WordPress checks for updates, so admin pages no longer wait for simple-history.com.
 
 **Fixed**
 
