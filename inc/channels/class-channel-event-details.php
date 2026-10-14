@@ -266,10 +266,10 @@ class Channel_Event_Details {
 	}
 
 	/**
-	 * Turn raw details HTML into list entries, one per "Label: value" line.
+	 * Turn raw details HTML into list entries, one per key-value pair or line.
 	 *
 	 * The value is the whole change as text, like "old → new", so it goes in
-	 * new. Lines without a "Label: " of their own get the item's label.
+	 * new. Lines that are not a pair get the item's label.
 	 *
 	 * @param string $html  Details HTML.
 	 * @param string $label Label of the item, for lines without one.
@@ -277,26 +277,17 @@ class Channel_Event_Details {
 	 */
 	private static function build_list_from_html( $html, $label ) {
 		$list = [];
-		$text = Details_Text::from_html( $html, true );
 
-		foreach ( explode( "\n", $text ) as $line ) {
-			if ( trim( $line ) === '' ) {
-				continue;
-			}
+		foreach ( Details_Text::pairs( $html ) as $pair ) {
+			// A pair inside a labelled item keeps its key in the value,
+			// unless the key is the item's label.
+			$use_key = $pair['key'] !== '' && ( $label === '' || $pair['key'] === $label );
+			$value   = $use_key || $pair['key'] === '' ? $pair['value'] : Details_Text::format_pair( $pair['key'], $pair['value'] );
 
-			$parts = explode( ': ', $line, 2 );
-
-			if ( count( $parts ) === 2 && ( $label === '' || $parts[0] === $label ) ) {
-				$list[] = [
-					'label' => $parts[0],
-					'new'   => self::truncate( $parts[1] ),
-				];
-			} else {
-				$list[] = [
-					'label' => $label,
-					'new'   => self::truncate( $line ),
-				];
-			}
+			$list[] = [
+				'label' => $use_key ? $pair['key'] : $label,
+				'new'   => self::truncate( $value ),
+			];
 		}
 
 		return $list;

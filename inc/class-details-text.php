@@ -18,10 +18,12 @@ namespace Simple_History;
  * - Screen-reader-only text is dropped.
  * - Line breaks and block elements end a line; blank lines are removed.
  *
+ * A change from nothing shows only the new value, and a change to nothing
+ * shows "old → (removed)".
+ *
  * With $one_line_per_pair, each key-value pair stays on one line, for log
  * files and other line-based channels: the lines inside a value are joined
- * with "; ", a change from nothing shows only the new value, and a change to
- * nothing shows "old → (removed)".
+ * with "; ".
  *
  * Parsing is done with WP_HTML_Processor, which understands nesting, so a diff
  * table inside a value cell cannot be confused with the value's own markup.
@@ -74,6 +76,12 @@ class Details_Text {
 	/** @var bool Whether each key-value pair is kept on one line. */
 	private $one_line_per_pair = false;
 
+	/** @var string What goes between the key and the value of a pair. */
+	private $pair_separator = ': ';
+
+	/** Pair separator for pairs(): a control character that HTML text does not contain. */
+	const PAIRS_SEPARATOR = "\x1F";
+
 	/**
 	 * Convert details HTML to plain text.
 	 *
@@ -85,16 +93,63 @@ class Details_Text {
 	 * @return string Plain text, not safe for HTML output. Empty when there is nothing to show.
 	 */
 	public static function from_html( $html, $one_line_per_pair = false ) {
+		return self::convert( $html, $one_line_per_pair, ': ' );
+	}
+
+	/**
+	 * Convert details HTML to lines, one per key-value pair or other entry.
+	 *
+	 * Like from_html() with $one_line_per_pair, but the key of each pair is
+	 * kept apart, so a value that itself contains ": " is not mistaken for one.
+	 *
+	 * @param string $html Details HTML from a logger.
+	 * @return array<int, array{key: string, value: string}> Key is '' for lines that are not a pair. Plain text, not safe for HTML output.
+	 */
+	public static function pairs( $html ) {
+		$html  = str_replace( self::PAIRS_SEPARATOR, '', (string) $html );
+		$text  = self::convert( $html, true, self::PAIRS_SEPARATOR );
+		$pairs = [];
+
+		foreach ( explode( "\n", $text ) as $line ) {
+			if ( $line === '' ) {
+				continue;
+			}
+
+			$parts = explode( self::PAIRS_SEPARATOR, $line, 2 );
+
+			$pairs[] = count( $parts ) === 2
+				? [
+					'key'   => $parts[0],
+					'value' => $parts[1],
+				]
+				: [
+					'key'   => '',
+					'value' => $line,
+				];
+		}
+
+		return $pairs;
+	}
+
+	/**
+	 * Convert with the HTML API, or with regular expressions when it can't.
+	 *
+	 * @param string $html              Details HTML.
+	 * @param bool   $one_line_per_pair Keep each key-value pair on one line.
+	 * @param string $pair_separator    What goes between key and value.
+	 * @return string
+	 */
+	private static function convert( $html, $one_line_per_pair, $pair_separator ) {
 		$html = (string) $html;
 
 		if ( trim( $html ) === '' ) {
 			return '';
 		}
 
-		$text = self::convert_with_html_api( $html, $one_line_per_pair );
+		$text = self::convert_with_html_api( $html, $one_line_per_pair, $pair_separator );
 
 		if ( $text === null ) {
-			$text = self::convert_with_regex( $html, $one_line_per_pair );
+			$text = self::convert_with_regex( $html, $one_line_per_pair, $pair_separator );
 		}
 
 		return self::tidy( $text );
@@ -105,10 +160,11 @@ class Details_Text {
 	 *
 	 * @param string $html              Details HTML.
 	 * @param bool   $one_line_per_pair Keep each key-value pair on one line.
+	 * @param string $pair_separator    What goes between key and value.
 	 * @return string|null Text with one entry per line, or null when the
 	 *                     processor is unavailable or cannot parse the markup.
 	 */
-	public static function convert_with_html_api( $html, $one_line_per_pair = false ) {
+	public static function convert_with_html_api( $html, $one_line_per_pair = false, $pair_separator = ': ' ) {
 		// The processor exists since 6.4, but get_current_depth() and the
 		// other methods used here were complete first in 6.6.
 		if ( ! class_exists( '\WP_HTML_Processor' ) || version_compare( get_bloginfo( 'version' ), '6.6', '<' ) ) {
@@ -124,6 +180,7 @@ class Details_Text {
 		$converter = new self();
 
 		$converter->one_line_per_pair = (bool) $one_line_per_pair;
+		$converter->pair_separator    = (string) $pair_separator;
 
 		while ( $processor->next_token() ) {
 			$converter->handle_token( $processor );
@@ -278,7 +335,7 @@ class Details_Text {
 				if ( $this->diff_table_depth !== null ) {
 					// A diff row with only a deleted side.
 					if ( $is_closer && $this->diff_old !== null ) {
-						$removed = $this->one_line_per_pair && $this->diff_old !== '' ? self::change_to_text( $this->diff_old, '', true ) : $this->diff_old;
+						$removed = $this->diff_old !== '' ? self::change_to_text( $this->diff_old, '' ) : $this->diff_old;
 
 						$this->append( $removed . "\n" );
 						$this->diff_old = null;
@@ -362,7 +419,7 @@ class Details_Text {
 			$this->diff_old = $cell_text;
 		} elseif ( $cell === 'added' ) {
 			if ( $this->diff_old !== null || $cell_text !== '' ) {
-				$this->append( self::change_to_text( (string) $this->diff_old, $cell_text, $this->one_line_per_pair ) . "\n" );
+				$this->append( self::change_to_text( (string) $this->diff_old, $cell_text ) . "\n" );
 			}
 
 			$this->diff_old = null;
@@ -402,7 +459,7 @@ class Details_Text {
 		}
 
 		if ( $this->old !== null && $this->new !== null ) {
-			$this->append( self::change_to_text( $this->old, $this->new, $this->one_line_per_pair ) );
+			$this->append( self::change_to_text( $this->old, $this->new ) );
 		} else {
 			$this->append( (string) ( $this->old ?? $this->new ) );
 		}
@@ -414,22 +471,21 @@ class Details_Text {
 	/**
 	 * Format a change as "old → new".
 	 *
-	 * @param string $old_value         Old value.
-	 * @param string $new_value         New value.
-	 * @param bool   $one_line_per_pair Whether a change from nothing shows only the new value, and a change to nothing "old → (removed)".
+	 * @param string $old_value Old value.
+	 * @param string $new_value New value.
 	 * @return string
 	 */
-	private static function change_to_text( $old_value, $new_value, $one_line_per_pair ) {
+	private static function change_to_text( $old_value, $new_value ) {
 		$old_value = trim( (string) $old_value );
 		$new_value = trim( (string) $new_value );
 
 		// A change from nothing reads as the value being set. A change to
 		// nothing says so, or it would read the same way.
-		if ( $one_line_per_pair && $old_value === '' ) {
+		if ( $old_value === '' ) {
 			return $new_value;
 		}
 
-		if ( $one_line_per_pair && $new_value === '' ) {
+		if ( $new_value === '' ) {
 			/* translators: Shown after a value that was removed, as in "Old text → (removed)". */
 			return $old_value . ' → ' . __( '(removed)', 'simple-history' );
 		}
@@ -451,7 +507,7 @@ class Details_Text {
 			$value = self::join_lines( $value );
 		}
 
-		$line = self::format_pair( (string) $this->key, $value );
+		$line = self::format_pair( (string) $this->key, $value, $this->pair_separator );
 
 		if ( $line !== '' ) {
 			$this->out .= $line . "\n";
@@ -470,9 +526,10 @@ class Details_Text {
 	 *
 	 * @param string $html              Details HTML.
 	 * @param bool   $one_line_per_pair Keep each key-value pair on one line.
+	 * @param string $pair_separator    What goes between key and value.
 	 * @return string Text with one entry per line.
 	 */
-	public static function convert_with_regex( $html, $one_line_per_pair = false ) {
+	public static function convert_with_regex( $html, $one_line_per_pair = false, $pair_separator = ': ' ) {
 		$html = (string) $html;
 
 		// Screen-reader-only text.
@@ -484,7 +541,7 @@ class Details_Text {
 		// Unchanged lines in the side-by-side diff of post content.
 		$html = (string) preg_replace( '/<tbody[^>]*class=[\'"][^"\']*change-eq[^"\']*[\'"][^>]*>.*?<\/tbody>/is', '', $html );
 
-		$diff_row_to_line = function ( $matches ) use ( $one_line_per_pair ) {
+		$diff_row_to_line = function ( $matches ) {
 			$deleted = trim( wp_strip_all_tags( $matches[1] ) );
 			$added   = trim( wp_strip_all_tags( $matches[2] ) );
 
@@ -492,32 +549,30 @@ class Details_Text {
 				return '';
 			}
 
-			return self::change_to_text( $deleted, $added, $one_line_per_pair ) . "\n";
+			return self::change_to_text( $deleted, $added ) . "\n";
 		};
 
 		// Diff rows: deleted side and added side become "old → new".
 		// The split view has an empty cell between the two sides.
 		$html = (string) preg_replace_callback(
-			'/<tr[^>]*>\s*<td[^>]*class=[\'"][^"\']*diff-deletedline[^"\']*[\'"][^>]*>((?:(?!<\/td>).)*)<\/td>(?:\s*<td[^>]*>\s*<\/td>)?\s*<td[^>]*class=[\'"][^"\']*diff-addedline[^"\']*[\'"][^>]*>((?:(?!<\/td>).)*)<\/td>\s*<\/tr>/is',
+			'/<tr[^>]*>\s*<td[^>]*class=[\'"][^"\']*diff-deletedline[^"\']*[\'"][^>]*>([^<]*+(?:<(?!\/td>)[^<]*+)*+)<\/td>(?:\s*<td[^>]*>\s*<\/td>)?\s*<td[^>]*class=[\'"][^"\']*diff-addedline[^"\']*[\'"][^>]*>([^<]*+(?:<(?!\/td>)[^<]*+)*+)<\/td>\s*<\/tr>/is',
 			$diff_row_to_line,
 			$html
 		);
 
 		// Diff rows with only a deleted side.
-		if ( $one_line_per_pair ) {
-			$html = (string) preg_replace_callback(
-				'/<tr[^>]*>\s*<td[^>]*class=[\'"][^"\']*diff-deletedline[^"\']*[\'"][^>]*>((?:(?!<\/td>).)*)<\/td>(?:\s*<td[^>]*>(?:\s|&nbsp;)*<\/td>)*\s*<\/tr>/is',
-				fn( $matches ) => self::tidy( wp_strip_all_tags( $matches[1] ) ) === '' ? '' : self::change_to_text( wp_strip_all_tags( $matches[1] ), '', true ) . "\n",
-				$html
-			);
-		}
+		$html = (string) preg_replace_callback(
+			'/<tr[^>]*>\s*<td[^>]*class=[\'"][^"\']*diff-deletedline[^"\']*[\'"][^>]*>([^<]*+(?:<(?!\/td>)[^<]*+)*+)<\/td>(?:\s*<td[^>]*>(?:\s|&nbsp;)*<\/td>)*\s*<\/tr>/is',
+			fn( $matches ) => self::tidy( wp_strip_all_tags( $matches[1] ) ) === '' ? '' : self::change_to_text( wp_strip_all_tags( $matches[1] ), '' ) . "\n",
+			$html
+		);
 
 		// Rows of the side-by-side diff of post content. Its cells use the
 		// generic classes "old" and "new", so only look for them when the
 		// side-by-side table is there.
 		if ( stripos( $html, 'diff-side-by-side' ) !== false ) {
 			$html = (string) preg_replace_callback(
-				'/<tr[^>]*>\s*<td[^>]*class=[\'"](?:[^"\']*\s)?old(?:\s[^"\']*)?[\'"][^>]*>((?:(?!<\/td>).)*)<\/td>\s*<td[^>]*class=[\'"](?:[^"\']*\s)?new(?:\s[^"\']*)?[\'"][^>]*>((?:(?!<\/td>).)*)<\/td>\s*<\/tr>/is',
+				'/<tr[^>]*>\s*<td[^>]*class=[\'"](?:[^"\']*\s)?old(?:\s[^"\']*)?[\'"][^>]*>([^<]*+(?:<(?!\/td>)[^<]*+)*+)<\/td>\s*<td[^>]*class=[\'"](?:[^"\']*\s)?new(?:\s[^"\']*)?[\'"][^>]*>([^<]*+(?:<(?!\/td>)[^<]*+)*+)<\/td>\s*<\/tr>/is',
 				$diff_row_to_line,
 				$html
 			);
@@ -526,24 +581,24 @@ class Details_Text {
 		// <del>old</del><ins>new</ins> and <ins>new</ins><del>old</del>.
 		$html = (string) preg_replace_callback(
 			'/<del[^>]*>([^<]*)<\/del>\s*<ins[^>]*>([^<]*)<\/ins>/i',
-			fn( $matches ) => self::change_to_text( $matches[1], $matches[2], $one_line_per_pair ),
+			fn( $matches ) => self::change_to_text( $matches[1], $matches[2] ),
 			$html
 		);
 
 		$html = (string) preg_replace_callback(
 			'/<ins[^>]*>([^<]*)<\/ins>\s*<del[^>]*>([^<]*)<\/del>/i',
-			fn( $matches ) => self::change_to_text( $matches[2], $matches[1], $one_line_per_pair ),
+			fn( $matches ) => self::change_to_text( $matches[2], $matches[1] ),
 			$html
 		);
 
-		$pair_to_line = function ( $matches ) use ( $one_line_per_pair ) {
+		$pair_to_line = function ( $matches ) use ( $one_line_per_pair, $pair_separator ) {
 			$value = wp_strip_all_tags( $matches[2] );
 
 			if ( $one_line_per_pair ) {
 				$value = self::join_lines( $value );
 			}
 
-			$line = self::format_pair( wp_strip_all_tags( $matches[1] ), $value );
+			$line = self::format_pair( wp_strip_all_tags( $matches[1] ), $value, $pair_separator );
 
 			return $line === '' ? '' : $line . "\n";
 		};
@@ -566,11 +621,12 @@ class Details_Text {
 	 *
 	 * A value of "0" is a value; only an empty string counts as missing.
 	 *
-	 * @param string $key   Key text.
-	 * @param string $value Value text.
+	 * @param string $key       Key text.
+	 * @param string $value     Value text.
+	 * @param string $separator What goes between key and value.
 	 * @return string "key: value", a lone key or value, or "" when both are empty.
 	 */
-	public static function format_pair( $key, $value ) {
+	public static function format_pair( $key, $value, $separator = ': ' ) {
 		$key   = trim( (string) preg_replace( '/\s+/', ' ', (string) $key ) );
 		$value = trim( (string) $value );
 
@@ -582,7 +638,7 @@ class Details_Text {
 			return $key;
 		}
 
-		return $key . ': ' . $value;
+		return $key . $separator . $value;
 	}
 
 	/**

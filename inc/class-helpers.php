@@ -2091,10 +2091,11 @@ class Helpers {
 	 * lines, with the old and new lines as plain text. Unchanged context lines
 	 * are left out. An added run has no prev_value, a removed run no new_value.
 	 *
-	 * @param string $json_diff_string JSON-encoded diff array.
 	 * There is no line number: the diff is made from the texts with blank
 	 * lines removed (normalize_whitespace()), so its offsets don't match the
 	 * lines of the post.
+	 *
+	 * @param string $json_diff_string JSON-encoded diff array.
 	 *
 	 * @return array<int, array{prev_value?: string, new_value?: string}>
 	 */
