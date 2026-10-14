@@ -278,12 +278,16 @@ For more information, see our support page [GDPR and Privacy: How Your Data is S
 
 **Changed**
 
+-   For developers: the `simple_history/post_logger/label_for_key` filter also gets the status, publish date, comment status, author and template labels of post changes.
+-   For developers: the `simple_history/post_logger/post_updated/diff_table_output` filter no longer gets the title, permalink, excerpt, content and other changed fields, only the rows that callbacks add. `Post_Logger::extra_diff_record()` is deprecated and no longer used.
 -   Experimental — Update checks for Premium and other add-ons run only when WordPress checks for updates, so admin pages no longer wait for simple-history.com.
 
 **Fixed**
 
 -   Similar events didn't load on sites that use SQLite instead of MySQL.
 -   The log file only had the event message, not what changed. It now includes the event details too, like the roles added and removed when a user profile is edited.
+-   A page template change showed an extra row labelled "page_template_name" next to the Template row.
+-   Changes to a post's title, permalink, excerpt and content are separate fields with the old and new value in the REST API, Copy as JSON and Copy as Markdown, not one block of text. For long posts, content lists the changed lines.
 
 **Security**
 

@@ -2084,6 +2084,76 @@ class Helpers {
 	}
 
 	/**
+	 * Get the changed parts of a stored JSON diff (from jfcherng/php-diff JsonHtml renderer).
+	 *
+	 * The diff only has the changed lines, not the whole texts, so this is
+	 * what can be said about the change as data: one entry per run of changed
+	 * lines, with the old and new lines as plain text. Unchanged context lines
+	 * are left out. An added run has no prev_value, a removed run no new_value.
+	 *
+	 * @param string $json_diff_string JSON-encoded diff array.
+	 * There is no line number: the diff is made from the texts with blank
+	 * lines removed (normalize_whitespace()), so its offsets don't match the
+	 * lines of the post.
+	 *
+	 * @return array<int, array{prev_value?: string, new_value?: string}>
+	 */
+	public static function get_json_diff_changes( $json_diff_string ) {
+		$hunks = json_decode( (string) $json_diff_string, true );
+
+		if ( ! is_array( $hunks ) ) {
+			return [];
+		}
+
+		// The renderer marks changed words with <ins>/<del> and escapes the text itself.
+		$to_text = function ( $lines ) {
+			if ( ! is_array( $lines ) || $lines === [] ) {
+				return '';
+			}
+
+			$text = implode( "\n", array_map( 'strval', $lines ) );
+			$text = (string) preg_replace( '#</?(ins|del)\b[^>]*>#i', '', $text );
+
+			return html_entity_decode( $text, ENT_QUOTES | ENT_HTML5, 'UTF-8' );
+		};
+
+		$changes = [];
+
+		foreach ( $hunks as $hunk ) {
+			if ( ! is_array( $hunk ) ) {
+				continue;
+			}
+
+			foreach ( $hunk as $block ) {
+				if ( ! is_array( $block ) || ( $block['tag'] ?? 'eq' ) === 'eq' ) {
+					continue;
+				}
+
+				$prev = $to_text( $block['old']['lines'] ?? [] );
+				$new  = $to_text( $block['new']['lines'] ?? [] );
+
+				if ( $prev === '' && $new === '' ) {
+					continue;
+				}
+
+				$change = [];
+
+				if ( $prev !== '' ) {
+					$change['prev_value'] = $prev;
+				}
+
+				if ( $new !== '' ) {
+					$change['new_value'] = $new;
+				}
+
+				$changes[] = $change;
+			}
+		}
+
+		return $changes;
+	}
+
+	/**
 	 * Get number of events the last n days.
 	 *
 	 * Respects user permissions - only counts events from loggers the current user can view.
