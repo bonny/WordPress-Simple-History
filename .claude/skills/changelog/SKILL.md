@@ -227,7 +227,7 @@ When releasing, move Unreleased entries into a new versioned section with the re
 
 ## Release: the "What's new" update notice
 
-At release time, besides the changelog, add the **in-plugin "Highlights in this version"** notice that users see when they update. It's separate from `readme.txt`:
+Optional, for feature releases only (see the `release` skill, step 4): add the **in-plugin "Highlights in this version"** notice that users see when they update. Small releases skip it. It's separate from `readme.txt`:
 
 -   File: `inc/services/class-simple-history-updates.php`
 -   Register `add_filter( 'simple_history/pluginlogger/plugin_updated_details/simple-history/X.Y.Z', [ $this, 'on_plugin_updated_details_X_Y_Z' ] );` in `loaded()`

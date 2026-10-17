@@ -4,7 +4,7 @@ Contributors: eskapism, wpsimplehistory
 Donate link: https://simple-history.com/sponsor/?utm_source=wordpress_org&utm_medium=plugin_directory&utm_campaign=sponsorship&utm_content=readme_donate_link
 Tags: history, audit log, event log, user tracking, activity
 Tested up to: 7.1
-Stable tag: 5.35.0
+Stable tag: 5.36.0
 License: GPLv2 or later
 License URI: http://www.gnu.org/licenses/gpl-2.0.html
 
@@ -269,7 +269,10 @@ For more information, see our support page [GDPR and Privacy: How Your Data is S
 
 > Experimental entries are gated behind the "Experimental features" checkbox under Simple History → Settings. Tick it to try them, then share feedback so we know what to ship for everyone.
 
-### Unreleased
+### 5.36.0 (October 2026)
+
+Post edits are easier to read outside the log: Copy as JSON, log files and forwarded events list each changed field with its old and new value. This release also contains security fixes.
+[Screenshots and details in the release post](https://simple-history.com/2026/simple-history-5-36-0-released/)
 
 **Added**
 

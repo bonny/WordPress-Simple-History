@@ -31,6 +31,7 @@ class Simple_History_Updates extends Service {
 		add_filter( 'simple_history/pluginlogger/plugin_updated_details/simple-history/5.33.0', [ $this, 'on_plugin_updated_details_5_33_0' ] );
 		add_filter( 'simple_history/pluginlogger/plugin_updated_details/simple-history/5.34.0', [ $this, 'on_plugin_updated_details_5_34_0' ] );
 		add_filter( 'simple_history/pluginlogger/plugin_updated_details/simple-history/5.35.0', [ $this, 'on_plugin_updated_details_5_35_0' ] );
+		add_filter( 'simple_history/pluginlogger/plugin_updated_details/simple-history/5.36.0', [ $this, 'on_plugin_updated_details_5_36_0' ] );
 
 
 		// To test the output of a specific version, you can enable it for any just recently updated plugin that is visible in the GUI.
@@ -71,7 +72,8 @@ class Simple_History_Updates extends Service {
 
 		// Add release link if provided.
 		if ( ! empty( $release_link ) ) {
-			$output .= '<p class="sh-PluginUpdateDetails-releaseLink sh-ExternalLink"><a href="' . esc_url( $release_link ) . '" target="_blank">' .
+			$release_link = \Simple_History\Helpers::get_tracking_url( $release_link, 'plugin_updated_details', 'wpadmin', 'plugin', 'simple-history' );
+			$output      .= '<p class="sh-PluginUpdateDetails-releaseLink sh-ExternalLink"><a href="' . esc_url( $release_link ) . '" target="_blank" rel="noopener">' .
 				__( 'Read full release notes', 'simple-history' ) . '</a></p>';
 		}
 
@@ -427,6 +429,24 @@ class Simple_History_Updates extends Service {
 		];
 
 		$release_link = 'https://simple-history.com/2026/simple-history-5-35-0-released/';
+
+		return $this->format_new_features_list( '', $new_features, $release_link );
+	}
+
+	/**
+	 * Update details for version 5.36.0.
+	 *
+	 * @param array $extra_details Existing extra details.
+	 * @return string HTML with the highlights list.
+	 */
+	public function on_plugin_updated_details_5_36_0( $extra_details ) {
+		$new_features = [
+			__( 'Copy as JSON, log files and forwarded events now list each post change, like the title or content, with its old and new value. Before, they got one block of HTML.', 'simple-history' ),
+			__( 'Page template changes are logged from the first template you pick, and block themes show the template name.', 'simple-history' ),
+			__( 'Plus a number of fixes, some of them security related.', 'simple-history' ),
+		];
+
+		$release_link = 'https://simple-history.com/2026/simple-history-5-36-0-released/';
 
 		return $this->format_new_features_list( '', $new_features, $release_link );
 	}
