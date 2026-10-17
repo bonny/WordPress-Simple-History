@@ -323,39 +323,10 @@ class Whats_New_Service extends Service {
 	 * @return string
 	 */
 	public function get_update_line( $update ) {
-		$label    = $update['name'] . ' ' . $update['version'];
-		$features = (int) $update['summary']['features'];
-		$fixes    = (int) $update['summary']['fixes'];
-		$other    = (int) $update['summary']['other'];
+		$label = $update['name'] . ' ' . $update['version'];
 
-		/* translators: %d: number of new features. */
-		$features_text = sprintf( _n( '%d new feature', '%d new features', $features, 'simple-history' ), $features );
-
-		/* translators: %d: number of fixes. */
-		$fixes_text = sprintf( _n( '%d fix', '%d fixes', $fixes, 'simple-history' ), $fixes );
-
-		if ( $features > 0 && $fixes > 0 ) {
-			/* translators: 1: plugin name and version, e.g. "Simple History 5.35.0", 2: e.g. "4 new features", 3: e.g. "9 fixes". */
-			return sprintf( __( '%1$s: %2$s and %3$s.', 'simple-history' ), $label, $features_text, $fixes_text );
-		}
-
-		if ( $features > 0 ) {
-			/* translators: 1: plugin name and version, e.g. "Simple History 5.35.0", 2: e.g. "4 new features". */
-			return sprintf( __( '%1$s: %2$s.', 'simple-history' ), $label, $features_text );
-		}
-
-		if ( $fixes > 2 ) {
-			/* translators: 1: plugin name and version, e.g. "Simple History 5.35.1", 2: e.g. "5 fixes". */
-			return sprintf( __( '%1$s: %2$s.', 'simple-history' ), $label, $fixes_text );
-		}
-
-		if ( $fixes > 0 ) {
-			/* translators: %s: plugin name and version, e.g. "Simple History 5.35.1". */
-			return sprintf( __( '%s: fixes and small improvements.', 'simple-history' ), $label );
-		}
-
-		/* translators: 1: plugin name and version, e.g. "Simple History 5.35.1", 2: number of improvements. */
-		return sprintf( _n( '%1$s: %2$d improvement.', '%1$s: %2$d improvements.', $other, 'simple-history' ), $label, $other );
+		/* translators: 1: plugin name and version, e.g. "Simple History 5.35.0", 2: e.g. "4 new features and 9 fixes.". */
+		return sprintf( __( '%1$s: %2$s', 'simple-history' ), $label, $this->get_counts_text( $update['summary'] ) );
 	}
 
 	/**
@@ -557,32 +528,34 @@ class Whats_New_Service extends Service {
 		$features = (int) $summary['features'];
 		$fixes    = (int) $summary['fixes'];
 		$other    = (int) $summary['other'];
-
-		/* translators: %d: number of new features. */
-		$features_text = sprintf( _n( '%d new feature', '%d new features', $features, 'simple-history' ), $features );
-
-		/* translators: %d: number of fixes. */
-		$fixes_text = sprintf( _n( '%d fix', '%d fixes', $fixes, 'simple-history' ), $fixes );
-
-		if ( $features > 0 && $fixes > 0 ) {
-			/* translators: 1: e.g. "9 new features", 2: e.g. "15 fixes". */
-			return sprintf( __( '%1$s and %2$s.', 'simple-history' ), $features_text, $fixes_text );
-		}
+		$parts    = [];
 
 		if ( $features > 0 ) {
-			return $features_text . '.';
-		}
-
-		if ( $fixes > 2 ) {
-			return $fixes_text . '.';
+			/* translators: %d: number of new features. */
+			$parts[] = sprintf( _n( '%d new feature', '%d new features', $features, 'simple-history' ), $features );
 		}
 
 		if ( $fixes > 0 ) {
-			return __( 'Fixes and small improvements.', 'simple-history' );
+			/* translators: %d: number of fixes, security fixes included. */
+			$parts[] = sprintf( _n( '%d fix', '%d fixes', $fixes, 'simple-history' ), $fixes );
 		}
 
-		/* translators: %d: number of improvements. */
-		return sprintf( _n( '%d improvement.', '%d improvements.', $other, 'simple-history' ), $other );
+		if ( $other > 0 ) {
+			/* translators: %d: number of other changes. */
+			$parts[] = sprintf( _n( '%d other change', '%d other changes', $other, 'simple-history' ), $other );
+		}
+
+		if ( count( $parts ) === 3 ) {
+			/* translators: 1: e.g. "9 new features", 2: e.g. "15 fixes", 3: e.g. "4 other changes". */
+			return sprintf( __( '%1$s, %2$s and %3$s.', 'simple-history' ), ...$parts );
+		}
+
+		if ( count( $parts ) === 2 ) {
+			/* translators: 1: e.g. "9 new features", 2: e.g. "15 fixes". */
+			return sprintf( __( '%1$s and %2$s.', 'simple-history' ), ...$parts );
+		}
+
+		return ( $parts[0] ?? '' ) . '.';
 	}
 
 	/**
