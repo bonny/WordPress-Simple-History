@@ -230,11 +230,11 @@ class WhatsNewServiceTest extends \Codeception\TestCase\WPTestCase {
 			]
 		);
 
-		$this->assertSame( 'Simple History 5.35.0: 4 new features and 9 fixes.', $line( 4, 9, 2 ) );
+		$this->assertSame( 'Simple History 5.35.0: 4 new features, 9 fixes and 2 other changes.', $line( 4, 9, 2 ) );
 		$this->assertSame( 'Simple History 5.35.0: 1 new feature.', $line( 1, 0, 0 ) );
 		$this->assertSame( 'Simple History 5.35.0: 5 fixes.', $line( 0, 5, 0 ) );
-		$this->assertSame( 'Simple History 5.35.0: fixes and small improvements.', $line( 0, 2, 1 ) );
-		$this->assertSame( 'Simple History 5.35.0: 3 improvements.', $line( 0, 0, 3 ) );
+		$this->assertSame( 'Simple History 5.35.0: 2 fixes and 1 other change.', $line( 0, 2, 1 ) );
+		$this->assertSame( 'Simple History 5.35.0: 3 other changes.', $line( 0, 0, 3 ) );
 	}
 
 	public function test_box_title_names_the_new_version() {
@@ -264,9 +264,11 @@ class WhatsNewServiceTest extends \Codeception\TestCase\WPTestCase {
 			]
 		);
 
-		$this->assertSame( '9 new features and 15 fixes.', $counts( 9, 15, 3 ) );
+		$this->assertSame( '9 new features, 15 fixes and 3 other changes.', $counts( 9, 15, 3 ) );
+		$this->assertSame( '9 new features and 15 fixes.', $counts( 9, 15, 0 ) );
 		$this->assertSame( '1 new feature.', $counts( 1, 0, 0 ) );
-		$this->assertSame( 'Fixes and small improvements.', $counts( 0, 1, 0 ) );
+		$this->assertSame( '1 fix.', $counts( 0, 1, 0 ) );
+		$this->assertSame( '12 fixes and 4 other changes.', $counts( 0, 12, 4 ) );
 	}
 
 	public function test_first_line_leads_with_the_bold_title() {

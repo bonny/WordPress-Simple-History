@@ -99,7 +99,8 @@ class Changelog_Parser {
 					'text' => $entry,
 					'name' => self::get_entry_name( $entry ),
 				];
-			} elseif ( $section === 'Fixed' ) {
+			} elseif ( $section === 'Fixed' || $section === 'Security' ) {
+				// A security entry is a fix too, and often the most important one.
 				++$version['fixed'];
 			} else {
 				++$version['other'];
