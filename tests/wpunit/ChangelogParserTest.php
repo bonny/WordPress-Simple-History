@@ -75,9 +75,9 @@ TXT;
 		$version = Changelog_Parser::parse( self::SAMPLE )['2.1.0'];
 
 		$this->assertCount( 2, $version['added'] );
-		$this->assertSame( 2, $version['fixed'] );
-		// Changed + Security.
-		$this->assertSame( 2, $version['other'] );
+		// Fixed + Security.
+		$this->assertSame( 3, $version['fixed'] );
+		$this->assertSame( 1, $version['other'] );
 	}
 
 	public function test_reads_bold_names_and_release_links() {
@@ -96,8 +96,8 @@ TXT;
 		$summary = Changelog_Parser::summarize( $versions, '1.9.0', '2.1.0' );
 
 		$this->assertSame( 3, $summary['features'] );
-		$this->assertSame( 3, $summary['fixes'] );
-		$this->assertSame( 2, $summary['other'] );
+		$this->assertSame( 4, $summary['fixes'] );
+		$this->assertSame( 1, $summary['other'] );
 		$this->assertSame( [ '2.1.0', '2.0.1', '2.0.0' ], $summary['versions'] );
 		$this->assertSame( 'https://simple-history.com/2026/simple-history-2-1-0-released/', $summary['release_url'] );
 	}
