@@ -44,8 +44,6 @@ docker compose run --rm wpcli_mariadb simple-history list
 docker compose run --rm wpcli_mariadb simple-history --help
 ```
 
-See @CLAUDE.local.md for specific commands for stable and nightly WordPress installations.
-
 ## Project Management
 
 ### Private Skills
