@@ -66,6 +66,8 @@ build/
 !.claude/settings.json
 !.claude/commands/
 !.claude/skills/
+# Status line script; point to it from settings.local.json (absolute path, differs per machine)
+!.claude/statusline.sh
 # Skills with sensitive/business content (symlinked from Obsidian — see scripts/setup-private-skills.sh)
 # No trailing slashes: git's `dir/` syntax matches directories but symlinks are files.
 .claude/skills/release

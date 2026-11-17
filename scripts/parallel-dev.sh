@@ -427,6 +427,12 @@ cmd_up() {
 	# the main checkout (both are gitignored, so the worktree stays clean).
 	[ -e "$dir/vendor" ] || ln -s "$MAIN_REPO/vendor" "$dir/vendor"
 
+	# Share the main checkout's local Claude Code settings (permissions,
+	# status line). Gitignored, so it may not exist; skip it then.
+	if [ -f "$MAIN_REPO/.claude/settings.local.json" ] && [ ! -e "$dir/.claude/settings.local.json" ]; then
+		ln -s "$MAIN_REPO/.claude/settings.local.json" "$dir/.claude/settings.local.json"
+	fi
+
 	if [ -d "$MAIN_REPO/tests/plugins" ]; then
 		mkdir -p "$dir/tests/plugins"
 
