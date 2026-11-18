@@ -1,115 +1,48 @@
 # Folder Structure Overview
 
-Simple History follows a well-organized folder structure that separates different aspects of the plugin. Here's a detailed overview of the main directories and their purposes:
+What each top-level folder in the repository is for. Generated and installed folders (`vendor/`, `node_modules/`, `build/`) are not in git.
 
-## Root Directory
+## Plugin code
 
-```
-WordPress-Simple-History/
-├── inc/                  # Core plugin classes and functionality
-├── loggers/             # Logger implementations
-├── templates/           # Template files for views
-├── dropins/             # Plugin extensions/drop-ins
-├── js/                  # JavaScript files
-├── css/                 # Stylesheet files
-├── assets/             # Images and other static assets
-├── tests/              # Test files
-├── build/              # Build artifacts
-├── src/                # Source files for build
-├── docs/               # Documentation
-└── vendor/             # Composer dependencies
-```
+| Folder | Purpose |
+| ------ | ------- |
+| `inc/` | Core PHP classes: `Simple_History`, `Log_Query`, REST controllers, helpers. Subfolders: `services/` (one class per feature, including `class-setup-database.php`), `event-details/` (Event Details API), `channels/` (log forwarding, such as the file channel), `deprecated/` (old class names kept for backwards compatibility). |
+| `loggers/` | One logger class per area that gets logged (posts, users, plugins, options, and some third-party plugins). `class-logger.php` is the base class. |
+| `dropins/` | Optional features built as drop-ins (RSS feed, export, sidebar boxes, IP info, reactions and more). `class-dropin.php` is the base class. |
+| `templates/` | PHP templates for the settings pages and the email summary report (HTML and text versions). |
+| `src/` | Source for the React admin UI (event log, admin bar, command palette). Compiled into `build/` with `npm run build`. |
+| `js/` | Plain JavaScript loaded without a build step: `scripts.js`, the stats and insights pages, notices, and a bundled Chart.js. |
+| `css/` | Stylesheets and the SVG/PNG icons they reference. |
+| `assets/` | Images used inside the plugin, such as premium teasers. |
+| `vendor-prefixed/` | Third-party PHP libraries (php-diff and its dependencies) copied in with Strauss under the plugin's own namespace, so they do not clash with other plugins. |
 
-## Key Directories in Detail
+## Tests
 
-### `/inc` Directory
-Core plugin functionality:
-```
-inc/
-├── class-autoloader.php           # PSR-4 autoloader
-├── global-helpers.php            # Global helper functions
-├── services/                     # Service classes
-│   ├── class-setup-database.php
-│   ├── class-dropin-handler.php
-│   └── ...
-├── event-details/               # Event detail classes
-└── deprecated/                  # Deprecated code
-```
+| Folder | Purpose |
+| ------ | ------- |
+| `tests/` | Codeception suites `wpunit/`, `functional/` and `acceptance/`, run in Docker through `npm run test:*`. `playwright/` holds the Playwright browser tests and the screenshot specs. `screenshot/` has the fixtures for the WordPress.org screenshots. See `tests/readme.md`. |
+| `docker/` | Database init script for the test database, and a container setup for running Claude Code. |
 
-### `/loggers` Directory
-Logger implementations for different types of events:
-```
-loggers/
-├── class-plugin-logger.php      # Plugin events
-├── class-user-logger.php        # User events
-├── class-post-logger.php        # Post/page events
-└── ...
-```
+## Tooling and project files
 
-### `/templates` Directory
-Template files for the plugin's UI:
-```
-templates/
-├── settings-page.php           # Settings page template
-├── log-view.php               # Log viewer template
-└── dashboard-widget.php       # Dashboard widget template
-```
+| Folder | Purpose |
+| ------ | ------- |
+| `docs/` | Developer documentation (this folder). |
+| `scripts/` | Shell and helper scripts: parallel dev sites, test fixture and test plugin setup, test zip, benchmarks, teaser screenshots. |
+| `phpcs-rules/` | Custom PHP_CodeSniffer sniff used by `phpcs.xml.dist`. |
+| `examples/` | Only a readme pointing to https://simple-history.com/docs/. |
+| `.github/` | GitHub Actions workflows (tests, lint, spelling, WordPress.org deploy, readme assets) and the issue template. |
+| `.wordpress-org/` | Banners, icons, screenshots and the Playground blueprint for the WordPress.org plugin page. |
+| `.claude/`, `.agents/` | Skills, agents, hooks and settings for AI coding agents. |
 
-### `/dropins` Directory
-Optional plugin extensions:
-```
-dropins/
-├── class-example-dropin.php    # Example drop-in
-└── ...
-```
+## Files in the root
 
-### `/js` and `/css` Directories
-Frontend assets:
-```
-js/
-├── simple-history.js          # Main JavaScript file
-└── admin.js                  # Admin interface scripts
-
-css/
-├── styles.css               # Main stylesheet
-└── admin.css               # Admin interface styles
-```
-
-### `/tests` Directory
-Test files:
-```
-tests/
-├── phpunit/               # PHPUnit tests
-├── cypress/              # End-to-end tests
-└── wordpress-tests-lib/  # WordPress test library
-```
-
-## Important Files in Root
-
-- `index.php` - Main plugin file
-- `uninstall.php` - Cleanup on plugin uninstall
-- `composer.json` - Composer dependencies
-- `package.json` - npm dependencies
-- `README.md` - Plugin readme
-- `CHANGELOG.md` - Version history
-
-## Build System
-
-The plugin uses a build system for processing assets:
-
-- `/src` - Source files
-- `/build` - Compiled/processed files
-- `gruntfile.js` - Grunt build configuration
-
-## Development Files
-
-Files used during development:
-```
-├── .github/              # GitHub workflows and templates
-├── .vscode/             # VS Code settings
-├── .editorconfig        # Editor configuration
-├── .eslintrc           # ESLint configuration
-└── phpcs.xml.dist      # PHP CodeSniffer configuration
-```
-
-For more detailed information about specific directories and their contents, see [Key Directories](key-directories.md). 
+- `index.php`: main plugin file (plugin header, version constant, bootstrap).
+- `uninstall.php`: removes tables and options when the plugin is deleted.
+- `readme.txt`: WordPress.org readme, including the changelog. `CHANGELOG.md` is a changelog file too, with release summaries and links to release posts.
+- `composer.json`, `package.json`: PHP and npm dependencies and scripts.
+- `codeception.dist.yml`, `phpunit.xml`, `playwright.config.js`, `compose.yaml`, `.env.testing`: test configuration.
+- `phpcs.xml.dist`, `phpstan.neon`, `rector.php`, `.eslintrc.js`, `.typos.toml`, `.editorconfig`: linting and static analysis.
+- `gruntfile.js`: Grunt tasks for bumping the version number in `index.php`, `readme.txt` and `package.json`.
+- `.distignore`: files left out of the release zip.
+- `AGENTS.md`, `CLAUDE.md`, `code.md`: guidance for AI agents and the code standard.

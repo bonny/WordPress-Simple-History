@@ -58,7 +58,6 @@ README.md
 # "readme.issue-*.md" missed "readme.issue.fse-logging.md" (dot, not dash),
 # which then shipped to wordpress.org for several releases.
 readme.issue*.md
-readme.slot-slotfills-filters.md
 # Local notes (gitignored); never part of the package.
 /todos
 /todo.md

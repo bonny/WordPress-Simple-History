@@ -9,6 +9,25 @@ PHP-SPX is a PHP profiling extension with a built-in web UI. It's available in w
 -   **GitHub**: https://github.com/NoiseByNorthwest/php-spx
 -   **wp-env docs**: https://developer.wordpress.org/block-editor/reference-guides/packages/packages-env/#using-spx-profiling
 
+## Starting wp-env with SPX
+
+SPX is off unless wp-env is started with the `--spx` flag. Neither `.wp-env.json` nor the `wp-env:*` scripts in `package.json` turn it on, so pass the flag yourself:
+
+```bash
+npm run wp-env:start -- --spx
+
+# or directly
+npx @wordpress/env start --spx
+```
+
+Restarting without the flag turns SPX off again. Note that `npm run wp-env:reset` runs `start` without it, so add `--spx` with a separate `start` after a reset.
+
+Check that it is loaded:
+
+```bash
+npx wp-env run wordpress -- sh -c "php -m | grep SPX"
+```
+
 ## Accessing SPX
 
 ### Web UI
@@ -36,7 +55,7 @@ SPX_AUTO_START=1
 
 ## CLI Profiling with WP-CLI
 
-SPX can profile WP-CLI commands, but there's a catch: the wp-env `cli` container does **not** have SPX installed. SPX is only available in the `wordpress` and `tests-wordpress` containers.
+SPX can profile WP-CLI commands, but there's a catch: the wp-env `cli` container does **not** have SPX installed. SPX is only available in the `wordpress` and `tests-wordpress` containers. This project sets `"testsEnvironment": false` in `.wp-env.json`, so only `wordpress` exists here.
 
 ### Setup
 
@@ -428,5 +447,4 @@ Results are saved to `benchmarks/` with git branch and commit in the filename.
 
 ## See Also
 
--   [Performance Analysis](../readme.issue-performance.md) - Detailed optimization findings
 -   [wp-env SPX docs](https://developer.wordpress.org/block-editor/reference-guides/packages/packages-env/#using-spx-profiling)

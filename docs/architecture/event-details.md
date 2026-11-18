@@ -184,9 +184,18 @@ abstract class Event_Details_Group_Formatter {
     - Best for: Short lists, simple status changes, compact displays
 
 3. **`Event_Details_Group_Diff_Table_Formatter`**
+
     - Shows before/after values with color-coded differences
     - Returns empty string if group has no items (no empty tables)
     - Best for: Content changes, file modifications, text comparisons
+
+4. **`Event_Details_Group_Single_Item_Formatter`**
+    - Outputs each item's own HTML with no wrapping table or inline list (the group title, if set, is a screen-reader-only `<h4>`)
+    - JSON is `{ title, items }`, with each item's own `to_json()` output
+    - Used automatically by `Event_Details_Container::add_item()` and `Event_Details_Group::create_raw()`
+    - Best for: A single RAW item, such as a custom block of HTML
+
+Each group formatter picks a fallback item formatter for items that have none set: the table formatter uses `Event_Details_Item_Table_Row_Formatter`, the diff table formatter uses `Event_Details_Item_Diff_Table_Row_Formatter`, and the inline formatter uses `Event_Details_Item_Default_Formatter`. An item's own formatter, set with `set_formatter()`, always wins.
 
 #### Item Formatters
 
@@ -214,8 +223,44 @@ abstract class Event_Details_Item_Formatter {
     - Best for: Custom layouts, complex data structures, static content
 
 3. **`Event_Details_Item_Table_Row_RAW_Formatter`**
+
     - RAW formatter that maintains table row structure
     - Best for: Custom content within table layouts
+
+4. **`Event_Details_Item_Table_Row_Formatter`**
+
+    - One `<dt>`/`<dd>` row: the item name, then the new value in an `<ins>` and the previous value in a `<del>` when it changed, or only one of them when the value was added or removed. Values are escaped.
+    - JSON is the same as `Event_Details_Item_Default_Formatter`
+    - The fallback for items in a `Event_Details_Group_Table_Formatter` group; you rarely set it yourself
+
+5. **`Event_Details_Item_Diff_Table_Row_Formatter`**
+
+    - One `<dt>`/`<dd>` row with a text diff of the previous and new value, made by `Helpers::Text_Diff()` with WordPress's `WP_Text_Diff_Renderer_Table` (the revisions diff)
+    - JSON is the same as `Event_Details_Item_Default_Formatter`
+    - The fallback for items in a `Event_Details_Group_Diff_Table_Formatter` group. Set it on a single item to show one long text value as a diff inside a normal table group.
+
+6. **`Event_Details_Item_Image_Diff_Table_Row_Formatter`** (since 5.32.0)
+    - One `<dt>`/`<dd>` row with the previous image on a red cell and the new image on a green cell, side by side, in the same diff table markup WordPress uses for revisions
+    - The images are set on the formatter, not read from the item: `set_prev_image( $src, $caption )` and `set_new_image( $src, $caption )`. The caption is shown above the thumbnail. A side with only a caption (the attachment was deleted later) shows just the caption, and a side with neither shows "None".
+    - `set_size( 'small' )` draws the thumbnails at max 100x63 instead of the default max 200x125
+    - The item's `new_value`/`prev_value` are only used for JSON (same as `Event_Details_Item_Default_Formatter`), so set them to a plain text version such as the image URL or file name
+    - It outputs a `<dt>`/`<dd>` pair, so put the item in a table or diff table group
+    - Used by: the featured image change in the post logger and the site icon change in the options logger
+    - Best for: Before/after images
+
+```php
+$item = new Event_Details_Item( null, __( 'Featured image', 'simple-history' ) );
+$item->set_values( $new_plain, $prev_plain );
+
+$formatter = new Event_Details_Item_Image_Diff_Table_Row_Formatter();
+$formatter->set_prev_image( $prev_src, $prev_caption );
+$formatter->set_new_image( $new_src, $new_caption );
+
+$item->set_formatter( $formatter );
+
+$group = new Event_Details_Group();
+$group->add_item( $item );
+```
 
 **RAW Formatter Usage:**
 
@@ -702,6 +747,11 @@ new Event_Details_Item(null, 'Status')->set_new_value('Active')
 
 -   Best for: Content changes, text modifications, comparisons
 -   Automatically highlights differences between old and new values
+
+**Image Diff Table Row Formatter:**
+
+-   Best for: A changed image, such as a featured image or site icon
+-   Use `set_size( 'small' )` for images that are only ever shown small
 
 **RAW Formatters:**
 

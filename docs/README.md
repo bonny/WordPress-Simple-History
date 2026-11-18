@@ -1,56 +1,33 @@
-# Simple History Documentation
+# Simple History developer docs
 
-Simple History is a WordPress plugin that logs various things that occur in WordPress and presents those events in a beautiful and user-friendly interface. This documentation will help you understand how the plugin works, how to use it, and how to extend it for your needs.
+Reference docs for working on the Simple History code. User documentation is on [simple-history.com/docs](https://simple-history.com/docs/). These files are not part of the plugin package.
 
-## Quick Start
+## Architecture
 
-Simple History automatically logs various actions in WordPress and displays them in:
-
--   WordPress admin area (as a page under the "Tools" menu)
--   Dashboard widget
--   Through the REST API
--   Via WP-CLI commands
-
-## Documentation Sections
-
-### Architecture
-
--   [Overview](architecture/overview.md) - High-level architecture of the plugin
--   [Core Components](architecture/core-components.md) - Details about the main plugin components
--   [Event System](architecture/event-system.md) - How events are logged and processed
--   [Event Details](architecture/event-details.md) - Event details formatting and display system
--   [Services](architecture/services.md) - Service-based architecture details
+-   [Event Details](architecture/event-details.md) - The Event Details API: how loggers describe what changed in an event
 -   [Add-on Licenses](architecture/licenses.md) - How license keys are activated, refreshed from update checks, stored and read
+-   [Folder structure](folder-structure/overview.md) - What each top-level folder holds
 
-### Folder Structure
+## Database
 
--   [Overview](folder-structure/overview.md) - General folder organization
--   [Key Directories](folder-structure/key-directories.md) - Important directories and their purposes
-
-### Database
-
--   [Schema](database/schema.md) - Database tables and fields
--   [Versioning](database/versioning.md) - Database version management
--   [Relationships](database/relationships.md) - How data is related
+-   [Schema](database/schema.md) - Tables, columns and indexes
 -   [SQLite](database/sqlite.md) - What differs on SQLite, the `#` comment gotcha, and testing with `--env sqlite`
 
-### Development Guide
+## APIs
 
--   [Extending](development/extending.md) - How to extend the plugin
--   [Custom Loggers](development/custom-loggers.md) - Creating your own loggers
--   [Hooks Reference](development/hooks-reference.md) - Available filters and actions
--   [Best Practices](development/best-practices.md) - Development guidelines
+-   [REST API](rest-api.md) - Endpoints and their parameters
+-   [Filters usage examples](filters-usage-examples.md) - Including and excluding events from PHP, REST and WP-CLI
+-   [Filtered events URL helper](filtered-events-url-helper.md) - Building links to a filtered event log
+-   [Slots and filters in the React app](readme.slot-slotfills-filters.md) - JavaScript extension points
+
+## Tooling
+
 -   [Composer](composer.md) - Running Composer here and the PHP 7.4 resolver pin
+-   [Upgrading @wordpress/scripts](upgrading-wordpress-scripts.md) - Why it is pinned to 27 and how to move off it
+-   [wp-env and WordPress Playground](wp-playground-testing.md) - Local test environments
+-   [SPX profiling](spx-profiling-reference.md) - Profiling requests with PHP-SPX
 
-### API Reference
-
--   [REST API](rest-api.md) - REST API endpoints and usage
--   [Logging API](development/logging-api.md) - How to log custom events
--   [Query API](development/query-api.md) - How to query the log
-
-### Issue Archive
-
--   [Issue Archive](issues/) - Historical documentation from completed issues and investigations
+Testing is described in [tests/readme.md](../tests/readme.md), and code examples for loggers and dropins are in [examples/](../examples/).
 
 ## Requirements
 
@@ -59,14 +36,8 @@ Simple History automatically logs various actions in WordPress and displays them
 
 ## Support
 
-For support:
-
+-   [WordPress.org support forum](https://wordpress.org/support/plugin/simple-history/)
 -   [GitHub Issues](https://github.com/bonny/WordPress-Simple-History/issues)
--   [WordPress.org Support Forum](https://wordpress.org/support/plugin/simple-history/)
-
-## Contributing
-
-Contributions are welcome! Please read our [Contributing Guidelines](../CONTRIBUTING.md) before submitting pull requests.
 
 ## License
 
