@@ -53,6 +53,7 @@ Some skills live in the maintainer's Obsidian vault rather than in this repo. Ru
 ### Git Workflow
 
 -   Branching: see the Git section in code.md
+-   **This repo is public on GitHub.** Never commit customer names, emails or quotes from support mail, sales or revenue numbers, business decisions, or notes about other companies. Drafts, support replies and plans go in an Obsidian issue, not in a repo file. There is no `todos/` folder here on purpose (it was moved to Obsidian on 2026-11-18 after private material had been pushed).
 -   GitHub is used for code and CI only. Issues and project management live in Obsidian (use the `local-issues` skill), never GitHub issues or project boards
 -   When working with branches a readme file is created for most branches, called `readme.<branch-or-issue>.md`. See and use that file for findings, progress, and todos. Never add any sensitive information to this document, like API keys or passwords, since this document will be commited to GIT and can be shown on GitHub.
 -   Don't add to git or commit without user explicitly saying so

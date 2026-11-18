@@ -122,3 +122,7 @@ __pycache__/
 
 # Lint result caches (phpcs, phpstan) — restored by CI, never committed.
 .cache/
+
+# Private trackers stay in Obsidian, never in this public repo.
+/todo.md
+/todos/
