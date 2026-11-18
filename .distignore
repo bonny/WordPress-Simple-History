@@ -59,8 +59,9 @@ README.md
 # which then shipped to wordpress.org for several releases.
 readme.issue*.md
 readme.slot-slotfills-filters.md
-# Local notes folder (gitignored); never part of the package.
+# Local notes (gitignored); never part of the package.
 /todos
+/todo.md
 rector.php
 skills-lock.json
 /.cache
