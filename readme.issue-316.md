@@ -12,7 +12,7 @@ and never refreshes it, so a renewed customer's key looks expired locally. The
 update endpoint on simple-history.com now returns a `license` object on every
 check; core needs to store and derive state from it.
 
-Implementation plan: `docs/superpowers/plans/2026-09-06-license-status-from-update-checks.md`.
+Implementation plan: moved to the maintainer's notes (`archive/repo-docs/superpowers/plans/2026-09-06-license-status-from-update-checks.md`).
 Four tasks; all four are done on this branch.
 
 ## Done
@@ -148,5 +148,5 @@ errors, unchanged on old core.)` No `method.notFound` against
     state to avoid computing it twice.
 -   `AddOnPluginLicenseStateTest::tearDown()` removes the specific
     `pre_http_request` callback it added instead of `remove_all_filters()`.
--   `docs/superpowers/plans/2026-09-06-license-status-from-update-checks.md`
+-   The implementation plan, now in the maintainer's notes (see above)
     is now committed with the branch.

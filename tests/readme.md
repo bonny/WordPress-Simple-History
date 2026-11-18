@@ -156,7 +156,7 @@ This procedure is verified: run on 6.9.1 the abilities suite goes from 18 skippe
 
 There is no CI test workflow. `.github/workflows/` contains only `claude`, `claude-code-review`, `deploy`, and `spelling` — none invokes Codeception. The suite runs only when someone runs it locally, so a green branch means "green on whoever last ran it, at whatever WordPress version their volume happens to hold".
 
-This matters most for code gated on a newer WordPress than the default. Tests that `markTestSkipped()` below some version will skip forever without anyone noticing, which is exactly how two runtime defects in the Abilities API work reached a live site undetected — see `docs/superpowers/specs/2026-07-28-abilities-api-design.md` §10. For anything targeting an API newer than the default, verify against a real site of the target version rather than trusting a green suite.
+This matters most for code gated on a newer WordPress than the default. Tests that `markTestSkipped()` below some version will skip forever without anyone noticing, which is exactly how two runtime defects in the Abilities API work reached a live site undetected. The ability category was registered on `wp_abilities_api_init` instead of `wp_abilities_api_categories_init`, so WordPress rejected it and every ability with it. And `meta.show_in_rest` defaults to false, so the abilities registered fine in PHP but REST and MCP clients got `rest_ability_not_found`. Both tests skipped on the default WordPress, and both defects showed up at once on a real WordPress 7.0 site. For anything targeting an API newer than the default, verify against a real site of the target version rather than trusting a green suite.
 
 ## Upgrading WordPress version
 

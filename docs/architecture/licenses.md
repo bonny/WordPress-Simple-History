@@ -122,12 +122,10 @@ if ( $addon ) {
 }
 ```
 
-Ideas this makes possible: a re-engagement card for lapsed customers (local issue 15), a "renews in N days" nudge from `expires_timestamp`, re-activation help for `inactive` keys, and an "add more sites" hint from the activation counts.
-
 ## Debugging
 
 With `WP_DEBUG` on, the Licenses tab shows a "Licence message (debug)" block with the raw stored option and the derived state. The WP-CLI command `wp simple-history info` still reads an older option for its license line and does not use this state yet.
 
 ## History
 
-Local issues 315 (endpoint) and 316 (core), September 2026. The plan with the full task breakdown is `docs/superpowers/plans/2026-09-06-license-status-from-update-checks.md`.
+Local issues 315 (endpoint) and 316 (core), September 2026.
