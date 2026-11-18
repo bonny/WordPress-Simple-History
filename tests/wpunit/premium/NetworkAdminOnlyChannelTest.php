@@ -144,4 +144,90 @@ class NetworkAdminOnlyChannelTest extends PremiumTestCase {
 			$this->assertNotContains( 'network_admin_only', $this->get_settings_error_codes( $channel->get_settings_option_name() ), "$label: no restriction notice." );
 		}
 	}
+
+	/**
+	 * Register the channel's setting the way core's Log Forwarding page does on
+	 * admin_menu, so update_option() runs sanitize_settings() like it does on
+	 * every wp-admin request.
+	 *
+	 * @param object $channel Channel.
+	 */
+	private function register_channel_setting( $channel ) {
+		register_setting(
+			'simple_history_settings_group_log_forwarding',
+			$channel->get_settings_option_name(),
+			[ 'sanitize_callback' => [ $channel, 'sanitize_settings' ] ]
+		);
+	}
+
+	/**
+	 * Record three failed sends through the channel's own handle_error().
+	 *
+	 * @param object $channel Channel.
+	 */
+	private function record_error( $channel ) {
+		$handle_error = new \ReflectionMethod( $channel, 'handle_error' );
+		$handle_error->setAccessible( true );
+
+		for ( $i = 0; $i < 3; $i++ ) {
+			$handle_error->invoke( $channel, 'Connection refused', 0 );
+		}
+	}
+
+	/**
+	 * A channel records its own errors with save_settings(). In wp-admin that
+	 * runs through sanitize_settings(), which must not throw the record away.
+	 */
+	public function test_error_tracking_is_saved_while_setting_is_registered_on_single_site() {
+		$channel = new Remote_Syslog_Channel();
+		$this->store_setting( $channel, 'host', 'logs.example.com' );
+		$this->register_channel_setting( $channel );
+
+		$this->record_error( $channel );
+
+		$stored = get_option( $channel->get_settings_option_name() );
+		$this->assertSame( 'Connection refused', $stored['last_error']['message'] ?? null, 'The error is recorded.' );
+		$this->assertSame( 3, $stored['consecutive_errors'] ?? null, 'The error count is recorded, so auto-disable can trigger.' );
+
+		unregister_setting( 'simple_history_settings_group_log_forwarding', $channel->get_settings_option_name() );
+	}
+
+	/**
+	 * Same, for a subsite admin on multisite: an event they cause is forwarded
+	 * and the channel records the result. That is not the subsite admin
+	 * changing the settings, so no restriction and no notice.
+	 */
+	public function test_error_tracking_is_saved_for_site_admin_on_multisite() {
+		foreach ( $this->network_channels() as $label => [ $channel, $key, $stored ] ) {
+			$this->store_setting( $channel, $key, $stored );
+			$this->register_channel_setting( $channel );
+
+			$this->record_error( $channel );
+
+			$saved = get_option( $channel->get_settings_option_name() );
+			$this->assertSame( 'Connection refused', $saved['last_error']['message'] ?? null, "$label: the error is recorded." );
+			$this->assertSame( 3, $saved['consecutive_errors'] ?? null, "$label: the error count is recorded." );
+			$this->assertSame( $stored, $saved[ $key ], "$label: the host is unchanged." );
+			$this->assertSame( [], $this->get_settings_error_codes( $channel->get_settings_option_name() ), "$label: no restriction notice." );
+
+			unregister_setting( 'simple_history_settings_group_log_forwarding', $channel->get_settings_option_name() );
+		}
+	}
+
+	/**
+	 * The Log Forwarding form saves every channel at once, and still shows the
+	 * restricted channels' fields to a subsite admin. Saving the form without
+	 * touching them posts their stored values back, which is not an attempt
+	 * to change them.
+	 */
+	public function test_site_admin_saving_form_without_changing_restricted_channel_gets_no_notice() {
+		foreach ( $this->network_channels() as $label => [ $channel, $key, $stored ] ) {
+			$this->store_setting( $channel, $key, $stored );
+
+			$sanitized = $channel->sanitize_settings( [ $key => $stored ] );
+
+			$this->assertSame( $stored, $sanitized[ $key ], "$label: the stored host is kept." );
+			$this->assertSame( [], $this->get_settings_error_codes( $channel->get_settings_option_name() ), "$label: no notice for a channel the user did not change." );
+		}
+	}
 }
