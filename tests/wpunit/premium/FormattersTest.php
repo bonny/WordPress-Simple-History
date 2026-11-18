@@ -388,6 +388,24 @@ class FormattersTest extends PremiumTestCase {
 		$this->assertStringContainsString( 'details="Role added: administrator; Role removed: author"', $output );
 	}
 
+	/**
+	 * RFC 5424 puts structured data before the message, so long details push
+	 * the message back. Syslog over UDP is often cut at 1024 bytes (Papertrail,
+	 * rsyslog's default), and then the message is what gets lost.
+	 */
+	public function test_rfc5424_long_details_keep_the_message_within_1024_bytes(): void {
+		$event                 = $this->get_sample_event_data_with_details();
+		$event['details_text'] = implode( "\n", array_fill( 0, 20, 'Content: ' . str_repeat( 'x', 190 ) ) );
+
+		$message = 'Updated post "Hello world"';
+		$output  = ( new Rfc5424_Formatter() )->format( $event, $message );
+
+		$message_end = strpos( $output, $message );
+		$this->assertNotFalse( $message_end, 'The message is in the frame.' );
+		$this->assertLessThanOrEqual( 1024, $message_end + strlen( $message ), 'The whole message fits in a 1024-byte packet.' );
+		$this->assertStringContainsString( 'details="Content: xxx', $output, 'Details are still included, shortened.' );
+	}
+
 	public function test_splunk_and_datadog_include_details(): void {
 		$event = $this->get_sample_event_data_with_details();
 

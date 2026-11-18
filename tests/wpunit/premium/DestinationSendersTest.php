@@ -1080,6 +1080,56 @@ class DestinationSendersTest extends PremiumTestCase {
 		$this->assertSame( '…', $rich['elements'][1]['elements'][0]['text'] );
 	}
 
+	/**
+	 * Collect every rich text "text" element in a Slack payload.
+	 *
+	 * @param array $node Payload or part of it.
+	 * @return array[] Text elements.
+	 */
+	private function collect_rich_text_elements( array $node ): array {
+		$found = [];
+
+		if ( ( $node['type'] ?? '' ) === 'text' && array_key_exists( 'text', $node ) ) {
+			$found[] = $node;
+		}
+
+		foreach ( $node as $child ) {
+			if ( is_array( $child ) ) {
+				$found = array_merge( $found, $this->collect_rich_text_elements( $child ) );
+			}
+		}
+
+		return $found;
+	}
+
+	/**
+	 * Slack rejects the whole message (400 invalid_blocks) when a rich text
+	 * element has empty text, so a cleared field must not produce one.
+	 */
+	public function test_slack_details_list_has_no_empty_text_elements(): void {
+		$method = new \ReflectionMethod( Slack_Destination_Sender::class, 'build_payload' );
+		$method->setAccessible( true );
+
+		$details_list = [
+			[
+				'label' => 'Custom field',
+				'new'   => '',
+			],
+			[
+				'label' => 'Role added',
+				'new'   => 'administrator',
+			],
+		];
+
+		$payload = $method->invoke( new Slack_Destination_Sender(), $this->get_normalized_for_payload(), "text\nfallback", 'https://example.com/event', $details_list, false );
+
+		foreach ( $this->collect_rich_text_elements( $payload['blocks'] ) as $element ) {
+			$this->assertNotSame( '', $element['text'], 'Every rich text element has text.' );
+		}
+
+		$this->assertNotEmpty( $this->collect_rich_text_elements( $payload['blocks'] ), 'The non-empty entry is still listed.' );
+	}
+
 	public function test_slack_falls_back_to_code_block_without_list(): void {
 		$method = new \ReflectionMethod( Slack_Destination_Sender::class, 'build_payload' );
 		$method->setAccessible( true );

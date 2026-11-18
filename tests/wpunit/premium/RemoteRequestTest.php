@@ -74,6 +74,8 @@ class RemoteRequestTest extends PremiumTestCase {
 			'no port'                   => [ 'https://hooks.slack.com/services/T0/B0/X' ],
 			'uppercase scheme'          => [ 'HTTPS://example.com' ],
 			'query string'              => [ 'https://example.com/hook?key=abc' ],
+			'Docker service name'       => [ 'http://splunk_hec:8088/services/collector' ],
+			'internationalized domain'  => [ 'https://exämple.se/hook' ],
 		];
 	}
 

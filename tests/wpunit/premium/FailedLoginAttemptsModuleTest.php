@@ -81,6 +81,37 @@ class FailedLoginAttemptsModuleTest extends PremiumTestCase {
 		);
 	}
 
+	/**
+	 * A wrong two-factor code is a failed login by an existing user (core 5.35.0+).
+	 */
+	public function test_log_nothing_setting_applies_to_wrong_two_factor_codes() {
+		update_option( Failed_Login_Attempts_Settings_Module::OPTION_NAME_EXISTING_USERS, 'log_nothing' );
+
+		$count_before = $this->get_event_count();
+
+		$this->log_failed_login( 'user_two_factor_login_failed' );
+
+		$this->assertEquals( $count_before, $this->get_event_count() );
+	}
+
+	/**
+	 * Premium keeps its own copy of core's failed-login keys. Every key core
+	 * knows must be in it, or a new kind of failed login escapes the setting.
+	 */
+	public function test_module_knows_every_failed_login_key_core_logs() {
+		$keys = new \ReflectionClassConstant( Failed_Login_Attempts_Settings_Module::class, 'FAILED_LOGIN_MESSAGE_KEYS_EXISTING_USER' );
+
+		foreach ( User_Logger::FAILED_LOGIN_MESSAGE_KEYS_EXISTING_USER as $key ) {
+			$this->assertContains( $key, $keys->getValue(), "Existing-user key $key is handled." );
+		}
+
+		$keys = new \ReflectionClassConstant( Failed_Login_Attempts_Settings_Module::class, 'FAILED_LOGIN_MESSAGE_KEYS_UNKNOWN_USER' );
+
+		foreach ( User_Logger::FAILED_LOGIN_MESSAGE_KEYS_UNKNOWN_USER as $key ) {
+			$this->assertContains( $key, $keys->getValue(), "Unknown-user key $key is handled." );
+		}
+	}
+
 	public function test_log_nothing_setting_applies_to_application_password_failures_for_unknown_users() {
 		update_option( Failed_Login_Attempts_Settings_Module::OPTION_NAME_UNKNOWN_USERS, 'log_nothing' );
 
