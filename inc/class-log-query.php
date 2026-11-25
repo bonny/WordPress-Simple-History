@@ -2383,12 +2383,17 @@ class Log_Query {
 	 * CAST( … AS BINARY ) rather than the BINARY operator, which MySQL 8.0.27
 	 * deprecated; the cast works on every MySQL and MariaDB version. It
 	 * costs nothing here: the lookup uses the index on the key column, and
-	 * the value column has no index. SQLite compares exactly already.
+	 * the value column has no index.
+	 *
+	 * SQLite needs its own fix. The SQLite integration plugin makes text
+	 * comparisons case-insensitive to behave like MySQL, so "Editor" found
+	 * "editor" there too. It doesn't understand the binary cast, but it
+	 * passes `COLLATE BINARY` on to SQLite, where it compares exactly.
 	 *
 	 * @return string
 	 */
 	protected function get_role_value_column() {
-		return self::get_db_engine() === 'mysql' ? 'CAST( c.value AS BINARY )' : 'c.value';
+		return self::get_db_engine() === 'mysql' ? 'CAST( c.value AS BINARY )' : 'c.value COLLATE BINARY';
 	}
 
 	/**
