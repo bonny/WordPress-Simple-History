@@ -99,6 +99,16 @@ class UserRolesFilterTest extends \Codeception\TestCase\WPTestCase {
 		$this->assertSame( [], $this->get_test_messages( [ 'user_roles' => [ '', ' ' ] ] ) );
 	}
 
+	/**
+	 * An empty list means no filter, like "users", so a caller that always
+	 * passes an optional array gets the whole log.
+	 */
+	public function test_empty_user_roles_list_is_no_filter() {
+		$this->assertCount( 3, $this->get_test_messages( [ 'user_roles' => [] ] ) );
+		$this->assertCount( 3, $this->get_test_messages( [ 'user_roles' => '' ] ) );
+		$this->assertCount( 3, $this->get_test_messages( [ 'exclude_user_roles' => [] ] ) );
+	}
+
 	public function test_exclude_user_roles_with_only_empty_values_excludes_nothing() {
 		$this->assertCount( 3, $this->get_test_messages( [ 'exclude_user_roles' => ',' ] ) );
 	}
@@ -335,6 +345,29 @@ class UserRolesFilterTest extends \Codeception\TestCase\WPTestCase {
 		$context = ( new \Simple_History\Event( $event_id ) )->get_context();
 
 		$this->assertArrayNotHasKey( '_user_role', $context );
+		$this->assertArrayNotHasKey( '_user_role_2', $context );
+	}
+
+	public function test_extra_roles_are_dropped_when_a_filter_blanks_the_role() {
+		$multi_id = $this->factory->user->create( [ 'role' => 'subscriber' ] );
+		( new WP_User( $multi_id ) )->add_role( 'contributor' );
+
+		$blank_role = static function ( $context ) {
+			$context['_user_role'] = '';
+
+			return $context;
+		};
+
+		add_filter( 'simple_history/log_insert_context', $blank_role );
+
+		wp_set_current_user( $multi_id );
+		$event_id = \SimpleLogger()->info( 'Role test: role blanked' )->last_insert_id;
+		wp_set_current_user( $this->admin_id );
+
+		remove_filter( 'simple_history/log_insert_context', $blank_role );
+
+		$context = ( new \Simple_History\Event( $event_id ) )->get_context();
+
 		$this->assertArrayNotHasKey( '_user_role_2', $context );
 	}
 

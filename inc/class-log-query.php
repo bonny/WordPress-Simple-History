@@ -2341,8 +2341,9 @@ class Log_Query {
 	 * checked against wp_roles() either: a role whose plugin has been removed
 	 * is still in the log, and filtering on it should still work.
 	 *
-	 * An argument that was given but has no usable slug left becomes an
-	 * empty array, not null. For "user_roles" that matches nothing, so a
+	 * An empty array or empty string means no filter, like "users". An
+	 * argument with values but no usable slug among them, like ",", becomes
+	 * an empty array instead. For "user_roles" that matches nothing, so a
 	 * malformed filter never reads as "every event was by this role".
 	 *
 	 * @param array  $args Query arguments.
@@ -2357,6 +2358,12 @@ class Log_Query {
 
 		if ( ! is_string( $args[ $key ] ) && ! is_array( $args[ $key ] ) ) {
 			throw new \InvalidArgumentException( 'Invalid ' . esc_html( $key ) );
+		}
+
+		if ( $args[ $key ] === [] || $args[ $key ] === '' ) {
+			unset( $args[ $key ] );
+
+			return $args;
 		}
 
 		if ( is_string( $args[ $key ] ) ) {

@@ -576,4 +576,23 @@ class AlertEvaluatorTest extends PremiumTestCase {
 		$event['level'] = 'warning';
 		$this->assertFalse( Alert_Evaluator::evaluate( $rule, $event ) );
 	}
+
+	/**
+	 * A backfilled event has no stored role on purpose. The log's role
+	 * filter doesn't match it, so a rule on user_role mustn't either.
+	 */
+	public function test_backfilled_event_does_not_match_on_current_role(): void {
+		$user_id = $this->factory->user->create( [ 'role' => 'editor' ] );
+
+		$rule = [ '==' => [ [ 'var' => 'user_role' ], 'editor' ] ];
+
+		$backfilled = [
+			'context' => [
+				'_user_id'          => $user_id,
+				'_backfilled_event' => '1',
+			],
+		];
+
+		$this->assertFalse( Alert_Evaluator::evaluate( $rule, $backfilled ) );
+	}
 }

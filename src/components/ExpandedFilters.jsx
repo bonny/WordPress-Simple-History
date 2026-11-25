@@ -133,6 +133,12 @@ export function ExpandedFilters( props ) {
 			return roleOption.label;
 		}
 
+		// Search options not loaded yet: the role list is unknown, so don't
+		// call a role missing that may well exist.
+		if ( ! searchOptions?.user_roles ) {
+			return roleSlug;
+		}
+
 		// Marked, so it can't share a label with a registered role: a
 		// leftover "Editor" must stay apart from the site's "Editor".
 		return sprintf(

@@ -423,6 +423,12 @@ class WP_CLI_List_Command extends WP_CLI_Command {
 		// removed plugin is still in the log.
 		// Passed on as a string: Log_Query splits and trims it, and keeps a
 		// slug like "0" that empty() would drop.
+		// A flag without a value comes in as true, which would filter on a
+		// role named "1".
+		if ( $assoc_args['user_role'] === true ) {
+			WP_CLI::error( __( '--user_role needs one or more role slugs, for example --user_role=editor,author', 'simple-history' ) );
+		}
+
 		if ( (string) $assoc_args['user_role'] !== '' ) {
 			$query_args['user_roles'] = (string) $assoc_args['user_role'];
 		}
@@ -482,6 +488,12 @@ class WP_CLI_List_Command extends WP_CLI_Command {
 			if ( ! empty( $exclude_user_ids ) ) {
 				$query_args['exclude_users'] = $exclude_user_ids;
 			}
+		}
+
+		// A flag without a value comes in as true, which would filter on a
+		// role named "1".
+		if ( $assoc_args['exclude_user_role'] === true ) {
+			WP_CLI::error( __( '--exclude_user_role needs one or more role slugs, for example --exclude_user_role=editor,author', 'simple-history' ) );
 		}
 
 		if ( (string) $assoc_args['exclude_user_role'] !== '' ) {
