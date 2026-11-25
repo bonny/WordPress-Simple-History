@@ -213,9 +213,10 @@ class Log_Query {
 	 *      @type int $user Single user ID as number. Default null.
 	 *      @type string|array $users User IDs, comma separated string or array. Default null.
 	 *      @type string|array $initiator Initiator to filter by. Single string or array of initiators. Default null.
-	 *      @type string|array $user_roles Role slugs to filter by, comma separated string or array. Matches the role
-	 *                                     the user had when the event was logged (the `_user_role` context key), so
-	 *                                     events without a user, and events logged before 5.23.0, never match. Default null.
+	 *      @type string|array $user_roles Role slugs to filter by, comma separated string or array. Matches any role
+	 *                                     the user had when the event was logged (`_user_role`, and `_user_role_2`
+	 *                                     and up for users with several roles), so events without a user, and events
+	 *                                     logged before 5.23.0, never match. Default null.
 	 *      @type string $ip_address IP address to filter by. Supports anonymized IPs with ".x" suffix. Default null.
 	 *
 	 *    Exclusion Filters (what to hide).
@@ -227,8 +228,9 @@ class Log_Query {
 	 *      @type string|array $exclude_messages Messages to exclude. Array or string with comma separated in format "LoggerSlug:Message". Default null.
 	 *      @type int $exclude_user Single user ID to exclude. Default null.
 	 *      @type string|array $exclude_users User IDs to exclude, comma separated string or array. Default null.
-	 *      @type string|array $exclude_user_roles Role slugs to exclude, comma separated string or array. Events without
-	 *                                             a stored role are kept. Default null.
+	 *      @type string|array $exclude_user_roles Role slugs to exclude, comma separated string or array. Leaves out an
+	 *                                             event if any of the user's stored roles matches. Events without a
+	 *                                             stored role are kept. Default null.
 	 *      @type string|array $exclude_initiator Initiator(s) to exclude. Single string or array of initiators. Default null.
 	 *
 	 *    Other Options.

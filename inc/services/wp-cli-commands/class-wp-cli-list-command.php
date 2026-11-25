@@ -421,8 +421,10 @@ class WP_CLI_List_Command extends WP_CLI_Command {
 		// Slugs are passed on as typed, only trimmed: role slugs are case
 		// sensitive. Not checked against the site's roles: a role from a
 		// removed plugin is still in the log.
-		if ( ! empty( $assoc_args['user_role'] ) ) {
-			$query_args['user_roles'] = $this->parse_comma_separated_values( $assoc_args['user_role'] );
+		// Passed on as a string: Log_Query splits and trims it, and keeps a
+		// slug like "0" that empty() would drop.
+		if ( (string) $assoc_args['user_role'] !== '' ) {
+			$query_args['user_roles'] = (string) $assoc_args['user_role'];
 		}
 
 		if ( ! empty( $assoc_args['search'] ) ) {
@@ -482,8 +484,8 @@ class WP_CLI_List_Command extends WP_CLI_Command {
 			}
 		}
 
-		if ( ! empty( $assoc_args['exclude_user_role'] ) ) {
-			$query_args['exclude_user_roles'] = $this->parse_comma_separated_values( $assoc_args['exclude_user_role'] );
+		if ( (string) $assoc_args['exclude_user_role'] !== '' ) {
+			$query_args['exclude_user_roles'] = (string) $assoc_args['exclude_user_role'];
 		}
 
 		if ( ! empty( $exclude_initiators ) ) {

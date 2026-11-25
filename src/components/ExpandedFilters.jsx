@@ -10,7 +10,7 @@ import {
 	__experimentalInputControl as InputControl,
 } from '@wordpress/components';
 import { useEffect, useState } from '@wordpress/element';
-import { __ } from '@wordpress/i18n';
+import { __, sprintf } from '@wordpress/i18n';
 import { help } from '@wordpress/icons';
 import { addQueryArgs } from '@wordpress/url';
 import { LOGLEVELS_OPTIONS, SUBITEM_PREFIX } from '../constants';
@@ -125,7 +125,17 @@ export function ExpandedFilters( props ) {
 			( option ) => option.value === roleSlug
 		);
 
-		return roleOption ? roleOption.label : roleSlug;
+		if ( roleOption ) {
+			return roleOption.label;
+		}
+
+		// Marked, so it can't share a label with a registered role: a
+		// leftover "Editor" must stay apart from the site's "Editor".
+		return sprintf(
+			/* translators: %s: role slug that no registered role has. */
+			__( '%s (not on this site)', 'simple-history' ),
+			roleSlug
+		);
 	} );
 
 	const handleUserRolesChange = ( nextLabels ) => {
