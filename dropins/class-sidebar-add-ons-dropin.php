@@ -42,12 +42,14 @@ class Sidebar_Add_Ons_Dropin extends Dropin {
 		// phpcs:ignore WordPress.Security.NonceVerification.Recommended
 		$preview_promotion = isset( $_GET['sh_preview_promotion'] );
 
-		// Get current date/time in the site's timezone.
 		$now = current_datetime();
 
-		// Define promotion start and end dates in the site's timezone.
-		$start_date = new \DateTimeImmutable( '2025-11-23 00:00:00', wp_timezone() );
-		$end_date   = new \DateTimeImmutable( '2025-12-01 23:59:59', wp_timezone() );
+		// The same period as the discount code in Lemon Squeezy, which is in
+		// UTC. In the site's timezone a site west of UTC would still show the
+		// promo after the code had stopped working.
+		$utc        = new \DateTimeZone( 'UTC' );
+		$start_date = new \DateTimeImmutable( '2026-11-25 00:00:00', $utc );
+		$end_date   = new \DateTimeImmutable( '2026-12-01 23:59:59', $utc );
 
 		// Hide if before start date.
 		if ( ! $preview_promotion && $now < $start_date ) {
@@ -62,7 +64,7 @@ class Sidebar_Add_Ons_Dropin extends Dropin {
 		?>
 		<div class="postbox sh-PremiumFeaturesPostbox">
 			<div class="inside">
-				<img style="width: 80px; max-width: 100%; margin: 0 auto; display: block; margin-bottom: 1rem;" src="<?php echo esc_url( SIMPLE_HISTORY_DIR_URL . 'assets/images/black-week-2025.svg' ); ?>" alt="" />
+				<img style="width: 80px; max-width: 100%; margin: 0 auto; display: block; margin-bottom: 1rem;" src="<?php echo esc_url( SIMPLE_HISTORY_DIR_URL . 'assets/images/black-week.svg' ); ?>" alt="" />
 
 				<p style="margin: 0; font-size: 1rem; font-weight: bold;">
 					<?php esc_html_e( 'Black Week Sale:', 'simple-history' ); ?>
@@ -82,9 +84,9 @@ class Sidebar_Add_Ons_Dropin extends Dropin {
 				<p>
 					<?php
 					printf(
-						/* translators: %s: discount code BLACKWEEK30 (bold text). */
-						esc_html__( 'Save 30%% with code %s (ends December 1 2025).', 'simple-history' ),
-						'<strong>BLACKWEEK30</strong>'
+						/* translators: %s: discount code BLACKWEEK26 (bold text). */
+						esc_html__( 'Save 30%% on your first year with code %s (ends December 1).', 'simple-history' ),
+						'<strong>BLACKWEEK26</strong>'
 					);
 					?>
 				</p>
