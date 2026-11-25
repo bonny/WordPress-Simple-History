@@ -2377,14 +2377,16 @@ class Log_Query {
 	 * WordPress role slugs are case sensitive: "Editor" and "editor" are two
 	 * roles. The contexts table usually has a case-insensitive collation on
 	 * MySQL, which also ignores trailing spaces, so a plain comparison would
-	 * match roles WordPress itself keeps apart. BINARY makes it exact. It
+	 * match roles WordPress itself keeps apart. A binary cast makes it exact.
+	 * CAST( … AS BINARY ) rather than the BINARY operator, which MySQL 8.0.27
+	 * deprecated; the cast works on every MySQL and MariaDB version. It
 	 * costs nothing here: the lookup uses the index on the key column, and
 	 * the value column has no index. SQLite compares exactly already.
 	 *
 	 * @return string
 	 */
 	protected function get_role_value_column() {
-		return self::get_db_engine() === 'mysql' ? 'BINARY c.value' : 'c.value';
+		return self::get_db_engine() === 'mysql' ? 'CAST( c.value AS BINARY )' : 'c.value';
 	}
 
 	/**

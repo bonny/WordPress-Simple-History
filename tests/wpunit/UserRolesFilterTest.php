@@ -39,6 +39,8 @@ class UserRolesFilterTest extends \Codeception\TestCase\WPTestCase {
 	public function tearDown(): void {
 		remove_role( 'VIP_Member' );
 		remove_role( 'vip, member' );
+		remove_role( 'zz_first_registered' );
+		remove_role( 'aa_second_registered' );
 
 		parent::tearDown();
 	}
@@ -373,9 +375,6 @@ class UserRolesFilterTest extends \Codeception\TestCase\WPTestCase {
 
 		$response = rest_do_request( new WP_REST_Request( 'GET', '/simple-history/v1/search-options' ) );
 		$slugs    = wp_list_pluck( $response->get_data()['user_roles'], 'value' );
-
-		remove_role( 'zz_first_registered' );
-		remove_role( 'aa_second_registered' );
 
 		$this->assertSame(
 			[ 'administrator', 'editor', 'author', 'contributor', 'subscriber' ],

@@ -134,16 +134,20 @@ export function ExpandedFilters( props ) {
 				const label =
 					typeof token === 'string' ? token : token?.value || '';
 
+				// A token that was already selected keeps its slug. Looking
+				// it up by label first could turn a leftover slug "Editor"
+				// into the site's "editor" role when another token changes.
+				const selectedIndex = userRoleLabels.indexOf( label );
+
+				if ( selectedIndex !== -1 ) {
+					return selectedUserRoles[ selectedIndex ];
+				}
+
 				const roleOption = userRoleOptions.find(
 					( option ) => option.label.trim() === label.trim()
 				);
 
-				if ( roleOption ) {
-					return roleOption.value;
-				}
-
-				// A token that is already a slug (see above) stays as it is.
-				return selectedUserRoles.includes( label ) ? label : null;
+				return roleOption ? roleOption.value : null;
 			} )
 			.filter( Boolean );
 
