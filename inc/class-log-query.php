@@ -213,6 +213,9 @@ class Log_Query {
 	 *      @type int $user Single user ID as number. Default null.
 	 *      @type string|array $users User IDs, comma separated string or array. Default null.
 	 *      @type string|array $initiator Initiator to filter by. Single string or array of initiators. Default null.
+	 *      @type string|array $user_roles Role slugs to filter by, comma separated string or array. Matches the role
+	 *                                     the user had when the event was logged (the `_user_role` context key), so
+	 *                                     events without a user, and events logged before 5.23.0, never match. Default null.
 	 *      @type string $ip_address IP address to filter by. Supports anonymized IPs with ".x" suffix. Default null.
 	 *
 	 *    Exclusion Filters (what to hide).
@@ -224,6 +227,8 @@ class Log_Query {
 	 *      @type string|array $exclude_messages Messages to exclude. Array or string with comma separated in format "LoggerSlug:Message". Default null.
 	 *      @type int $exclude_user Single user ID to exclude. Default null.
 	 *      @type string|array $exclude_users User IDs to exclude, comma separated string or array. Default null.
+	 *      @type string|array $exclude_user_roles Role slugs to exclude, comma separated string or array. Events without
+	 *                                             a stored role are kept. Default null.
 	 *      @type string|array $exclude_initiator Initiator(s) to exclude. Single string or array of initiators. Default null.
 	 *
 	 *    Other Options.
@@ -1510,49 +1515,49 @@ class Log_Query {
 			[
 				// overview | occasions | single.
 				// When type is occasions then logRowID, occasionsID, occasionsCount, occasionsCountMaxReturn are required.
-				'type'              => 'overview',
+				'type'               => 'overview',
 
 				// Number of posts to show per page. 0 to show all.
-				'posts_per_page'    => 10,
+				'posts_per_page'     => 10,
 
 				// Page to show. 1 = first page.
-				'paged'             => 1,
+				'paged'              => 1,
 
 				// Array. Only get posts that are in array.
-				'post__in'          => [],
+				'post__in'           => [],
 
 				// If max_id_first_page is set then only get rows
 				// that have id equal or lower than this, to make.
-				'max_id_first_page' => null,
+				'max_id_first_page'  => null,
 
 				// if since_id is set the rows returned will only be rows with an ID greater than (i.e. more recent than) since_id.
-				'since_id'          => null,
+				'since_id'           => null,
 
 				// if since_date is set, used together with since_id to accurately detect new events with date ordering.
 				// Only returns events with date > since_date OR (date = since_date AND id > since_id).
-				'since_date'        => null,
+				'since_date'         => null,
 				/**
 				 * From date, as unix timestamp integer or as a format compatible with strtotime, for example 'Y-m-d H:i:s'.
 				 *
 				 * @var int|string
 				 */
-				'date_from'         => null,
+				'date_from'          => null,
 
 				/**
 				* To date, as unix timestamp integer or as a format compatible with strtotime, for example 'Y-m-d H:i:s'.
 				*
 				* @var int|string
 				*/
-				'date_to'           => null,
+				'date_to'            => null,
 
 				// months in format "Y-m"
 				// array or comma separated.
-				'months'            => null,
+				'months'             => null,
 
 				// dates in format
 				// "month:2015-06" for june 2015
 				// "lastdays:7" for the last 7 days.
-				'dates'             => null,
+				'dates'              => null,
 
 				/**
 				 * Text to search for.
@@ -1561,78 +1566,84 @@ class Log_Query {
 				 *
 				 * @var string
 				 */
-				'search'            => null,
+				'search'             => null,
 
 				// log levels to include. comma separated or as array. defaults to all.
-				'loglevels'         => null,
+				'loglevels'          => null,
 
 				// loggers to include. comma separated. defaults to all the user can read.
-				'loggers'           => null,
+				'loggers'            => null,
 
-				'messages'          => null,
+				'messages'           => null,
 
 				// userID as number.
-				'user'              => null,
+				'user'               => null,
 
 				// User ids, comma separated or array.
-				'users'             => null,
+				'users'              => null,
+
+				// Role slugs, comma separated or array.
+				'user_roles'         => null,
 
 				// Initiator to filter by.
-				'initiator'         => null,
+				'initiator'          => null,
 
 				// IP address to filter by. Supports partial matching for anonymized IPs.
-				'ip_address'        => null,
+				'ip_address'         => null,
 
 				// Should sticky events be included in the result set.
-				'include_sticky'    => false,
+				'include_sticky'     => false,
 
 				// Only return sticky events.
-				'only_sticky'       => false,
+				'only_sticky'        => false,
 
 				// Context filters as key-value pairs.
-				'context_filters'   => null,
+				'context_filters'    => null,
 
 				// Metadata search: plain text search across all context values.
-				'metadata_search'   => null,
+				'metadata_search'    => null,
 
 				// When true, only return events that have an AI agent attribution
 				// (any value of the `_initiator_ai_agent` context key).
-				'ai_only'           => false,
+				'ai_only'            => false,
 
 				// Return ungrouped events without occasions grouping.
-				'ungrouped'         => false,
+				'ungrouped'          => false,
 
 				// Skip the count query for total rows. Useful for feeds
 				// and other consumers that don't need pagination metadata.
-				'skip_count_query'  => false,
+				'skip_count_query'   => false,
 
 				// Exclusion filters - hide events matching these criteria.
 				// Text to exclude from search.
-				'exclude_search'    => null,
+				'exclude_search'     => null,
 
 				// Log levels to exclude, comma separated or array.
-				'exclude_loglevels' => null,
+				'exclude_loglevels'  => null,
 
 				// Loggers to exclude, comma separated or array.
-				'exclude_loggers'   => null,
+				'exclude_loggers'    => null,
 
 				// Messages to exclude, comma separated or array in format "LoggerSlug:Message".
-				'exclude_messages'  => null,
+				'exclude_messages'   => null,
 
 				// Single user ID to exclude.
-				'exclude_user'      => null,
+				'exclude_user'       => null,
 
 				// User IDs to exclude, comma separated or array.
-				'exclude_users'     => null,
+				'exclude_users'      => null,
+
+				// Role slugs to exclude, comma separated or array.
+				'exclude_user_roles' => null,
 
 				// Initiator(s) to exclude.
-				'exclude_initiator' => null,
+				'exclude_initiator'  => null,
 
 				// Column to sort by. See the query() docblock for accepted values.
-				'orderby'           => 'date',
+				'orderby'            => 'date',
 
 				// Sort direction, ASC or DESC.
-				'order'             => 'DESC',
+				'order'              => 'DESC',
 
 			// Can also contain:
 			// logRowID
@@ -1881,6 +1892,8 @@ class Log_Query {
 			$args['users'] = array_filter( $args['users'] );
 		}
 
+		$args = $this->prepare_user_roles_arg( $args, 'user_roles' );
+
 		// "initiator" must be string or array of strings and contain valid initiator constants.
 		if ( isset( $args['initiator'] ) ) {
 			if ( is_string( $args['initiator'] ) ) {
@@ -2009,6 +2022,8 @@ class Log_Query {
 			$args['exclude_users'] = array_map( 'intval', $args['exclude_users'] );
 			$args['exclude_users'] = array_filter( $args['exclude_users'] );
 		}
+
+		$args = $this->prepare_user_roles_arg( $args, 'exclude_user_roles' );
 
 		// "exclude_initiator" must be string or array of strings and contain valid initiator constants.
 		if ( isset( $args['exclude_initiator'] ) ) {
@@ -2310,6 +2325,69 @@ class Log_Query {
 	}
 
 	/**
+	 * Normalise a role slug argument ("user_roles" or "exclude_user_roles").
+	 *
+	 * Accepts a comma separated string or an array, like "users" does.
+	 *
+	 * Slugs are compared exactly as stored. WP_Roles::add_role() keeps
+	 * whatever slug a plugin passes, capitals, spaces and commas included,
+	 * so sanitize_key() would turn "VIP_Member" into a slug that matches
+	 * nothing. Only the items of a comma separated string are trimmed; items
+	 * of an array are used as given. $wpdb->prepare() does the escaping, and
+	 * get_inner_where() compares case- and space-exactly on MySQL too, like
+	 * WordPress does. Roles are not
+	 * checked against wp_roles() either: a role whose plugin has been removed
+	 * is still in the log, and filtering on it should still work.
+	 *
+	 * An argument that was given but has no usable slug left becomes an
+	 * empty array, not null. For "user_roles" that matches nothing, so a
+	 * malformed filter never reads as "every event was by this role".
+	 *
+	 * @param array  $args Query arguments.
+	 * @param string $key  Argument key.
+	 * @return array Query arguments with $key as a list of unique slugs.
+	 * @throws \InvalidArgumentException If the value is neither a string nor an array.
+	 */
+	protected function prepare_user_roles_arg( $args, $key ) {
+		if ( ! isset( $args[ $key ] ) ) {
+			return $args;
+		}
+
+		if ( ! is_string( $args[ $key ] ) && ! is_array( $args[ $key ] ) ) {
+			throw new \InvalidArgumentException( 'Invalid ' . esc_html( $key ) );
+		}
+
+		if ( is_string( $args[ $key ] ) ) {
+			$roles = array_map( 'trim', explode( ',', $args[ $key ] ) );
+		} else {
+			$roles = array_map(
+				static fn( $role ) => is_scalar( $role ) ? (string) $role : '',
+				$args[ $key ]
+			);
+		}
+
+		$args[ $key ] = array_values( array_unique( array_filter( $roles, 'strlen' ) ) );
+
+		return $args;
+	}
+
+	/**
+	 * Column expression to compare role slugs against.
+	 *
+	 * WordPress role slugs are case sensitive: "Editor" and "editor" are two
+	 * roles. The contexts table usually has a case-insensitive collation on
+	 * MySQL, which also ignores trailing spaces, so a plain comparison would
+	 * match roles WordPress itself keeps apart. BINARY makes it exact. It
+	 * costs nothing here: the lookup uses the index on the key column, and
+	 * the value column has no index. SQLite compares exactly already.
+	 *
+	 * @return string
+	 */
+	protected function get_role_value_column() {
+		return self::get_db_engine() === 'mysql' ? 'BINARY c.value' : 'c.value';
+	}
+
+	/**
 	 * Get inner where clause as array where each item in the array is a where clause statement, without the "WHERE" keyword or "AND" keyword.
 	 *
 	 * This function is used by both MySQL and SQLite.
@@ -2579,6 +2657,28 @@ class Log_Query {
 			);
 		}
 
+		// Roles, array with role slugs. Matches any of the roles the user had
+		// when the event was logged (`_user_role`, `_user_role_2` and up), not
+		// the roles they have now: an audit log answers "what
+		// did editors do", and resolving roles to today's user ids would get
+		// that wrong for everyone whose role has changed.
+		if ( isset( $args['user_roles'] ) && $args['user_roles'] === [] ) {
+			// Given, but nothing usable in it. See prepare_user_roles_arg().
+			$inner_where[] = '1 = 0';
+		} elseif ( ! empty( $args['user_roles'] ) ) {
+			$placeholders     = implode( ', ', array_fill( 0, count( $args['user_roles'] ), '%s' ) );
+			$role_keys        = Helpers::get_user_role_context_keys();
+			$key_placeholders = implode( ', ', array_fill( 0, count( $role_keys ), '%s' ) );
+			$role_column      = $this->get_role_value_column();
+
+			// phpcs:ignore WordPress.DB.PreparedSQLPlaceholders.ReplacementsWrongNumber -- Dynamic placeholders in $key_placeholders and $placeholders matched with the spread operators
+			$inner_where[] = $wpdb->prepare(
+				'id IN ( SELECT history_id FROM ' . $contexts_table_name . ' AS c WHERE c.key IN (' . $key_placeholders . ') AND ' . $role_column . ' IN (' . $placeholders . ') )', // phpcs:ignore WordPress.DB.PreparedSQL.NotPrepared, WordPress.DB.PreparedSQLPlaceholders.UnfinishedPrepare
+				...$role_keys,
+				...$args['user_roles']
+			);
+		}
+
 		// If only_sticky is true, only return sticky events.
 		if ( ! empty( $args['only_sticky'] ) ) {
 			$inner_where[] = sprintf(
@@ -2808,6 +2908,22 @@ class Log_Query {
 				'id NOT IN ( SELECT history_id FROM ' . $contexts_table_name . ' AS c WHERE c.key = %s AND c.value IN (' . $placeholders . ') )', // phpcs:ignore WordPress.DB.PreparedSQL.NotPrepared
 				'_user_id',
 				...$args['exclude_users']
+			);
+		}
+
+		// "exclude_user_roles" - role slugs to exclude. Events without a stored
+		// role (anonymous visitors, cron, events from before 5.23.0) are kept.
+		if ( ! empty( $args['exclude_user_roles'] ) ) {
+			$placeholders     = implode( ', ', array_fill( 0, count( $args['exclude_user_roles'] ), '%s' ) );
+			$role_keys        = Helpers::get_user_role_context_keys();
+			$key_placeholders = implode( ', ', array_fill( 0, count( $role_keys ), '%s' ) );
+			$role_column      = $this->get_role_value_column();
+
+			// phpcs:ignore WordPress.DB.PreparedSQLPlaceholders.ReplacementsWrongNumber -- Dynamic placeholders in $key_placeholders and $placeholders matched with the spread operators
+			$inner_where[] = $wpdb->prepare(
+				'id NOT IN ( SELECT history_id FROM ' . $contexts_table_name . ' AS c WHERE c.key IN (' . $key_placeholders . ') AND ' . $role_column . ' IN (' . $placeholders . ') )', // phpcs:ignore WordPress.DB.PreparedSQL.NotPrepared, WordPress.DB.PreparedSQLPlaceholders.UnfinishedPrepare
+				...$role_keys,
+				...$args['exclude_user_roles']
 			);
 		}
 

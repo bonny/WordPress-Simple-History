@@ -1821,8 +1821,20 @@ abstract class Logger {
 	 * @return array $context Context with user data appended.
 	 */
 	private function append_user_context( $context, $initiator ) {
-		// A logger that knows who did it has already said so.
+		// A logger that knows who did it has already said so. It usually
+		// leaves out the role, though: login, logout and password reset are
+		// logged when WordPress has no current user, so the user logger sets
+		// the user itself. Without the role those events would drop out of a
+		// role filter, so fill it in for the user the logger named.
+		// Not for backfilled events: they are rebuilt from old posts, and the
+		// author's role today says nothing about their role back then.
 		if ( isset( $context['_user_id'] ) ) {
+			$is_backfilled = ! empty( $context[ \Simple_History\Existing_Data_Importer::BACKFILLED_CONTEXT_KEY ] );
+
+			if ( ! isset( $context['_user_role'] ) && ! $is_backfilled ) {
+				$context = array_merge( $context, Helpers::get_user_role_context( (int) $context['_user_id'] ) );
+			}
+
 			return $context;
 		}
 
@@ -1855,6 +1867,10 @@ abstract class Logger {
 		$context['_user_login'] = $current_user->user_login;
 		$context['_user_email'] = $current_user->user_email;
 		$context['_user_role']  = Helpers::get_user_primary_role( $current_user );
+
+		// Users with more than one role (a bbPress forum role, a GiveWP
+		// subscriber role) get the rest as `_user_role_2` and up.
+		$context = array_merge( $context, Helpers::get_user_role_context( $current_user ) );
 
 		return $context;
 	}

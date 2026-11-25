@@ -269,6 +269,17 @@ For more information, see our support page [GDPR and Privacy: How Your Data is S
 
 > Experimental entries are gated behind the "Experimental features" checkbox under Simple History → Settings. Tick it to try them, then share feedback so we know what to ship for everyone.
 
+### Unreleased
+
+**Added**
+
+-   Filter the log by user role, for example to see only what administrators and editors did. The filter uses the role the user had when the event happened, so changing someone's role later doesn't move their old events. Users with more than one role, like a bbPress forum role next to their site role, show up under each of them. Events without a user, like visitors and scheduled tasks, and events logged before version 5.23.0 have no role and are left out when a role is picked.
+-   For developers: `user_roles` and `exclude_user_roles` in the events REST API and in `Log_Query`, `--user_role` and `--exclude_user_role` in `wp simple-history event list`, and the site's roles as `user_roles` in the search options endpoint. Users with more than one role get the extra roles stored as `_user_role_2`, `_user_role_3` and so on (at most 10), next to `_user_role`.
+
+**Fixed**
+
+-   Login, logout, password reset and User Switching events didn't store the user's role.
+
 ### 5.36.0 (October 2026)
 
 Post edits are easier to read outside the log: Copy as JSON, log files and forwarded events list each changed field with its old and new value. This release also contains security fixes.

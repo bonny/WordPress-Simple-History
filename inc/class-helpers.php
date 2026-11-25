@@ -3445,6 +3445,17 @@ class Helpers {
 	}
 
 	/**
+	 * Most roles of one user that are stored with an event.
+	 *
+	 * The first role goes in `_user_role`, the rest in `_user_role_2`,
+	 * `_user_role_3` and so on. Users rarely have more than two or three
+	 * (a site role plus a bbPress forum role, or a GiveWP subscriber role).
+	 *
+	 * @since 5.37.0
+	 */
+	const MAX_STORED_USER_ROLES = 10;
+
+	/**
 	 * Get the primary role of a user.
 	 *
 	 * WordPress allows multiple roles per user. This function returns
@@ -3455,6 +3466,22 @@ class Helpers {
 	 * @return string The primary role slug, or empty string if no valid role found.
 	 */
 	public static function get_user_primary_role( $user = null ) {
+		$roles = self::get_user_valid_roles( $user );
+
+		return $roles[0] ?? '';
+	}
+
+	/**
+	 * Get all registered roles of a user, in the order WordPress has them.
+	 *
+	 * That order is the order the roles were added to the user, so the first
+	 * one is the role the user got first, usually their site role.
+	 *
+	 * @since 5.37.0
+	 * @param int|\WP_User|null $user User ID, WP_User object, or null for current user.
+	 * @return array<int,string> Role slugs, exactly as WordPress stores them.
+	 */
+	public static function get_user_valid_roles( $user = null ) {
 		if ( $user === null ) {
 			$user = wp_get_current_user();
 		} elseif ( is_numeric( $user ) ) {
@@ -3462,7 +3489,7 @@ class Helpers {
 		}
 
 		if ( ! $user instanceof \WP_User || empty( $user->roles ) ) {
-			return '';
+			return [];
 		}
 
 		// Validate roles against registered roles (as done in user-edit.php).
@@ -3472,8 +3499,52 @@ class Helpers {
 			array_keys( (array) $wp_roles->roles )
 		);
 
-		$primary_role = array_shift( $valid_roles );
-		return $primary_role !== null ? (string) $primary_role : '';
+		return array_values( array_unique( array_map( 'strval', $valid_roles ) ) );
+	}
+
+	/**
+	 * Context keys that hold the roles of the user behind an event.
+	 *
+	 * `_user_role` is the first role, then `_user_role_2` up to
+	 * `_user_role_{MAX_STORED_USER_ROLES}`. The role filter, the privacy
+	 * eraser and the logger all use this list, so they cannot drift apart.
+	 *
+	 * @since 5.37.0
+	 * @return array<int,string>
+	 */
+	public static function get_user_role_context_keys() {
+		$keys = [ '_user_role' ];
+
+		for ( $i = 2; $i <= self::MAX_STORED_USER_ROLES; $i++ ) {
+			$keys[] = '_user_role_' . $i;
+		}
+
+		return $keys;
+	}
+
+	/**
+	 * Roles of a user as event context: `_user_role` => first role,
+	 * `_user_role_2` => second role, and so on.
+	 *
+	 * One key per role, not a list in one value: role slugs can contain any
+	 * character, commas and spaces included, so no separator is safe, and
+	 * each value can be compared whole.
+	 *
+	 * @since 5.37.0
+	 * @param int|\WP_User|null $user User ID, WP_User object, or null for current user.
+	 * @return array<string,string> Empty if the user has no registered role.
+	 */
+	public static function get_user_role_context( $user = null ) {
+		$roles = array_slice( self::get_user_valid_roles( $user ), 0, self::MAX_STORED_USER_ROLES );
+		$keys  = self::get_user_role_context_keys();
+
+		$context = [];
+
+		foreach ( $roles as $index => $role ) {
+			$context[ $keys[ $index ] ] = $role;
+		}
+
+		return $context;
 	}
 
 	/**

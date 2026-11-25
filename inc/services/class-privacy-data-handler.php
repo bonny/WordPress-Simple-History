@@ -673,10 +673,13 @@ class Privacy_Data_Handler extends Service {
 
 		$contexts_table = \Simple_History\Simple_History::get_instance()->get_contexts_table_name();
 
-		// Initiator identity + device/network keys removed entirely. `_user_role`
-		// is included because on small sites a role like "administrator" is
-		// linkable to a specific person.
-		$keys_to_remove = array( '_user_login', '_user_email', '_user_role', 'server_http_user_agent', '_server_http_referer' );
+		// Initiator identity + device/network keys removed entirely. The role
+		// keys (`_user_role`, `_user_role_2` and up) are included because on
+		// small sites a role like "administrator" is linkable to a specific person.
+		$keys_to_remove = array_merge(
+			array( '_user_login', '_user_email', 'server_http_user_agent', '_server_http_referer' ),
+			\Simple_History\Helpers::get_user_role_context_keys()
+		);
 
 		foreach ( $keys_to_remove as $key ) {
 			// phpcs:ignore WordPress.DB.DirectDatabaseQuery

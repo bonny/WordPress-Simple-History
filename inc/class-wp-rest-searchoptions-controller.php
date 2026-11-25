@@ -162,6 +162,7 @@ class WP_REST_SearchOptions_Controller extends WP_REST_Controller {
 			'dates'                           => Helpers::get_data_for_date_filter(),
 			'loggers'                         => $this->get_loggers_and_messages(),
 			'initiators'                      => $this->get_initiator_options(),
+			'user_roles'                      => $this->get_user_role_options(),
 			'pager_size'                      => [
 				'page'      => (int) Helpers::get_pager_size(),
 				'dashboard' => (int) Helpers::get_pager_size_dashboard(),
@@ -301,6 +302,53 @@ class WP_REST_SearchOptions_Controller extends WP_REST_Controller {
 		}
 
 		return $options;
+	}
+
+	/**
+	 * Get role options for the role filter.
+	 *
+	 * The site's registered roles with their translated names. WordPress's
+	 * own five roles come first, from most to least capable, then all other
+	 * roles by name. Registration order would put roles left behind by old
+	 * plugins above Administrator and Editor, which are the ones people pick.
+	 *
+	 * Only registered roles: a role from a removed plugin can still be
+	 * filtered on through the REST API or the URL, but offering it here would
+	 * mean a list that grows with every plugin ever tried.
+	 *
+	 * @return array Array of role options with value (slug) and label.
+	 */
+	protected function get_user_role_options() {
+		$core_roles = [ 'administrator', 'editor', 'author', 'contributor', 'subscriber' ];
+
+		$core_options  = [];
+		$other_options = [];
+
+		foreach ( wp_roles()->get_names() as $role_slug => $role_name ) {
+			$role_slug = (string) $role_slug;
+
+			$option = [
+				'value' => $role_slug,
+				'label' => translate_user_role( $role_name ),
+			];
+
+			$core_index = array_search( $role_slug, $core_roles, true );
+
+			if ( $core_index !== false ) {
+				$core_options[ $core_index ] = $option;
+			} else {
+				$other_options[] = $option;
+			}
+		}
+
+		ksort( $core_options );
+
+		usort(
+			$other_options,
+			static fn( $a, $b ) => strnatcasecmp( $a['label'], $b['label'] )
+		);
+
+		return array_merge( array_values( $core_options ), $other_options );
 	}
 
 	/**

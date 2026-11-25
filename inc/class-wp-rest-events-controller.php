@@ -541,6 +541,14 @@ class WP_REST_Events_Controller extends WP_REST_Controller {
 			),
 		);
 
+		$query_params['user_roles'] = array(
+			'description' => __( 'Limit result set to events by users with these roles, as role slugs. Matches the role the user had when the event was logged.', 'simple-history' ),
+			'type'        => 'array',
+			'items'       => array(
+				'type' => 'string',
+			),
+		);
+
 		$query_params['user'] = array(
 			'description' => __( 'Limit result set to rows with user id.', 'simple-history' ),
 			'type'        => 'integer',
@@ -672,6 +680,14 @@ class WP_REST_Events_Controller extends WP_REST_Controller {
 			'type'        => 'array',
 			'items'       => array(
 				'type' => 'integer',
+			),
+		);
+
+		$query_params['exclude_user_roles'] = array(
+			'description' => __( 'Exclude events by users with these roles, as role slugs. Events without a user are kept.', 'simple-history' ),
+			'type'        => 'array',
+			'items'       => array(
+				'type' => 'string',
 			),
 		);
 
@@ -1075,6 +1091,7 @@ class WP_REST_Events_Controller extends WP_REST_Controller {
 			'loggers'                 => 'loggers',
 			'messages'                => 'messages',
 			'users'                   => 'users',
+			'user_roles'              => 'user_roles',
 			'user'                    => 'user',
 			'include_sticky'          => 'include_sticky',
 			'only_sticky'             => 'only_sticky',
@@ -1096,6 +1113,7 @@ class WP_REST_Events_Controller extends WP_REST_Controller {
 			'exclude_loggers'         => 'exclude_loggers',
 			'exclude_messages'        => 'exclude_messages',
 			'exclude_users'           => 'exclude_users',
+			'exclude_user_roles'      => 'exclude_user_roles',
 			'exclude_user'            => 'exclude_user',
 			'exclude_initiator'       => 'exclude_initiator',
 		);

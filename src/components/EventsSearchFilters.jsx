@@ -34,6 +34,8 @@ export function EventsSearchFilters( props ) {
 		setSelectedCustomDateTo,
 		selectedUsersWithId,
 		setSelectedUsersWithId,
+		selectedUserRoles,
+		setSelectedUserRoles,
 		selectedInitiator,
 		setSelectedInitiator,
 		enteredIPAddress,
@@ -66,6 +68,9 @@ export function EventsSearchFilters( props ) {
 		if ( selectedUsersWithId.length > 0 ) {
 			count++;
 		}
+		if ( selectedUserRoles.length > 0 ) {
+			count++;
+		}
 		if ( selectedInitiator.length > 0 ) {
 			count++;
 		}
@@ -89,6 +94,7 @@ export function EventsSearchFilters( props ) {
 		selectedLogLevels,
 		selectedMessageTypes,
 		selectedUsersWithId,
+		selectedUserRoles,
 		selectedInitiator,
 		enteredIPAddress,
 		selectedContextFilters,
@@ -217,6 +223,8 @@ export function EventsSearchFilters( props ) {
 							setSelectedMessageTypes={ setSelectedMessageTypes }
 							setSelectedUsersWithId={ setSelectedUsersWithId }
 							selectedUsersWithId={ selectedUsersWithId }
+							selectedUserRoles={ selectedUserRoles }
+							setSelectedUserRoles={ setSelectedUserRoles }
 							selectedInitiator={ selectedInitiator }
 							setSelectedInitiator={ setSelectedInitiator }
 							selectedContextFilters={ selectedContextFilters }
