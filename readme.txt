@@ -269,6 +269,17 @@ For more information, see our support page [GDPR and Privacy: How Your Data is S
 
 > Experimental entries are gated behind the "Experimental features" checkbox under Simple History → Settings. Tick it to try them, then share feedback so we know what to ship for everyone.
 
+### Unreleased
+
+**Added**
+
+-   Filter the log by user role. It uses the role the user had when the event happened.
+-   For developers: `user_roles` and `exclude_user_roles` in the REST API, `Log_Query` and WP-CLI. Extra roles are stored as `_user_role_2`, `_user_role_3` and so on.
+
+**Fixed**
+
+-   Login, logout, password reset and User Switching events didn't store the user's role.
+
 ### 5.36.0 (October 2026)
 
 Post edits are easier to read outside the log: Copy as JSON, log files and forwarded events list each changed field with its old and new value. This release also contains security fixes.

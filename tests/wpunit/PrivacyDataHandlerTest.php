@@ -177,6 +177,7 @@ class PrivacyDataHandlerTest extends \Codeception\TestCase\WPTestCase {
 	 */
 	public function test_anonymize_event_scrubs_pii_keeps_rest() {
 		$user_id = $this->factory->user->create( [ 'role' => 'administrator', 'user_email' => 'scrub-' . uniqid() . '@example.com' ] );
+		( new WP_User( $user_id ) )->add_role( 'editor' );
 		wp_set_current_user( $user_id );
 
 		$logger = SimpleLogger()->info(
@@ -203,6 +204,7 @@ class PrivacyDataHandlerTest extends \Codeception\TestCase\WPTestCase {
 		$this->assertArrayNotHasKey( '_user_login', $context );
 		$this->assertArrayNotHasKey( '_user_email', $context );
 		$this->assertArrayNotHasKey( '_user_role', $context );
+		$this->assertArrayNotHasKey( '_user_role_2', $context );
 		$this->assertArrayNotHasKey( 'server_http_user_agent', $context );
 		$this->assertArrayNotHasKey( '_server_http_referer', $context );
 

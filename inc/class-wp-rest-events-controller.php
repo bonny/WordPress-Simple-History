@@ -360,6 +360,36 @@ class WP_REST_Events_Controller extends WP_REST_Controller {
 	}
 
 	/**
+	 * Sanitize the role parameters.
+	 *
+	 * Role slugs can contain spaces, and the default array sanitizing splits
+	 * a string on spaces as well as commas: `VIP Member` would become two
+	 * roles. A string is split on commas only, the same as Log_Query does,
+	 * and array items are kept as they are.
+	 *
+	 * @param mixed $value Parameter value.
+	 * @return array<int,string> Role slugs.
+	 */
+	public static function sanitize_user_roles_param( $value ) {
+		if ( is_string( $value ) ) {
+			$roles = array_map( 'trim', explode( ',', $value ) );
+
+			return array_values( array_filter( $roles, 'strlen' ) );
+		}
+
+		if ( ! is_array( $value ) ) {
+			return array();
+		}
+
+		$roles = array_map(
+			static fn( $role ) => is_scalar( $role ) ? (string) $role : '',
+			$value
+		);
+
+		return array_values( array_filter( $roles, 'strlen' ) );
+	}
+
+	/**
 	 * Retrieves the query params for the posts collection.
 	 *
 	 * @return array Collection parameters.
@@ -541,6 +571,15 @@ class WP_REST_Events_Controller extends WP_REST_Controller {
 			),
 		);
 
+		$query_params['user_roles'] = array(
+			'description'       => __( 'Limit result set to events by users with these roles, as role slugs. Matches the role the user had when the event was logged.', 'simple-history' ),
+			'type'              => 'array',
+			'items'             => array(
+				'type' => 'string',
+			),
+			'sanitize_callback' => array( __CLASS__, 'sanitize_user_roles_param' ),
+		);
+
 		$query_params['user'] = array(
 			'description' => __( 'Limit result set to rows with user id.', 'simple-history' ),
 			'type'        => 'integer',
@@ -673,6 +712,15 @@ class WP_REST_Events_Controller extends WP_REST_Controller {
 			'items'       => array(
 				'type' => 'integer',
 			),
+		);
+
+		$query_params['exclude_user_roles'] = array(
+			'description'       => __( 'Exclude events by users with these roles, as role slugs. Events without a user are kept.', 'simple-history' ),
+			'type'              => 'array',
+			'items'             => array(
+				'type' => 'string',
+			),
+			'sanitize_callback' => array( __CLASS__, 'sanitize_user_roles_param' ),
 		);
 
 		$query_params['exclude_user'] = array(
@@ -1075,6 +1123,7 @@ class WP_REST_Events_Controller extends WP_REST_Controller {
 			'loggers'                 => 'loggers',
 			'messages'                => 'messages',
 			'users'                   => 'users',
+			'user_roles'              => 'user_roles',
 			'user'                    => 'user',
 			'include_sticky'          => 'include_sticky',
 			'only_sticky'             => 'only_sticky',
@@ -1096,6 +1145,7 @@ class WP_REST_Events_Controller extends WP_REST_Controller {
 			'exclude_loggers'         => 'exclude_loggers',
 			'exclude_messages'        => 'exclude_messages',
 			'exclude_users'           => 'exclude_users',
+			'exclude_user_roles'      => 'exclude_user_roles',
 			'exclude_user'            => 'exclude_user',
 			'exclude_initiator'       => 'exclude_initiator',
 		);

@@ -25,6 +25,12 @@ Version 3.0 of the plugin replaced the translator with a driver built on a full 
 
 **Rule:** keep comments out of SQL strings that can run on SQLite. Put them in PHP comments above the query. `-- ` (with the space) works on both engines too. The overview query in `query_overview_mysql()` still has `#` comments, which is fine because only MySQL runs it.
 
+## Gotcha: text comparisons ignore case
+
+The integration plugin makes text comparisons case-insensitive, to behave like MySQL's default collation. So `c.value = 'Editor'` also finds `editor` on SQLite, the same as on MySQL.
+
+For an exact comparison, MySQL needs `CAST( c.value AS BINARY )`. The translator doesn't understand that cast, and every match fails. SQLite needs `c.value COLLATE BINARY`, which the translator passes on unchanged. `Log_Query::get_role_value_column()` picks one per engine. Role slugs are case sensitive in WordPress, so the role filter needs this. It was found when `UserRolesFilterTest` failed in the SQLite CI job (November 2026).
+
 ## Testing on SQLite
 
 -   Run the suite on SQLite with `--env sqlite`:

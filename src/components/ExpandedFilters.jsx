@@ -10,7 +10,7 @@ import {
 	__experimentalInputControl as InputControl,
 } from '@wordpress/components';
 import { useEffect, useState } from '@wordpress/element';
-import { __ } from '@wordpress/i18n';
+import { __, sprintf } from '@wordpress/i18n';
 import { help } from '@wordpress/icons';
 import { addQueryArgs } from '@wordpress/url';
 import { LOGLEVELS_OPTIONS, SUBITEM_PREFIX } from '../constants';
@@ -30,6 +30,8 @@ export function ExpandedFilters( props ) {
 		setSelectedMessageTypes,
 		selectedUsersWithId,
 		setSelectedUsersWithId,
+		selectedUserRoles,
+		setSelectedUserRoles,
 		selectedInitiator,
 		setSelectedInitiator,
 		selectedContextFilters,
@@ -95,6 +97,81 @@ export function ExpandedFilters( props ) {
 		} );
 
 		setSelectedInitiator( nextValues );
+	};
+
+	// Roles are stored as slugs in the URL ("editor") and shown by their
+	// translated name ("Editor"). A slug the site no longer has a role for,
+	// from a removed plugin or a hand-edited link, is shown as the slug
+	// itself so it can still be seen and removed.
+	//
+	// Tokens are matched back to slugs by their label, so labels must be
+	// unique. Two plugins can register roles with the same name ("SEO
+	// Manager"), and then the slug is added to tell them apart.
+	const rawUserRoleOptions = searchOptions?.user_roles || [];
+
+	const userRoleOptions = rawUserRoleOptions.map( ( option ) => {
+		const isDuplicateLabel =
+			rawUserRoleOptions.filter(
+				( other ) => other.label === option.label
+			).length > 1;
+
+		return isDuplicateLabel
+			? { ...option, label: `${ option.label } (${ option.value })` }
+			: option;
+	} );
+
+	// A hand-edited link like `roles=editor,editor` would otherwise give two
+	// tokens with the same key.
+	const uniqueUserRoles = [ ...new Set( selectedUserRoles ) ];
+
+	const userRoleLabels = uniqueUserRoles.map( ( roleSlug ) => {
+		const roleOption = userRoleOptions.find(
+			( option ) => option.value === roleSlug
+		);
+
+		if ( roleOption ) {
+			return roleOption.label;
+		}
+
+		// Search options not loaded yet: the role list is unknown, so don't
+		// call a role missing that may well exist.
+		if ( ! searchOptions?.user_roles ) {
+			return roleSlug;
+		}
+
+		// Marked, so it can't share a label with a registered role: a
+		// leftover "Editor" must stay apart from the site's "Editor".
+		return sprintf(
+			/* translators: %s: role slug that no registered role has. */
+			__( '%s (not on this site)', 'simple-history' ),
+			roleSlug
+		);
+	} );
+
+	const handleUserRolesChange = ( nextLabels ) => {
+		const nextSlugs = nextLabels
+			.map( ( token ) => {
+				const label =
+					typeof token === 'string' ? token : token?.value || '';
+
+				// A token that was already selected keeps its slug. Looking
+				// it up by label first could turn a leftover slug "Editor"
+				// into the site's "editor" role when another token changes.
+				const selectedIndex = userRoleLabels.indexOf( label );
+
+				if ( selectedIndex !== -1 ) {
+					return uniqueUserRoles[ selectedIndex ];
+				}
+
+				const roleOption = userRoleOptions.find(
+					( option ) => option.label.trim() === label.trim()
+				);
+
+				return roleOption ? roleOption.value : null;
+			} )
+			.filter( Boolean );
+
+		setSelectedUserRoles( [ ...new Set( nextSlugs ) ] );
 	};
 
 	// Generate loglevels suggestions based on LOGLEVELS_OPTIONS.
@@ -302,6 +379,44 @@ export function ExpandedFilters( props ) {
 							checked={ hideOwnEvents }
 							onChange={ setHideOwnEvents }
 						/>
+					</div>
+				</FlexBlock>
+			</Flex>
+
+			<Flex align="top" gap="0" style={ filterRowStyle }>
+				<FlexItem style={ labelMarginStyle }>
+					<div className="SimpleHistory__filters__filterLabel">
+						{ __( 'Roles', 'simple-history' ) }
+					</div>
+				</FlexItem>
+				<FlexBlock>
+					<div style={ { maxWidth: '310px' } }>
+						<div
+							className="SimpleHistory__filters__loglevels__select"
+							style={ filterFieldStyle }
+						>
+							<FormTokenField
+								__experimentalAutoSelectFirstMatch
+								__experimentalExpandOnFocus
+								__experimentalShowHowTo={ false }
+								label={ __( 'Roles', 'simple-history' ) }
+								placeholder={ __(
+									'All roles',
+									'simple-history'
+								) }
+								onChange={ handleUserRolesChange }
+								suggestions={ userRoleOptions.map(
+									( option ) => option.label
+								) }
+								value={ userRoleLabels }
+							/>
+						</div>
+						<p className="components-base-control__help">
+							{ __(
+								'Role at the time of the event. Events without a user are not included.',
+								'simple-history'
+							) }
+						</p>
 					</div>
 				</FlexBlock>
 			</Flex>

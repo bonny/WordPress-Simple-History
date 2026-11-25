@@ -114,6 +114,7 @@ export const EVENT_FIELDS = [
  * @param {Array}  props.selectedLogLevels
  * @param {Array}  props.selectedMessageTypes
  * @param {Array}  props.selectedUsersWithId
+ * @param {Array}  props.selectedUserRoles      Role slugs, e.g. [ 'editor' ].
  * @param {Array}  props.selectedInitiator
  * @param {string} props.enteredIPAddress
  * @param {Array}  props.selectedContextFilters
@@ -130,6 +131,9 @@ export function generateAPIQueryParams( props ) {
 		selectedLogLevels,
 		selectedMessageTypes,
 		selectedUsersWithId,
+		// Default to empty, so a caller that predates the role filter
+		// still works.
+		selectedUserRoles = [],
 		selectedInitiator,
 		enteredIPAddress,
 		selectedContextFilters,
@@ -146,6 +150,7 @@ export function generateAPIQueryParams( props ) {
 		excludeLoggers,
 		excludeMessages,
 		excludeUsers,
+		excludeUserRoles = [],
 		excludeInitiator,
 		excludeContextFilters,
 		surroundingEventId,
@@ -245,6 +250,10 @@ export function generateAPIQueryParams( props ) {
 		eventsQueryParams.users = selectedUsersValues;
 	}
 
+	if ( selectedUserRoles.length > 0 ) {
+		eventsQueryParams.user_roles = selectedUserRoles;
+	}
+
 	// Add selected initiators to query params.
 	if ( selectedInitiator.length > 0 ) {
 		const selectedInitiatorValues = selectedInitiator.map(
@@ -335,6 +344,10 @@ export function generateAPIQueryParams( props ) {
 		eventsQueryParams.exclude_users = excludeUserIds;
 	}
 
+	if ( excludeUserRoles.length > 0 ) {
+		eventsQueryParams.exclude_user_roles = excludeUserRoles;
+	}
+
 	if ( excludeInitiator && excludeInitiator.length > 0 ) {
 		const excludeInitiatorValues = excludeInitiator.map( ( initiator ) => {
 			return initiator.initiator_key || initiator.value;
@@ -378,6 +391,7 @@ export function generateAPIQueryParams( props ) {
 		selectedLogLevels.length ||
 		selectedMessageTypes.length ||
 		selectedUsersWithId.length ||
+		selectedUserRoles.length > 0 ||
 		selectedInitiator.length > 0 ||
 		( enteredIPAddress && enteredIPAddress.trim().length > 0 ) ||
 		( selectedContextFilters &&
@@ -387,6 +401,7 @@ export function generateAPIQueryParams( props ) {
 		( excludeLoggers && excludeLoggers.length > 0 ) ||
 		( excludeMessages && excludeMessages.length > 0 ) ||
 		( excludeUsers && excludeUsers.length > 0 ) ||
+		excludeUserRoles.length > 0 ||
 		( excludeInitiator && excludeInitiator.length > 0 ) ||
 		( excludeContextFilters && excludeContextFilters.trim().length > 0 );
 

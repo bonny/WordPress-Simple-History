@@ -290,6 +290,17 @@ function EventsGUI() {
 			.withOptions( useQueryStateOptions )
 	);
 
+	// Selected user roles, as role slugs: "roles=editor,administrator".
+	// Plain slugs rather than JSON objects with labels, so a person (or
+	// Premium's query bar) can write them, and a saved link keeps working
+	// when the site's language changes.
+	const [ selectedUserRoles, setSelectedUserRoles ] = useQueryState(
+		'roles',
+		parseAsArrayOf( parseAsString )
+			.withDefault( emptyArray )
+			.withOptions( useQueryStateOptions )
+	);
+
 	// IP address filter.
 	const [ enteredIPAddress, setEnteredIPAddress ] = useQueryState(
 		'ip',
@@ -348,6 +359,16 @@ function EventsGUI() {
 	const [ excludeUsers, setExcludeUsers ] = useQueryState(
 		'exclude-users',
 		parseAsJson( usersSchema.parse )
+			.withDefault( emptyArray )
+			.withOptions( useQueryStateOptions )
+	);
+
+	// No field of its own in core: it comes from a shared link or a Premium
+	// saved view. "Clear filters" resets it and the end-of-results hint
+	// counts it, so the events it hides don't go missing without a trace.
+	const [ excludeUserRoles, setExcludeUserRoles ] = useQueryState(
+		'exclude-roles',
+		parseAsArrayOf( parseAsString )
 			.withDefault( emptyArray )
 			.withOptions( useQueryStateOptions )
 	);
@@ -509,13 +530,15 @@ function EventsGUI() {
 			selectedLogLevels.length > 0 ||
 			selectedMessageTypes.length > 0 ||
 			selectedUsersWithId.length > 0 ||
+			selectedUserRoles.length > 0 ||
 			selectedInitiator.length > 0 ||
 			enteredIPAddress.trim().length > 0 ||
 			selectedContextFilters.trim().length > 0 ||
 			enteredMetadataSearch.trim().length > 0 ||
 			showAIOnly ||
 			hideOwnEvents ||
-			excludeMessages.length > 0;
+			excludeMessages.length > 0 ||
+			excludeUserRoles.length > 0;
 
 		const hasSearchText = enteredSearchText.trim().length > 0;
 
@@ -524,6 +547,7 @@ function EventsGUI() {
 		selectedLogLevels,
 		selectedMessageTypes,
 		selectedUsersWithId,
+		selectedUserRoles,
 		selectedInitiator,
 		enteredIPAddress,
 		selectedContextFilters,
@@ -531,6 +555,7 @@ function EventsGUI() {
 		showAIOnly,
 		hideOwnEvents,
 		excludeMessages,
+		excludeUserRoles,
 		enteredSearchText,
 	] );
 
@@ -552,6 +577,7 @@ function EventsGUI() {
 		setSelectedLogLevels( [] );
 		setSelectedMessageTypes( [] );
 		setSelectedUsersWithId( [] );
+		setSelectedUserRoles( [] );
 		setSelectedInitiator( [] );
 		setEnteredIPAddress( '' );
 		setSelectedContextFilters( '' );
@@ -559,6 +585,7 @@ function EventsGUI() {
 		setShowAIOnly( false );
 		setHideOwnEvents( false );
 		setExcludeMessages( [] );
+		setExcludeUserRoles( [] );
 	}, [
 		setSelectedDateOption,
 		setEnteredSearchText,
@@ -567,6 +594,7 @@ function EventsGUI() {
 		setSelectedLogLevels,
 		setSelectedMessageTypes,
 		setSelectedUsersWithId,
+		setSelectedUserRoles,
 		setSelectedInitiator,
 		setEnteredIPAddress,
 		setSelectedContextFilters,
@@ -574,6 +602,7 @@ function EventsGUI() {
 		setShowAIOnly,
 		setHideOwnEvents,
 		setExcludeMessages,
+		setExcludeUserRoles,
 	] );
 
 	// Hide every event with the same logger and message key as this event
@@ -626,6 +655,7 @@ function EventsGUI() {
 			selectedLogLevels,
 			selectedMessageTypes,
 			selectedUsersWithId,
+			selectedUserRoles,
 			selectedInitiator,
 			enteredIPAddress,
 			selectedContextFilters,
@@ -642,6 +672,7 @@ function EventsGUI() {
 			excludeLoggers,
 			excludeMessages,
 			excludeUsers,
+			excludeUserRoles,
 			excludeInitiator,
 			excludeContextFilters,
 			surroundingEventId,
@@ -653,6 +684,7 @@ function EventsGUI() {
 		selectedLogLevels,
 		selectedMessageTypes,
 		selectedUsersWithId,
+		selectedUserRoles,
 		selectedInitiator,
 		enteredIPAddress,
 		selectedContextFilters,
@@ -667,6 +699,7 @@ function EventsGUI() {
 		excludeLoggers,
 		excludeMessages,
 		excludeUsers,
+		excludeUserRoles,
 		excludeInitiator,
 		excludeContextFilters,
 		surroundingEventId,
@@ -681,6 +714,7 @@ function EventsGUI() {
 		enteredSearchText,
 		selectedLogLevels,
 		selectedMessageTypes,
+		selectedUserRoles,
 		selectedInitiator,
 		enteredIPAddress,
 		selectedContextFilters,
@@ -689,6 +723,7 @@ function EventsGUI() {
 		selectedCustomDateFrom,
 		selectedCustomDateTo,
 		excludeUsers,
+		excludeUserRoles,
 	] );
 
 	/**
@@ -1075,6 +1110,8 @@ function EventsGUI() {
 					setSelectedCustomDateTo={ setSelectedCustomDateTo }
 					selectedUsersWithId={ selectedUsersWithId }
 					setSelectedUsersWithId={ setSelectedUsersWithId }
+					selectedUserRoles={ selectedUserRoles }
+					setSelectedUserRoles={ setSelectedUserRoles }
 					selectedInitiator={ selectedInitiator }
 					setSelectedInitiator={ setSelectedInitiator }
 					enteredIPAddress={ enteredIPAddress }

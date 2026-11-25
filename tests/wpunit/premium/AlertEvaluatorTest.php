@@ -516,4 +516,83 @@ class AlertEvaluatorTest extends PremiumTestCase {
 
 		$this->assertTrue( Alert_Evaluator::evaluate( $rule, $event ) );
 	}
+
+	/**
+	 * A user with several roles matches a rule on any of them, the same way
+	 * the log's role filter does (issue 390).
+	 */
+	public function test_user_role_rules_match_any_stored_role(): void {
+		$event = [
+			'context' => [
+				'_user_role'   => 'subscriber',
+				'_user_role_2' => 'bbp_moderator',
+			],
+		];
+
+		$equals = [ '==' => [ [ 'var' => 'user_role' ], 'bbp_moderator' ] ];
+		$this->assertTrue( Alert_Evaluator::evaluate( $equals, $event ), 'equals matches the second role' );
+
+		$equals_reversed = [ '==' => [ 'subscriber', [ 'var' => 'user_role' ] ] ];
+		$this->assertTrue( Alert_Evaluator::evaluate( $equals_reversed, $event ), 'equals written value first' );
+
+		$equals_other = [ '==' => [ [ 'var' => 'user_role' ], 'editor' ] ];
+		$this->assertFalse( Alert_Evaluator::evaluate( $equals_other, $event ) );
+
+		$not_equals = [ '!=' => [ [ 'var' => 'user_role' ], 'bbp_moderator' ] ];
+		$this->assertFalse( Alert_Evaluator::evaluate( $not_equals, $event ), 'not equals is false when any role matches' );
+
+		$in = [ 'in' => [ [ 'var' => 'user_role' ], [ 'editor', 'bbp_moderator' ] ] ];
+		$this->assertTrue( Alert_Evaluator::evaluate( $in, $event ), 'in matches the second role' );
+
+		$not_in = [ '!' => [ 'in' => [ [ 'var' => 'user_role' ], [ 'editor', 'bbp_moderator' ] ] ] ];
+		$this->assertFalse( Alert_Evaluator::evaluate( $not_in, $event ), 'not in is false when any role matches' );
+
+		$not_in_other = [ '!' => [ 'in' => [ [ 'var' => 'user_role' ], [ 'editor', 'author' ] ] ] ];
+		$this->assertTrue( Alert_Evaluator::evaluate( $not_in_other, $event ) );
+	}
+
+	/**
+	 * Role rules nested in groups are rewritten too, and other fields are
+	 * left alone.
+	 */
+	public function test_user_role_rules_inside_groups(): void {
+		$rule = [
+			'and' => [
+				[ '==' => [ [ 'var' => 'level' ], 'info' ] ],
+				[ 'in' => [ [ 'var' => 'user_role' ], [ 'shop_manager' ] ] ],
+			],
+		];
+
+		$event = [
+			'level'   => 'info',
+			'context' => [
+				'_user_role'   => 'customer',
+				'_user_role_2' => 'shop_manager',
+			],
+		];
+
+		$this->assertTrue( Alert_Evaluator::evaluate( $rule, $event ) );
+
+		$event['level'] = 'warning';
+		$this->assertFalse( Alert_Evaluator::evaluate( $rule, $event ) );
+	}
+
+	/**
+	 * A backfilled event has no stored role on purpose. The log's role
+	 * filter doesn't match it, so a rule on user_role mustn't either.
+	 */
+	public function test_backfilled_event_does_not_match_on_current_role(): void {
+		$user_id = $this->factory->user->create( [ 'role' => 'editor' ] );
+
+		$rule = [ '==' => [ [ 'var' => 'user_role' ], 'editor' ] ];
+
+		$backfilled = [
+			'context' => [
+				'_user_id'          => $user_id,
+				'_backfilled_event' => '1',
+			],
+		];
+
+		$this->assertFalse( Alert_Evaluator::evaluate( $rule, $backfilled ) );
+	}
 }

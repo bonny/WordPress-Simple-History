@@ -126,6 +126,9 @@ class WP_CLI_List_Command extends WP_CLI_Command {
 	 * [--userid=<users>]
 	 * : Filter by user IDs. Comma-separated list.
 	 *
+	 * [--user_role=<roles>]
+	 * : Filter by the role the user had when the event was logged, as role slugs (administrator, editor). Comma-separated list. Events without a user are left out.
+	 *
 	 * [--search=<term>]
 	 * : Text search across message content, logger names, and context values.
 	 *
@@ -204,6 +207,9 @@ class WP_CLI_List_Command extends WP_CLI_Command {
 	 *
 	 * [--exclude_userid=<users>]
 	 * : Exclude events from these user IDs. Comma-separated list.
+	 *
+	 * [--exclude_user_role=<roles>]
+	 * : Exclude events by users with these roles, as role slugs. Comma-separated list. Events without a user are kept.
 	 *
 	 * [--exclude_initiator=<initiators>]
 	 * : Exclude events from these initiators. Comma-separated list.
@@ -312,6 +318,7 @@ class WP_CLI_List_Command extends WP_CLI_Command {
 				'logger'               => '',
 				'message'              => '',
 				'userid'               => '',
+				'user_role'            => '',
 				'search'               => '',
 				'metadata_search'      => '',
 				'ai_only'              => false,
@@ -327,6 +334,7 @@ class WP_CLI_List_Command extends WP_CLI_Command {
 				'exclude_logger'       => '',
 				'exclude_message'      => '',
 				'exclude_userid'       => '',
+				'exclude_user_role'    => '',
 				'exclude_initiator'    => '',
 				'surrounding_event_id' => '',
 				'surrounding_count'    => 5,
@@ -410,6 +418,21 @@ class WP_CLI_List_Command extends WP_CLI_Command {
 			}
 		}
 
+		// Slugs are passed on as typed, only trimmed: role slugs are case
+		// sensitive. Not checked against the site's roles: a role from a
+		// removed plugin is still in the log.
+		// Passed on as a string: Log_Query splits and trims it, and keeps a
+		// slug like "0" that empty() would drop.
+		// A flag without a value comes in as true, which would filter on a
+		// role named "1".
+		if ( $assoc_args['user_role'] === true ) {
+			WP_CLI::error( __( '--user_role needs one or more role slugs, for example --user_role=editor,author', 'simple-history' ) );
+		}
+
+		if ( (string) $assoc_args['user_role'] !== '' ) {
+			$query_args['user_roles'] = (string) $assoc_args['user_role'];
+		}
+
 		if ( ! empty( $assoc_args['search'] ) ) {
 			$query_args['search'] = $assoc_args['search'];
 		}
@@ -465,6 +488,16 @@ class WP_CLI_List_Command extends WP_CLI_Command {
 			if ( ! empty( $exclude_user_ids ) ) {
 				$query_args['exclude_users'] = $exclude_user_ids;
 			}
+		}
+
+		// A flag without a value comes in as true, which would filter on a
+		// role named "1".
+		if ( $assoc_args['exclude_user_role'] === true ) {
+			WP_CLI::error( __( '--exclude_user_role needs one or more role slugs, for example --exclude_user_role=editor,author', 'simple-history' ) );
+		}
+
+		if ( (string) $assoc_args['exclude_user_role'] !== '' ) {
+			$query_args['exclude_user_roles'] = (string) $assoc_args['exclude_user_role'];
 		}
 
 		if ( ! empty( $exclude_initiators ) ) {
