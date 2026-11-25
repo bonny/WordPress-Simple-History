@@ -1,6 +1,9 @@
 ---
 description: Show the Simple History issue overview (Issue Garden)
 allowed-tools: Bash(.claude/skills/local-issues/overview.sh:*)
+# Haiku: the reply is a verbatim copy of ~100 lines, and output speed is the
+# whole cost. Nothing here needs a bigger model.
+model: haiku
 ---
 
 !`.claude/skills/local-issues/overview.sh`
