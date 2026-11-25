@@ -120,7 +120,11 @@ export function ExpandedFilters( props ) {
 			: option;
 	} );
 
-	const userRoleLabels = selectedUserRoles.map( ( roleSlug ) => {
+	// A hand-edited link like `roles=editor,editor` would otherwise give two
+	// tokens with the same key.
+	const uniqueUserRoles = [ ...new Set( selectedUserRoles ) ];
+
+	const userRoleLabels = uniqueUserRoles.map( ( roleSlug ) => {
 		const roleOption = userRoleOptions.find(
 			( option ) => option.value === roleSlug
 		);
@@ -150,7 +154,7 @@ export function ExpandedFilters( props ) {
 				const selectedIndex = userRoleLabels.indexOf( label );
 
 				if ( selectedIndex !== -1 ) {
-					return selectedUserRoles[ selectedIndex ];
+					return uniqueUserRoles[ selectedIndex ];
 				}
 
 				const roleOption = userRoleOptions.find(

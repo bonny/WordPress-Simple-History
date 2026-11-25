@@ -41,6 +41,7 @@ class UserRolesFilterTest extends \Codeception\TestCase\WPTestCase {
 		remove_role( 'vip, member' );
 		remove_role( 'zz_first_registered' );
 		remove_role( 'aa_second_registered' );
+		remove_role( 'VIP Member' );
 
 		parent::tearDown();
 	}
@@ -309,6 +310,34 @@ class UserRolesFilterTest extends \Codeception\TestCase\WPTestCase {
 		);
 	}
 
+	/**
+	 * A site that removes `_user_role` in log_insert_context to keep roles
+	 * out of the log must not get the extra roles stored instead.
+	 */
+	public function test_extra_roles_are_dropped_when_a_filter_removes_the_role() {
+		$multi_id = $this->factory->user->create( [ 'role' => 'subscriber' ] );
+		( new WP_User( $multi_id ) )->add_role( 'contributor' );
+
+		$strip_role = static function ( $context ) {
+			unset( $context['_user_role'] );
+
+			return $context;
+		};
+
+		add_filter( 'simple_history/log_insert_context', $strip_role );
+
+		wp_set_current_user( $multi_id );
+		$event_id = \SimpleLogger()->info( 'Role test: role stripped' )->last_insert_id;
+		wp_set_current_user( $this->admin_id );
+
+		remove_filter( 'simple_history/log_insert_context', $strip_role );
+
+		$context = ( new \Simple_History\Event( $event_id ) )->get_context();
+
+		$this->assertArrayNotHasKey( '_user_role', $context );
+		$this->assertArrayNotHasKey( '_user_role_2', $context );
+	}
+
 	public function test_single_role_user_gets_no_extra_role_keys() {
 		$event_id = \SimpleLogger()->info( 'Role test: single role' )->last_insert_id;
 		$context  = ( new \Simple_History\Event( $event_id ) )->get_context();
@@ -336,6 +365,36 @@ class UserRolesFilterTest extends \Codeception\TestCase\WPTestCase {
 		$this->assertSame( 200, $response->get_status() );
 		$this->assertSame(
 			[ 'Role test: by editor' ],
+			wp_list_pluck( $response->get_data(), 'message' )
+		);
+	}
+
+	/**
+	 * A plain string is split on commas only, so a slug with a space stays
+	 * one role. WordPress's default array handling also splits on spaces.
+	 */
+	public function test_rest_api_user_roles_string_keeps_spaces() {
+		add_role( 'VIP Member', 'VIP Member' );
+		$vip_id = $this->factory->user->create( [ 'role' => 'VIP Member' ] );
+
+		wp_set_current_user( $vip_id );
+		\SimpleLogger()->info( 'Role test: by vip member' );
+		wp_set_current_user( $this->admin_id );
+
+		$request = new WP_REST_Request( 'GET', $this->events_endpoint );
+		$request->set_query_params(
+			[
+				'user_roles' => 'VIP Member,editor',
+				'search'     => 'Role test',
+				'ungrouped'  => true,
+			]
+		);
+
+		$response = rest_do_request( $request );
+
+		$this->assertSame( 200, $response->get_status() );
+		$this->assertEqualsCanonicalizing(
+			[ 'Role test: by vip member', 'Role test: by editor' ],
 			wp_list_pluck( $response->get_data(), 'message' )
 		);
 	}

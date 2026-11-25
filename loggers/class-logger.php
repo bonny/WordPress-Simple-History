@@ -1425,6 +1425,15 @@ abstract class Logger {
 			$this
 		);
 
+		// A filter that removed `_user_role` to keep roles out of the log
+		// was written before the extra roles (`_user_role_2` and up) were
+		// stored, so it doesn't know to remove them. Remove them with it.
+		if ( ! isset( $context['_user_role'] ) ) {
+			foreach ( Helpers::get_user_role_context_keys() as $role_key ) {
+				unset( $context[ $role_key ] );
+			}
+		}
+
 		// Insert data into db.
 		// phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching
 		$result = $wpdb->insert( $this->db_table, $data );

@@ -363,7 +363,10 @@ function EventsGUI() {
 			.withOptions( useQueryStateOptions )
 	);
 
-	const [ excludeUserRoles ] = useQueryState(
+	// No field of its own in core: it comes from a shared link or a Premium
+	// saved view. "Clear filters" resets it and the end-of-results hint
+	// counts it, so the events it hides don't go missing without a trace.
+	const [ excludeUserRoles, setExcludeUserRoles ] = useQueryState(
 		'exclude-roles',
 		parseAsArrayOf( parseAsString )
 			.withDefault( emptyArray )
@@ -534,7 +537,8 @@ function EventsGUI() {
 			enteredMetadataSearch.trim().length > 0 ||
 			showAIOnly ||
 			hideOwnEvents ||
-			excludeMessages.length > 0;
+			excludeMessages.length > 0 ||
+			excludeUserRoles.length > 0;
 
 		const hasSearchText = enteredSearchText.trim().length > 0;
 
@@ -551,6 +555,7 @@ function EventsGUI() {
 		showAIOnly,
 		hideOwnEvents,
 		excludeMessages,
+		excludeUserRoles,
 		enteredSearchText,
 	] );
 
@@ -580,6 +585,7 @@ function EventsGUI() {
 		setShowAIOnly( false );
 		setHideOwnEvents( false );
 		setExcludeMessages( [] );
+		setExcludeUserRoles( [] );
 	}, [
 		setSelectedDateOption,
 		setEnteredSearchText,
@@ -596,6 +602,7 @@ function EventsGUI() {
 		setShowAIOnly,
 		setHideOwnEvents,
 		setExcludeMessages,
+		setExcludeUserRoles,
 	] );
 
 	// Hide every event with the same logger and message key as this event

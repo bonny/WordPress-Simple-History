@@ -344,6 +344,12 @@ wp simple-history list --exclude_log_level=debug --exclude_initiator=wp_cli --co
 # User events only, no debug
 wp simple-history list --initiator=wp_user --exclude_log_level=debug --count=50
 
+# Events by editors and authors (role slugs, comma separated)
+wp simple-history list --user_role=editor,author --count=50
+
+# Everything except subscribers
+wp simple-history list --exclude_user_role=subscriber --count=50
+
 # Clean event log: exclude debug, CLI, and WordPress system events
 wp simple-history list --exclude_log_level=debug --exclude_initiator=wp,wp_cli --exclude_search=action_scheduler --count=100
 

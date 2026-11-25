@@ -681,17 +681,18 @@ class Privacy_Data_Handler extends Service {
 			\Simple_History\Helpers::get_user_role_context_keys()
 		);
 
-		foreach ( $keys_to_remove as $key ) {
-			// phpcs:ignore WordPress.DB.DirectDatabaseQuery
-			$wpdb->delete(
-				$contexts_table,
-				array(
-					'history_id' => $history_id,
-					'key'        => $key,
-				),
-				array( '%d', '%s' )
-			);
-		}
+		// One query for all keys: an erasure can cover thousands of events.
+		$key_placeholders = implode( ', ', array_fill( 0, count( $keys_to_remove ), '%s' ) );
+
+		// phpcs:ignore WordPress.DB.DirectDatabaseQuery
+		$wpdb->query(
+			// phpcs:ignore WordPress.DB.PreparedSQLPlaceholders.ReplacementsWrongNumber -- one %s per key in $key_placeholders, matched by the spread.
+			$wpdb->prepare(
+				"DELETE FROM {$contexts_table} WHERE history_id = %d AND `key` IN ( {$key_placeholders} )", // phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared, WordPress.DB.PreparedSQLPlaceholders.UnfinishedPrepare
+				$history_id,
+				...$keys_to_remove
+			)
+		);
 
 		// Initiator user id zeroed (kept as a key so the row stays well-formed).
 		// phpcs:ignore WordPress.DB.DirectDatabaseQuery

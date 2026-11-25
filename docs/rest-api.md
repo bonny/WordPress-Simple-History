@@ -65,6 +65,7 @@ Retrieve a list of events from the Simple History log.
 | `messages`                | array        | Limit result set to rows with specific messages (format: LoggerSlug:message)                                      | -          |
 | `users`                   | array        | Limit result set to rows with specific user IDs                                                                   | -          |
 | `user`                    | integer      | Limit result set to rows with a specific user ID                                                                  | -          |
+| `user_roles`              | array        | Limit result set to events by users with these roles, as role slugs (case sensitive). Matches any role the user had when the event was logged. A string is split on commas only, so slugs can contain spaces | - |
 | `offset`                  | integer      | Offset the result set by a specific number of items                                                               | -          |
 | `include_sticky`          | boolean      | Include sticky events in the result set                                                                           | false      |
 | `only_sticky`             | boolean      | Only return sticky events                                                                                         | false      |
@@ -104,6 +105,7 @@ These parameters exclude events matching the criteria. When both inclusion and e
 | `exclude_messages`  | array        | Exclude events with specific messages (format: LoggerSlug:message) | -       |
 | `exclude_user`      | integer      | Exclude events from a specific user ID                             | -       |
 | `exclude_users`     | array        | Exclude events from specific user IDs                              | -       |
+| `exclude_user_roles` | array       | Exclude events by users with any of these roles. Events without a user are kept | - |
 | `exclude_initiator` | string/array | Exclude events from specific initiator(s)                          | -       |
 
 An invalid filter value, such as a malformed `date_from` or `months` value, returns a `400` with the code `rest_invalid_param`.
@@ -445,6 +447,10 @@ Retrieve data required for search options in the admin UI.
 	"initiators": [
 		{ "value": "wp_user", "label": "WordPress user" },
 		{ "value": "wp_cli", "label": "WP-CLI" }
+	],
+	"user_roles": [
+		{ "value": "administrator", "label": "Administrator" },
+		{ "value": "editor", "label": "Editor" }
 	],
 	"pager_size": {
 		"page": 15,
